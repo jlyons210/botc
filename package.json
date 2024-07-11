@@ -1,0 +1,38 @@
+{
+  "name": "botc",
+  "version": "0.1.0",
+  "description": "My most ambitious Discord bot yet.",
+  "main": "src/app.ts",
+  "scripts": {
+    "dev": "nodemon --exec ts-node src/app.ts",
+    "test": "echo \\\"Error: no test specified\\\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jlyons210/botc.git"
+  },
+  "author": {
+    "name": "Jeremy Lyons",
+    "email": "jlyons210@gmail.com",
+    "url": "https://github.com/jlyons210"
+  },
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/jlyons210/botc/issues"
+  },
+  "homepage": "https://github.com/jlyons210/botc#readme",
+  "dependencies": {
+    "discord.js": "^14.15.3",
+    "openai": "^4.52.6"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.10",
+    "@typescript-eslint/eslint-plugin": "^7.16.0",
+    "@typescript-eslint/parser": "^7.16.0",
+    "eslint": "^8.57.0",
+    "eslint-plugin-jsdoc": "^48.7.0",
+    "nodemon": "^3.1.4",
+    "ts-node": "^10.9.2",
+    "typescript": "~5.4.0"
+  }
+}
