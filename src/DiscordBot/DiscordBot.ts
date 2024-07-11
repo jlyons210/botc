@@ -25,13 +25,8 @@ export class DiscordBot {
    * @param config Configuration
    */
   constructor(private config: Configuration) {
-    try {
-      this.createDiscordClient();
-      this.registerHandlers();
-    }
-    catch (error) {
-      console.error('You\'ve got red on you.');
-    }
+    this.createDiscordClient();
+    this.registerHandlers();
   }
 
   /** Create Discord client */
@@ -56,10 +51,6 @@ export class DiscordBot {
         console.error('The configured Discord bot token is invalid. Exiting.');
         process.exit(1);
       }
-      else if (error instanceof DiscordjsError) {
-        console.error(`Error code: ${error.code}`);
-        process.exit(1);
-      }
       else {
         console.error(`Error: ${error}`);
         process.exit(1);
@@ -79,18 +70,17 @@ export class DiscordBot {
     for (const guild of guilds.values()) {
       console.log(`  - Guild ${guild.name} (${guild.memberCount} members, ${guild.channels.cache.size} channels)`);
 
-      await guild.members
-        .fetch()
-        .catch((error) => {
-          console.log(`Error fetching members: ${error}`);
-        });
+      await guild.channels.fetch();
+      await guild.members.fetch();
 
       for (const member of guild.members.cache.values()) {
         console.log(`    - Member: ${member.user.username}`);
       }
 
       for (const channel of guild.channels.cache.values()) {
-        console.log(`    - Channel: ${channel.name}`);
+        if (channel.isTextBased()) {
+          console.log(`    - Channel: ${channel.name}`);
+        }
       }
     }
   }
@@ -117,12 +107,6 @@ export class DiscordBot {
     this.discordClient.on(Events.MessageCreate, (message: Message) => {
       this.handleDiscordMessageCreate(message);
     });
-
-    // process.on('unhandledRejection', (reason: any, promise: Promise<any>) => {
-    //   if (reason.context && reason.context.error) {
-    //     console.error(`reason: ${JSON.stringify(reason, null, 2)}`);
-    //   }
-    // });
   }
 
 }

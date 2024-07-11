@@ -31,11 +31,11 @@ export class DiscordBotMessage {
    */
   public get type(): DiscordMessageTypes {
     switch (true) {
-      case (this.message.channel.type === ChannelType.DM):
-        return DiscordMessageTypes.DirectMessage;
-
       case (this.message.author.id === this.botUserId):
         return DiscordMessageTypes.OwnMessage;
+
+      case (this.message.channel.type === ChannelType.DM):
+        return DiscordMessageTypes.DirectMessage;
 
       case (this.message.author.bot):
         return DiscordMessageTypes.BotMessage;
