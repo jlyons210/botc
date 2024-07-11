@@ -1,0 +1,12 @@
+{
+  "clients": {
+    "discord": {
+      "token": "YOUR_DISCORD_BOT_TOKEN"
+    }
+  },
+  "llms": {
+    "openai": {
+      "apikey": "YOUR_OPENAI_API_KEY"
+    }
+  }
+}
