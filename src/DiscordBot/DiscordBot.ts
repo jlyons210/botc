@@ -1,4 +1,5 @@
 import {
+  ChannelType,
   // AttachmentBuilder,
   // ChannelType,
   Client,
@@ -77,7 +78,7 @@ export class DiscordBot {
 
       for (const channel of guild.channels.cache.values()) {
         if (channel.isTextBased()) {
-          console.log(`    - Channel: ${channel.name}`);
+          console.log(`    - Channel: ${channel.name} (${ChannelType[channel.type]})`);
         }
       }
     }
