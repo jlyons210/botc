@@ -3,23 +3,20 @@ import {
   Message,
 } from 'discord.js';
 
-import { DiscordMessageTypes } from './DiscordBot.types';
+import { DiscordMessageTypes } from './DiscordBot.types.js';
 
 /** DiscordBotMessage */
 export class DiscordBotMessage {
-
   /**
    * New DiscordBotMessage
-   * @param message Message
-   * @param botUserId string
+   * @param {Message} message Message
+   * @param {string} botUserId string
    */
-  constructor(private message: Message, private botUserId: string) {
-    // no-op
-  }
+  constructor(private message: Message, private botUserId: string) { }
 
   /**
    * Original Discord message
-   * @returns Message
+   * @returns {Message} Message
    */
   public get originalMessage(): Message {
     return this.message;
@@ -27,21 +24,21 @@ export class DiscordBotMessage {
 
   /**
    * Message type
-   * @returns DiscordMessageTypes
+   * @returns {DiscordMessageTypes} DiscordMessageTypes
    */
   public get type(): DiscordMessageTypes {
     switch (true) {
       case (this.message.author.id === this.botUserId):
-        return DiscordMessageTypes.OwnMessage;
+        return 'OwnMessage';
 
       case (this.message.channel.type === ChannelType.DM):
-        return DiscordMessageTypes.DirectMessage;
+        return 'DirectMessage';
 
       case (this.message.author.bot):
-        return DiscordMessageTypes.BotMessage;
+        return 'BotMessage';
 
       default:
-        return DiscordMessageTypes.ChannelMessage;
+        return 'ChannelMessage';
     }
   }
 }

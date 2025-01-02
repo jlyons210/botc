@@ -13,8 +13,8 @@ import {
   Partials,
 } from 'discord.js';
 
-import { Configuration } from '../app.types';
-import { DiscordBotMessage } from './DiscordBotMessage';
+import { Configuration } from '../Configuration/index.js';
+import { DiscordBotMessage } from './DiscordBotMessage.js';
 
 /** DiscordBot */
 export class DiscordBot {
@@ -22,7 +22,7 @@ export class DiscordBot {
 
   /**
    * New DiscordBot
-   * @param config Configuration
+   * @param {Configuration} config Configuration
    */
   constructor(private config: Configuration) {
     this.createDiscordClient();
@@ -39,21 +39,19 @@ export class DiscordBot {
         GatewayIntentBits.GuildMessages,
         GatewayIntentBits.MessageContent,
       ],
-      partials: [ Partials.Channel ],
+      partials: [Partials.Channel],
     });
 
     try {
-      const botToken = this.config.clients.discord.token;
+      const botToken = this.config.options.clients.discord.token.value;
       await this.discordClient.login(botToken);
     }
     catch (error) {
       if (error instanceof DiscordjsError && error.code === DiscordjsErrorCodes.TokenInvalid) {
-        console.error('The configured Discord bot token is invalid. Exiting.');
-        process.exit(1);
+        throw Error('The configured Discord bot token is invalid. Exiting.');
       }
       else {
-        console.error(`Error: ${error}`);
-        process.exit(1);
+        throw Error(`Error: ${error}`);
       }
     }
   }
@@ -87,14 +85,14 @@ export class DiscordBot {
 
   /**
    * Handle incoming Discord messages
-   * @param message Message
+   * @param {Message} message Message
    */
   private handleDiscordMessageCreate(message: Message): void {
     const botMessage = new DiscordBotMessage(message, String(this.discordClient.user?.id));
     console.log(
-      '- Received message\n' +
-      `  - Content: ${botMessage.originalMessage.content}\n` +
-      `  - Type: ${botMessage.type}`
+      '- Received message\n'
+      + `  - Content: ${botMessage.originalMessage.content}\n`
+      + `  - Type: ${botMessage.type}`,
     );
   }
 
@@ -108,5 +106,4 @@ export class DiscordBot {
       this.handleDiscordMessageCreate(message);
     });
   }
-
 }
