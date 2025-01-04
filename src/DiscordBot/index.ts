@@ -1,2 +1,9 @@
 import { DiscordBot } from './DiscordBot.js';
-export { DiscordBot };
+import { DiscordBotClient } from './DiscordBot.client.js';
+import { DiscordBotMessage } from './DiscordBotMessage.js';
+
+export {
+  DiscordBot,
+  DiscordBotClient,
+  DiscordBotMessage,
+};

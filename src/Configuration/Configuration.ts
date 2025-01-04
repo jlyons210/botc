@@ -1,7 +1,7 @@
 import {
   ConfigurationDefaults,
   ConfigurationOptions,
-  ConfigurationValue,
+  ConfigurationSettings,
 } from './index.js';
 
 /** Configuration */
@@ -25,12 +25,12 @@ export class Configuration {
     for (const key in node) {
       if (typeof node[key] === 'object' && node[key] !== null) {
         if ('value' in node[key] && 'environmentVariable' in node[key]) {
-          const value = node[key] as ConfigurationValue;
-          value.value = process.env[value.environmentVariable] || value.value;
+          const settings = node[key] as ConfigurationSettings;
+          settings.value = process.env[settings.environmentVariable] || settings.value;
           console.log(
-            (value.secret)
+            (settings.secret)
               ? `- ${path.concat(key).join('.')} = ********`
-              : `- ${path.concat(key).join('.')} = ${value.value}`,
+              : `- ${path.concat(key).join('.')} = ${settings.value}`,
           );
         }
         else {

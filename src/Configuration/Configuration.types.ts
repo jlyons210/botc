@@ -1,41 +1,35 @@
 /**
- * Top-level configuration options
+ * Provides strong typing for Configuration.defaults.ts
  */
 export interface ConfigurationOptions {
-  clients: ClientsConfigurationOptions;
-  llms: LlmsConfigurationOptions;
+  clients: ClientsSettings;
+  llms: LlmsSettings;
 };
 
-/**
- * Secondary-level configuration options
- */
-export interface ClientsConfigurationOptions {
-  discord: DiscordClientConfigurationOptions;
+export interface ClientsSettings {
+  discord: DiscordClientSettings;
 }
 
-export interface LlmsConfigurationOptions {
-  openai: OpenAIConfigurationOptions;
+export interface DiscordClientSettings {
+  token: ConfigurationSettings;
 }
 
-/**
- * Configuration options
- */
-export interface DiscordClientConfigurationOptions {
-  token: ConfigurationValue;
+export interface LlmsSettings {
+  openai: OpenAISettings;
 }
 
-export interface OpenAIConfigurationOptions {
-  apikey: ConfigurationValue;
-  model: OpenAIModelConfigurationValue;
-  systemPrompt: ConfigurationValue;
+export interface OpenAISettings {
+  apikey: ConfigurationSettings;
+  model: OpenAIModelSettings;
+  systemPrompt: ConfigurationSettings;
 }
 
-export interface ConfigurationValue {
+export interface OpenAIModelSettings extends ConfigurationSettings {
+  value: 'gpt-4o-mini' | 'gpt-4o';
+};
+
+export interface ConfigurationSettings {
   value: string;
   environmentVariable: string;
   secret?: boolean;
-};
-
-export interface OpenAIModelConfigurationValue extends ConfigurationValue {
-  value: 'gpt-4o-mini' | 'gpt-4o';
 };
