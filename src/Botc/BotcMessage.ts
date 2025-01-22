@@ -3,10 +3,10 @@ import {
   Message,
 } from 'discord.js';
 
-import { DiscordMessageType } from './DiscordBot.types.js';
+import { BotcMessageType } from './index.js';
 
 /** DiscordBotMessage */
-export class DiscordBotMessage {
+export class BotcMessage {
   /**
    * New DiscordBotMessage
    * @param {Message} message Message
@@ -24,9 +24,9 @@ export class DiscordBotMessage {
 
   /**
    * Message type
-   * @returns {DiscordMessageType} DiscordMessageTypes
+   * @returns {BotcMessageType} BotcMessageType
    */
-  public get type(): DiscordMessageType {
+  public get type(): BotcMessageType {
     switch (true) {
       case (this.message.author.id === this.botUserId):
         return 'OwnMessage';

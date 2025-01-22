@@ -1,5 +1,5 @@
+import { Botc } from './Botc/index.js';
 import { Configuration } from './Configuration/index.js';
-import { DiscordBot } from './DiscordBot/DiscordBot.js';
 
 /** Main entry point */
 export class Main {
@@ -7,7 +7,7 @@ export class Main {
   constructor() {
     try {
       const configuration = new Configuration();
-      new DiscordBot(configuration);
+      new Botc(configuration);
     }
     catch (error) {
       if (error instanceof Error) {
