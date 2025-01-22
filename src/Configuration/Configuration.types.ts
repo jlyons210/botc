@@ -20,13 +20,9 @@ export interface LlmsSettings {
 
 export interface OpenAISettings {
   apikey: ConfigurationSettings;
-  model: OpenAIModelSettings;
+  model: ConfigurationSettings;
   systemPrompt: ConfigurationSettings;
 }
-
-export interface OpenAIModelSettings extends ConfigurationSettings {
-  value: 'gpt-4o-mini' | 'gpt-4o';
-};
 
 export interface ConfigurationSettings {
   environmentVariable: string;
