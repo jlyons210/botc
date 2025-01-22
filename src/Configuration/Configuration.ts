@@ -28,14 +28,21 @@ export class Configuration {
           const settings = node[key] as ConfigurationSettings;
           const userSetting = process.env[settings.environmentVariable] as string;
 
-          if (settings.options && !settings.options.includes(userSetting)) {
+          // Equals 'true' if user setting is defined and not listed in options
+          const userSettingIsInvalid = userSetting !== undefined
+            && settings.options && !settings.options.includes(userSetting);
+
+          if (userSettingIsInvalid) {
             throw new Error(
               `Invalid value '${userSetting}' for ${path.concat(key).join('.')}. `
-              + `Valid options are: ${settings.options.join(', ')}`,
+              + `Valid options are: ${settings.options?.join(', ')}`,
             );
           }
 
+          // Prefer user setting, otherwise use default
           settings.value = userSetting || settings.value;
+
+          // Log configuration setting, masking secret values
           console.log(
             (settings.secret)
               ? `- ${path.concat(key).join('.')} = ${'*'.repeat(12)}`
