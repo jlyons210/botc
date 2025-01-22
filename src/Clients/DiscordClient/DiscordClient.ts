@@ -112,7 +112,7 @@ export class DiscordClient {
    */
   private async logReadyBanner(): Promise<void> {
     const guilds = this.discordClient.guilds.cache;
-    console.log(`Connected to ${guilds.size} guild ${(guilds.size > 1) ? 's' : ''}`);
+    console.log(`Connected to ${guilds.size} guild ${(guilds.size > 1) ? 's' : ''}:`);
 
     for (const guild of guilds.values()) {
       guild.channels.fetch();
@@ -121,7 +121,7 @@ export class DiscordClient {
       }).size;
 
       guild.members.fetch();
-      console.log(`Guild ${guild.name} (${guild.memberCount} members, ${textChannelCount} channels)`);
+      console.log(`- Guild ${guild.name} (${guild.memberCount} members, ${textChannelCount} channels)`);
     }
   }
 }
