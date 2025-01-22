@@ -1,9 +1,5 @@
-import {
-  ChannelType,
-  Message,
-} from 'discord.js';
-
-import { BotcMessageType } from './index.js';
+import { ChannelType, Message } from 'discord.js';
+import { BotcMessageType } from '../Botc/index.js';
 
 /** DiscordBotMessage */
 export class BotcMessage {
