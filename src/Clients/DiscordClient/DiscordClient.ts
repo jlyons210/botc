@@ -121,7 +121,7 @@ export class DiscordClient {
       }).size;
 
       guild.members.fetch();
-      console.log(`- Guild ${guild.name} (${guild.memberCount} members, ${textChannelCount} channels)`);
+      console.log(`- ${guild.name} (${guild.memberCount} members, ${textChannelCount} text channels)`);
     }
   }
 }
