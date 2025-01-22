@@ -5,8 +5,15 @@ import { DiscordBot } from './DiscordBot/DiscordBot.js';
 export class Main {
   /** Initialize */
   constructor() {
-    const configuration = new Configuration();
-    new DiscordBot(configuration);
+    try {
+      const configuration = new Configuration();
+      new DiscordBot(configuration);
+    }
+    catch (error) {
+      if (error instanceof Error) {
+        console.error(error.message);
+      }
+    }
   }
 }
 
