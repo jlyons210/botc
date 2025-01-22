@@ -18,7 +18,7 @@ import { EventBus } from '../../Botc/Core/EventBus/index.js';
  */
 export class DiscordClient {
   private discordClient!: Client;
-  private globalEvents = EventBus.getInstance();
+  private globalEvents = EventBus.attach();
 
   /**
    * New DiscordBot

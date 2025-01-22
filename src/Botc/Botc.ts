@@ -6,7 +6,7 @@ import { EventBus } from './Core/EventBus/index.js';
 export class Botc {
   private config = new Configuration();
   private discordClient!: DiscordClient;
-  private globalEvents = EventBus.getInstance();
+  private globalEvents = EventBus.attach();
 
   /**
    * New Botc
