@@ -26,10 +26,19 @@ export class Configuration {
       if (typeof node[key] === 'object' && node[key] !== null) {
         if ('value' in node[key] && 'environmentVariable' in node[key]) {
           const settings = node[key] as ConfigurationSettings;
-          settings.value = process.env[settings.environmentVariable] || settings.value;
+          const userSetting = process.env[settings.environmentVariable] as string;
+
+          if (settings.options && !settings.options.includes(userSetting)) {
+            throw new Error(
+              `Invalid value '${userSetting}' for ${path.concat(key).join('.')}. `
+              + `Valid options are: ${settings.options.join(', ')}`,
+            );
+          }
+
+          settings.value = userSetting || settings.value;
           console.log(
             (settings.secret)
-              ? `- ${path.concat(key).join('.')} = ********`
+              ? `- ${path.concat(key).join('.')} = ${'*'.repeat(12)}`
               : `- ${path.concat(key).join('.')} = ${settings.value}`,
           );
         }

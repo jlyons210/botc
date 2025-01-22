@@ -13,13 +13,17 @@ export const ConfigurationDefaults: ConfigurationOptions = {
   llms: {
     openai: {
       apikey: {
-        value: '',
         environmentVariable: 'OPENAI_API_KEY',
         secret: true,
+        value: '',
       },
       model: {
-        value: 'gpt-4o-mini',
         environmentVariable: 'OPENAI_MODEL',
+        options: [
+          'gpt-4o',
+          'gpt-4o-mini',
+        ],
+        value: 'gpt-4o-mini',
       },
       systemPrompt: {
         value:

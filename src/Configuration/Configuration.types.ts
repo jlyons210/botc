@@ -29,7 +29,8 @@ export interface OpenAIModelSettings extends ConfigurationSettings {
 };
 
 export interface ConfigurationSettings {
-  value: string;
   environmentVariable: string;
   secret?: boolean;
+  options?: string[];
+  value: string;
 };
