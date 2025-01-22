@@ -4,14 +4,14 @@ import { EventBus } from './Core/EventBus/index.js';
 
 /** Botc */
 export class Botc {
-  private globalEvents = EventBus.getInstance();
+  private config = new Configuration();
   private discordClient!: DiscordClient;
+  private globalEvents = EventBus.getInstance();
 
   /**
    * New Botc
-   * @param {Configuration} config Configuration
    */
-  constructor(private config: Configuration) {
+  constructor() {
     this.registerHandlers();
     this.discordClient = new DiscordClient(this.config.options.clients.discord);
   }
