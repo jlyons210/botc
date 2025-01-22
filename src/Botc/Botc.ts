@@ -1,6 +1,6 @@
-import { Configuration } from '../Configuration/index.js';
+import { Configuration } from './Core/Configuration/index.js';
 import { DiscordClient } from '../Clients/DiscordClient/index.js';
-import { EventBus } from '../EventBus/index.js';
+import { EventBus } from './Core/EventBus/index.js';
 
 /** Botc */
 export class Botc {

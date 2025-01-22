@@ -10,8 +10,8 @@ import {
 } from 'discord.js';
 
 import { BotcMessage } from '../../Botc/index.js';
-import { DiscordClientSettings } from '../../Configuration/index.js';
-import { EventBus } from '../../EventBus/index.js';
+import { DiscordClientSettings } from '../../Botc/Core/Configuration/index.js';
+import { EventBus } from '../../Botc/Core/EventBus/index.js';
 
 /**
  * Utility functions for DiscordBot
