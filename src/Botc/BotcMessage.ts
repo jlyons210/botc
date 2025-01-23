@@ -38,6 +38,22 @@ export class BotcMessage {
   }
 
   /**
+   * Message author username (sanitized)
+   * The OpenAI API requires usernames to be alphanumeric with only hyphens and underscores.
+   * @returns {string} string
+   * @readonly
+   */
+  public get nameSanitized(): string {
+    if (!this._nameSanitized) {
+      this._nameSanitized = this.message.author.username.replace(/[^a-zA-Z0-9_-]/g, '-');
+    }
+
+    return this._nameSanitized;
+  }
+
+  private _nameSanitized!: string;
+
+  /**
    * Original Discord message
    * @returns {Message} Message
    */

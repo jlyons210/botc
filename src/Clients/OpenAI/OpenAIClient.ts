@@ -34,7 +34,7 @@ export class OpenAIClient {
   private createPromptPayload(messageHistory: BotcMessage[], systemPromptOverride?: string): ChatCompletionMessageParam[] {
     const payload = messageHistory.map(message => ({
       content: message.content,
-      name: message.username,
+      name: message.nameSanitized,
       role: message.role,
     } as ChatCompletionMessageParam));
 
