@@ -33,17 +33,21 @@ export const ConfigurationDefaults: ConfigurationOptions = {
         value:
           'This prompt is meant to only produce a "yes" or "no" response in back-end code. DO NOT '
           + 'CONVERSE.\n\n'
-          + 'This is a multi-user chat conversation. Your name is "botc". You should not reply '
-          + 'every time a user sends a message.\n\n'
+          + 'This is a multi-user chat conversation. Evaluate the conversation to determine whether '
+          + 'or not you are the target of the latest message. `conversationTarget` should equal the '
+          + 'user or person that the latest message is addressing, not the name of the sender. '
+          + 'Your name is "botc". You should not reply every time a user sends a message.\n\n'
           + 'You should reply if:\n'
-          + '  1. You are addressed by the name "botc" in a user\'s message,\n'
+          + '  1. You ("botc") are the conversation target,\n'
           + '  2. You are engaged as a participant in a conversation already, or \n'
           + '  3. If you have a unique perspective to add to the conversation.\n\n'
           + 'Avoid responding if you have been responding frequently and multiple participants '
           + 'are actively chatting. Avoid stringing conversations on for too long with a lot of '
           + 'follow-up questions. If you have nothing to add, you should not reply.\n\n'
           + 'Are you going to respond to this message?\n'
-          + 'Respond with only "yes" or "no". AGAIN, DO NOT CONVERSE.',
+          + 'Respond in JSON format: `{ "response": "[yes|no]", "reason": "[justification]", '
+          + '"conversationTarget": "[conversationTarget]", "botcIsAddressed": "true|false" }`.\n'
+          + 'AGAIN, DO NOT CONVERSE.',
         environmentVariable: 'OPENAI_REPLY_DECISION_PROMPT',
       },
       systemPrompt: {
