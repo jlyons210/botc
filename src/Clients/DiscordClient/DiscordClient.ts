@@ -7,6 +7,7 @@ import {
   GatewayIntentBits,
   Message,
   Partials,
+  TextChannel,
 } from 'discord.js';
 
 import { BotcMessage } from '../../Botc/index.js';
@@ -66,11 +67,7 @@ export class DiscordClient {
    */
   private async handleMessageCreate(message: Message): Promise<void> {
     const botMessage = new BotcMessage(message, String(this.discordClient.user?.id));
-    console.log(
-      'Received message:\n'
-      + `- Content: ${botMessage.originalMessage.content}\n`
-      + `- Type: ${botMessage.type}`,
-    );
+    this.globalEvents.emit('DiscordClient:IncomingMessage', { message: botMessage });
   }
 
   /**
@@ -78,7 +75,7 @@ export class DiscordClient {
    */
   private async authenticateDiscordClient(): Promise<void> {
     try {
-      await this.discordClient.login(this.config.token.value);
+      await this.discordClient.login(this.config.token.value as string);
     }
     catch (error) {
       if (error instanceof DiscordjsError && error.code === DiscordjsErrorCodes.TokenInvalid) {
@@ -108,6 +105,35 @@ export class DiscordClient {
   }
 
   /**
+   * Get channel history
+   * @param {string} channelId Channel ID
+   * @returns {Promise<BotcMessage[]>} Channel history
+   */
+  public async getChannelHistory(channelId: string): Promise<BotcMessage[]> {
+    const channel = await this.discordClient.channels.fetch(channelId);
+    const isTextChannel = channel?.isTextBased();
+
+    if (isTextChannel) {
+      const channelHistoryHours = this.config.channelHistoryHours.value as number;
+      const afterTimestamp = Date.now() - (channelHistoryHours * 60 * 60 * 1000);
+
+      // Pull last 100 channel messages
+      const messages = (await channel.messages.fetch({ limit: 100 }))
+        // Filter messages created after afterTimestamp
+        .filter(message => message.createdTimestamp > afterTimestamp)
+        // Map messages to BotcMessage
+        .map(message => new BotcMessage(message, String(this.discordClient.user?.id)))
+        // Reverse messages so oldest is first
+        .reverse();
+
+      return messages;
+    }
+    else {
+      throw Error('Channel is not a text channel');
+    }
+  }
+
+  /**
    * Logs ready banner
    */
   private async logReadyBanner(): Promise<void> {
@@ -122,6 +148,19 @@ export class DiscordClient {
 
       guild.members.fetch();
       console.log(`- ${guild.name} (${guild.memberCount} members, ${textChannelCount} text channels)`);
+    }
+  }
+
+  /**
+   * Send message
+   * @param {string} channelId Channel ID
+   * @param {string} message Message
+   */
+  public async sendMessage(channelId: string, message: string): Promise<void> {
+    const channel = await this.discordClient.channels.fetch(channelId);
+
+    if (channel?.isTextBased()) {
+      await (channel as TextChannel).send(message);
     }
   }
 }

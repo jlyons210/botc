@@ -1,12 +1,16 @@
+import { EventBus, EventMap } from './Core/EventBus/index.js';
 import { Configuration } from './Core/Configuration/index.js';
 import { DiscordClient } from '../Clients/DiscordClient/index.js';
-import { EventBus } from './Core/EventBus/index.js';
+import { MessagePipeline } from './Core/MessagePipeline/index.js';
+import { OpenAIClient } from '../Clients/OpenAI/OpenAIClient.js';
 
 /** Botc */
 export class Botc {
   private config = new Configuration();
-  private discordClient!: DiscordClient;
+  private discordClient: DiscordClient;
   private globalEvents = EventBus.attach();
+  private messagePipeline!: MessagePipeline<EventMap>;
+  private openAIClient: OpenAIClient;
 
   /**
    * New Botc
@@ -14,6 +18,8 @@ export class Botc {
   constructor() {
     this.registerHandlers();
     this.discordClient = new DiscordClient(this.config.options.clients.discord);
+    this.messagePipeline = new MessagePipeline(this.discordClient);
+    this.openAIClient = new OpenAIClient(this.config.options.llms.openai);
   }
 
   /**

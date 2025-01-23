@@ -11,6 +11,7 @@ export interface ClientsSettings {
 }
 
 export interface DiscordClientSettings {
+  channelHistoryHours: ConfigurationSettings;
   token: ConfigurationSettings;
 }
 
@@ -28,5 +29,5 @@ export interface ConfigurationSettings {
   environmentVariable: string;
   secret?: boolean;
   options?: string[];
-  value: string;
+  value: string | number;
 };

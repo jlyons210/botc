@@ -11,6 +11,33 @@ export class BotcMessage {
   constructor(private message: Message, private botUserId: string) { }
 
   /**
+   * Message channel ID
+   * @returns {string} string
+   * @readonly
+   */
+  public get channelId(): string {
+    return this.message.channel.id;
+  }
+
+  /**
+   * Message content
+   * @returns {string} string
+   * @readonly
+   */
+  public get content(): string {
+    return this.message.content;
+  }
+
+  /**
+   * Message created timestamp
+   * @returns {number} number
+   * @readonly
+   */
+  public get createdTimestamp(): number {
+    return this.message.createdTimestamp;
+  }
+
+  /**
    * Original Discord message
    * @returns {Message} Message
    */
@@ -19,8 +46,20 @@ export class BotcMessage {
   }
 
   /**
+   * Message role
+   * @returns {string} string
+   * @readonly
+   */
+  public get role(): string {
+    return (this.botUserId === this.message.author.id)
+      ? 'assistant'
+      : 'user';
+  }
+
+  /**
    * Message type
    * @returns {BotcMessageType} BotcMessageType
+   * @readonly
    */
   public get type(): BotcMessageType {
     switch (true) {
@@ -36,5 +75,14 @@ export class BotcMessage {
       default:
         return 'ChannelMessage';
     }
+  }
+
+  /**
+   * Message author username
+   * @returns {string} string
+   * @readonly
+   */
+  public get username(): string {
+    return this.message.author.username;
   }
 }

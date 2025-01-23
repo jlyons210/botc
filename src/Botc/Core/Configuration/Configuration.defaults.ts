@@ -3,6 +3,10 @@ import { ConfigurationOptions } from './index.js';
 export const ConfigurationDefaults: ConfigurationOptions = {
   clients: {
     discord: {
+      channelHistoryHours: {
+        value: 1,
+        environmentVariable: 'DISCORD_CHANNEL_HISTORY_HOURS',
+      },
       token: {
         value: '',
         environmentVariable: 'DISCORD_BOT_TOKEN',

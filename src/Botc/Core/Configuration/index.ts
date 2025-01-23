@@ -2,6 +2,7 @@ import {
   ConfigurationOptions,
   ConfigurationSettings,
   DiscordClientSettings,
+  OpenAISettings,
 } from './Configuration.types.js';
 
 import { Configuration } from './Configuration.js';
@@ -13,4 +14,5 @@ export {
   ConfigurationOptions,
   ConfigurationSettings,
   DiscordClientSettings,
+  OpenAISettings,
 };
