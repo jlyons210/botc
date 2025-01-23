@@ -8,12 +8,22 @@ import { DiscordClient } from '../../Clients/Discord/index.js';
  */
 export class MessagePipeline<T extends EventMap> {
   private globalEvents = EventBus.attach();
+
   /**
    * Initialize the message pipeline
    * @param {DiscordClient} discordClient Discord client
    */
   constructor(private discordClient: DiscordClient) {
     this.registerHandlers();
+  }
+
+  /**
+   * Get channel history
+   * @param {string} channelId Channel ID
+   * @returns {Promise<BotcMessage[]>} Channel message history
+   */
+  private async getChannelHistory(channelId: string): Promise<BotcMessage[]> {
+    return await this.discordClient.getChannelHistory(channelId);
   }
 
   /**
@@ -38,15 +48,6 @@ export class MessagePipeline<T extends EventMap> {
    */
   private async handleResponseComplete(data: T['OpenAIClient:ResponseComplete']): Promise<void> {
     await this.discordClient.sendMessage(data.channelId, data.response);
-  }
-
-  /**
-   * Get channel history
-   * @param {string} channelId Channel ID
-   * @returns {Promise<BotcMessage[]>} Channel message history
-   */
-  private async getChannelHistory(channelId: string): Promise<BotcMessage[]> {
-    return await this.discordClient.getChannelHistory(channelId);
   }
 
   /**
