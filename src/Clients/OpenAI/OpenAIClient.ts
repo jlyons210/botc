@@ -3,6 +3,7 @@ import { ChatCompletionMessageParam } from 'openai/resources/index.mjs';
 import { EventBus } from '../../Botc/EventBus/index.js';
 import OpenAI from 'openai';
 import { OpenAISettings } from '../../Botc/Configuration/index.js';
+import { replyDecisionResponse } from './OpenAIClient.types.js';
 
 /**
  * OpenAI client
@@ -97,9 +98,20 @@ export class OpenAIClient {
     );
 
     const responseMessage = await this.createCompletion(payload);
-    const response = responseMessage.toLowerCase().includes('yes');
-    console.debug(`OpenAIClient: willReplyToMessage: ${response}`);
 
-    return response;
+    try {
+      const responseJson: replyDecisionResponse = JSON.parse(responseMessage);
+      const response = responseJson.respondToUser.toLowerCase() === 'yes';
+      return response;
+    }
+    catch (error) {
+      console.error(`OpenAIClient.willReplyToMessage: Error ${error} parsing JSON: ${responseMessage}`);
+
+      // Fail-safe: check for "yes" in malformed JSON response
+      const response = responseMessage.toLowerCase().includes('"yes"');
+      console.debug(`OpenAIClient.willReplyToMessage: response: ${response}`);
+
+      return response;
+    }
   }
 }
