@@ -37,7 +37,7 @@ export class MessagePipeline<T extends EventMap> {
    * @param {T['OpenAIClient:ResponseComplete']} data Response complete
    */
   private async handleResponseComplete(data: T['OpenAIClient:ResponseComplete']): Promise<void> {
-    await this.discordClient.sendMessage(data.channelId, data.message);
+    await this.discordClient.sendMessage(data.channelId, data.response);
   }
 
   /**

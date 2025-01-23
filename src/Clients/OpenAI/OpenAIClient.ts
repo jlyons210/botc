@@ -73,7 +73,7 @@ export class OpenAIClient {
 
     this.globalEvents.emit('OpenAIClient:ResponseComplete', {
       channelId: messageHistory[0].channelId,
-      message: responseMessage,
+      response: responseMessage,
     });
   }
 

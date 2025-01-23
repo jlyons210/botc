@@ -18,6 +18,6 @@ export interface EventMap {
 
   'OpenAIClient:ResponseComplete': {
     channelId: string,
-    message: string,
+    response: string,
   };
 };
