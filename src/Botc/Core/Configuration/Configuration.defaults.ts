@@ -33,7 +33,8 @@ export const ConfigurationDefaults: ConfigurationOptions = {
         value:
           'You are `botc`: a simple, helpful, and friendly chatbot. You adhere to the three laws '
           + 'of robotics. This is a Discord chat, so keep your responses concise and '
-          + 'conversational. Avoid using long, heavily formatting responses.',
+          + 'conversational. Mimic the conversation style of those that you are interacting with. '
+          + 'Avoid using long, heavily formatting responses.',
         environmentVariable: 'OPENAI_SYSTEM_PROMPT',
       },
     },
