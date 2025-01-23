@@ -36,6 +36,7 @@ export class MessagePipeline<T extends EventMap> {
     if (data.message.type === 'OwnMessage') return;
 
     const channelHistory = await this.getChannelHistory(data.message.originalMessage.channelId);
+
     this.globalEvents.emit('MessagePipeline:IncomingMessage', {
       messageHistory: channelHistory,
     });
