@@ -25,13 +25,15 @@ export class Configuration {
     for (const key in node) {
       if (typeof node[key] === 'object' && node[key] !== null) {
         if ('value' in node[key] && 'environmentVariable' in node[key]) {
+          // Leaf node, set value
           const settings = node[key] as ConfigurationSettings;
           const userSetting = process.env[settings.environmentVariable] as string;
 
-          // Equals 'true' if user setting is defined and not listed in options
+          // Equals 'true' if user-defined setting is defined and not listed in options
           const userSettingIsInvalid = userSetting !== undefined
             && settings.options && !settings.options.includes(userSetting);
 
+          // Quit with error if user-defined setting is invalid
           if (userSettingIsInvalid) {
             throw new Error(
               `Invalid value '${userSetting}' for ${path.concat(key).join('.')}. `
@@ -39,7 +41,7 @@ export class Configuration {
             );
           }
 
-          // Prefer user setting, otherwise use default
+          // Prefer user-defined setting, otherwise use default
           settings.value = userSetting || settings.value;
 
           // Log configuration setting, masking secret values
@@ -50,6 +52,7 @@ export class Configuration {
           );
         }
         else {
+          // Non-leaf node, recurse
           this.setUserConfiguration(node[key], path.concat(key));
         }
       }

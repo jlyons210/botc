@@ -1,6 +1,3 @@
-/**
- * Provides strong typing for Configuration.defaults.ts
- */
 export interface ConfigurationOptions {
   clients: ClientsSettings;
   llms: LlmsSettings;
