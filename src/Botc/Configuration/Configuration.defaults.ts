@@ -32,11 +32,12 @@ export const ConfigurationDefaults: ConfigurationOptions = {
       replyDecisionPrompt: {
         value:
           'This prompt is meant to only produce a "yes" or "no" response - DO NOT CONVERSE.\n\n'
-          + 'This is a multi-user chat conversation. You should not reply every time. You may '
-          + 'reply if you are engaged in a conversation already, or if you have a unique '
-          + 'perspective to add to the conversation, and haven\'t been responding too frequently. '
-          + 'Avoid stringing conversations on for too long with a lot of follow-up questions. '
-          + 'If you have nothing to add, you should not reply.\n\n'
+          + 'This is a multi-user chat conversation. Your name is "botc". You should not reply '
+          + 'every time. You may reply if you are addressed by name, engaged in a conversation '
+          + 'already, or if you have a unique perspective to add to the conversation, '
+          + 'and haven\'t been responding too frequently. Avoid stringing conversations on for '
+          + 'too long with a lot of follow-up questions. If you have nothing to add, you should '
+          + 'not reply.\n\n'
           + 'Are you going to respond to this message?\n'
           + 'Respond with only "yes" or "no". DO NOT CONVERSE.',
         environmentVariable: 'OPENAI_REPLY_DECISION_PROMPT',
