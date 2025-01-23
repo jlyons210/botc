@@ -22,7 +22,7 @@ export class OpenAIClient {
     this.client = new OpenAI({
       apiKey: config.apikey.value as string,
       maxRetries: config.maxRetries.value as number,
-      timeout: config.maxRetries.value as number,
+      timeout: config.timeout.value as number,
     });
   }
 
@@ -53,12 +53,24 @@ export class OpenAIClient {
    * @returns {Promise<string>} string
    */
   public async createCompletion(payload: ChatCompletionMessageParam[]): Promise<string> {
-    const completion = await this.client.chat.completions.create({
-      model: this.config.model.value as string,
-      messages: payload,
-    });
+    try {
+      const completion = await this.client.chat.completions.create({
+        model: this.config.model.value as string,
+        messages: payload,
+      });
 
-    return completion.choices[0].message.content as string;
+      return completion.choices[0].message.content as string;
+    }
+    catch (error) {
+      if (error instanceof OpenAI.APIError) {
+        console.error(`OpenAIClient.createCompletion: OpenAI API error.`);
+      }
+      else {
+        console.error(`OpenAIClient.createCompletion: ${error}`);
+      }
+
+      return '';
+    }
   }
 
   /**
