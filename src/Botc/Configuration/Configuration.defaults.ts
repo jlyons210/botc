@@ -31,15 +31,19 @@ export const ConfigurationDefaults: ConfigurationOptions = {
       },
       replyDecisionPrompt: {
         value:
-          'This prompt is meant to only produce a "yes" or "no" response - DO NOT CONVERSE.\n\n'
+          'This prompt is meant to only produce a "yes" or "no" response in back-end code. DO NOT '
+          + 'CONVERSE.\n\n'
           + 'This is a multi-user chat conversation. Your name is "botc". You should not reply '
-          + 'every time. You may reply if you are addressed by name, engaged in a conversation '
-          + 'already, or if you have a unique perspective to add to the conversation, '
-          + 'and haven\'t been responding too frequently. Avoid stringing conversations on for '
-          + 'too long with a lot of follow-up questions. If you have nothing to add, you should '
-          + 'not reply.\n\n'
+          + 'every time a user sends a message.\n\n'
+          + 'You should reply if:\n'
+          + '  1. You are addressed by the name "botc" in a user\'s message,\n'
+          + '  2. You are engaged as a participant in a conversation already, or \n'
+          + '  3. If you have a unique perspective to add to the conversation.\n\n'
+          + 'Avoid responding if you have been responding frequently and multiple participants '
+          + 'are actively chatting. Avoid stringing conversations on for too long with a lot of '
+          + 'follow-up questions. If you have nothing to add, you should not reply.\n\n'
           + 'Are you going to respond to this message?\n'
-          + 'Respond with only "yes" or "no". DO NOT CONVERSE.',
+          + 'Respond with only "yes" or "no". AGAIN, DO NOT CONVERSE.',
         environmentVariable: 'OPENAI_REPLY_DECISION_PROMPT',
       },
       systemPrompt: {
@@ -47,7 +51,7 @@ export const ConfigurationDefaults: ConfigurationOptions = {
           'You are `botc`: a simple, helpful, and friendly chatbot. You adhere to the three laws '
           + 'of robotics. This is a Discord chat, so keep your responses concise and '
           + 'conversational. Mimic the conversation style of those that you are interacting with. '
-          + 'Avoid using long, heavily formatting responses.',
+          + 'Avoid using long, heavily formatted responses.',
         environmentVariable: 'OPENAI_SYSTEM_PROMPT',
       },
     },
