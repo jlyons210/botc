@@ -28,9 +28,10 @@ export class OpenAIClient {
   /**
    * Create prompt payload
    * @param {BotcMessage[]} messageHistory Message history
+   * @param {string} systemPromptOverride (optional) System prompt override
    * @returns {ChatCompletionMessageParam[]} Chat completion message
    */
-  private createPromptPayload(messageHistory: BotcMessage[]): ChatCompletionMessageParam[] {
+  private createPromptPayload(messageHistory: BotcMessage[], systemPromptOverride?: string): ChatCompletionMessageParam[] {
     const payload = messageHistory.map(message => ({
       content: message.content,
       name: message.username,
@@ -38,7 +39,7 @@ export class OpenAIClient {
     } as ChatCompletionMessageParam));
 
     payload.unshift({
-      content: this.config.systemPrompt.value as string,
+      content: systemPromptOverride || this.config.systemPrompt.value as string,
       role: 'system',
     });
 
@@ -64,8 +65,10 @@ export class OpenAIClient {
    * @param {BotcMessage[]} messageHistory Message history
    */
   private async handleIncomingMessage(messageHistory: BotcMessage[]): Promise<void> {
-    const payload = this.createPromptPayload(messageHistory);
-    const responseMessage = await this.createCompletion(payload as ChatCompletionMessageParam[]);
+    if (!await this.willReplyToMessage(messageHistory)) return;
+
+    const payload = await this.createPromptPayload(messageHistory);
+    const responseMessage = await this.createCompletion(payload);
 
     this.globalEvents.emit('OpenAIClient:ResponseComplete', {
       channelId: messageHistory[0].channelId,
@@ -80,5 +83,28 @@ export class OpenAIClient {
     this.globalEvents.on('MessagePipeline:IncomingMessage', (data) => {
       this.handleIncomingMessage(data.messageHistory);
     });
+  }
+
+  /**
+   * Decides whether to reply based on conversation history
+   * @param {BotcMessage[]} messageHistory Message history
+   * @returns {Promise<boolean>} boolean
+   */
+  private async willReplyToMessage(messageHistory: BotcMessage[]): Promise<boolean> {
+    const payload = this.createPromptPayload(
+      messageHistory,
+      'This prompt is meant to only produce a "yes" or "no" response - DO NOT CONVERSE.\n'
+      + 'This is a multi-user chat conversation. You should not reply every time. You may reply '
+      + 'if you have a unique perspective to add to the conversation, and haven\'t been '
+      + 'responding too frequently. If you have nothing to add, you should not reply.\n\n'
+      + 'Are you going to respond to this message?\n'
+      + 'Respond with only "yes" or "no". DO NOT CONVERSE.',
+    );
+
+    const responseMessage = await this.createCompletion(payload);
+    const response = responseMessage.toLowerCase().includes('yes');
+    console.debug(`OpenAIClient: willReplyToMessage: ${response}`);
+
+    return response;
   }
 }
