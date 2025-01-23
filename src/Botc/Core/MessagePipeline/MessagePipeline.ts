@@ -1,6 +1,6 @@
 import { EventBus, EventMap } from '../EventBus/index.js';
 import { BotcMessage } from '../../index.js';
-import { DiscordClient } from '../../../Clients/DiscordClient/index.js';
+import { DiscordClient } from '../../../Clients/Discord/index.js';
 
 /**
  * The message pipeline is responsible for processing messages from the chat service and passing

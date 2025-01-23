@@ -1,6 +1,6 @@
 import { EventBus, EventMap } from './Core/EventBus/index.js';
 import { Configuration } from './Core/Configuration/index.js';
-import { DiscordClient } from '../Clients/DiscordClient/index.js';
+import { DiscordClient } from '../Clients/Discord/index.js';
 import { MessagePipeline } from './Core/MessagePipeline/index.js';
 import { OpenAIClient } from '../Clients/OpenAI/OpenAIClient.js';
 
