@@ -45,7 +45,7 @@ export const ConfigurationDefaults: ConfigurationOptions = {
           + 'are actively chatting. Avoid stringing conversations on for too long with a lot of '
           + 'follow-up questions. If you have nothing to add, you should not reply.\n\n'
           + 'Are you going to respond to this message?\n'
-          + 'Respond in JSON format: `{ "response": "[yes|no]", "reason": "[justification]", '
+          + 'Respond in JSON format: `{ "respondToUser": "[yes|no]", "reason": "[justification]", '
           + '"conversationTarget": "[conversationTarget]", "botcIsAddressed": "true|false" }`.\n'
           + 'AGAIN, DO NOT CONVERSE.',
         environmentVariable: 'OPENAI_REPLY_DECISION_PROMPT',
