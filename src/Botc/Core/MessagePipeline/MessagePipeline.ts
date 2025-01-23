@@ -17,19 +17,6 @@ export class MessagePipeline<T extends EventMap> {
   }
 
   /**
-   * Register message pipeline event handlers
-   */
-  private registerHandlers(): void {
-    this.globalEvents.on('DiscordClient:IncomingMessage', (data) => {
-      this.handleIncomingMessage(data);
-    });
-
-    this.globalEvents.on('OpenAIClient:ResponseComplete', (data) => {
-      this.handleResponseComplete(data);
-    });
-  }
-
-  /**
    * Handle incoming message
    * @template T EventMap
    * @param {T['DiscordClient:IncomingMessage']} data Incoming message
@@ -60,5 +47,18 @@ export class MessagePipeline<T extends EventMap> {
    */
   private async getChannelHistory(channelId: string): Promise<BotcMessage[]> {
     return await this.discordClient.getChannelHistory(channelId);
+  }
+
+  /**
+   * Register message pipeline event handlers
+   */
+  private registerHandlers(): void {
+    this.globalEvents.on('DiscordClient:IncomingMessage', (data) => {
+      this.handleIncomingMessage(data);
+    });
+
+    this.globalEvents.on('OpenAIClient:ResponseComplete', (data) => {
+      this.handleResponseComplete(data);
+    });
   }
 }
