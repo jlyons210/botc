@@ -1,30 +1,69 @@
 import { ConfigurationOptions } from './index.js';
 
 export const ConfigurationDefaults: ConfigurationOptions = {
+
+  /**
+   * Clients configuration
+   */
   clients: {
+
+    /**
+     * Discord client configuration
+     */
     discord: {
+
+      /**
+       * Number of hours to look back in channel history
+       * for messages to process as conversation context.
+       */
       channelHistoryHours: {
         value: 1,
         environmentVariable: 'DISCORD_CHANNEL_HISTORY_HOURS',
       },
+
+      /**
+       * Discord bot token, used to authenticate with Discord API
+       */
       token: {
         value: '',
         environmentVariable: 'DISCORD_BOT_TOKEN',
         secret: true,
       },
+
     },
+
   },
+
+  /**
+   * LLMS configuration
+   */
   llms: {
+
+    /**
+     * OpenAI configuration
+     */
     openai: {
+
+      /**
+       * OpenAI API key, used to authenticate with OpenAI API
+       */
       apikey: {
         environmentVariable: 'OPENAI_API_KEY',
         secret: true,
         value: '',
       },
+
+      /**
+       * Maximum number of retries for OpenAI API requests
+       */
       maxRetries: {
         environmentVariable: 'OPENAI_MAX_RETRIES',
         value: 3,
       },
+
+      /**
+       * OpenAI model to use for chat completions
+       */
       model: {
         environmentVariable: 'OPENAI_MODEL',
         options: [
@@ -33,6 +72,10 @@ export const ConfigurationDefaults: ConfigurationOptions = {
         ],
         value: 'gpt-4o-mini',
       },
+
+      /**
+       * Used in OpenAIClient to determine whether or not to respond to a message
+       */
       replyDecisionPrompt: {
         value:
           'This prompt is meant to only produce a "yes" or "no" response in back-end code. DO NOT '
@@ -54,6 +97,10 @@ export const ConfigurationDefaults: ConfigurationOptions = {
           + 'AGAIN, DO NOT CONVERSE.',
         environmentVariable: 'OPENAI_REPLY_DECISION_PROMPT',
       },
+
+      /**
+       * OpenAI system prompt to use for chat completions
+       */
       systemPrompt: {
         value:
           'You are `botc`: a simple, helpful, and friendly chatbot. You adhere to the three laws '
@@ -62,10 +109,17 @@ export const ConfigurationDefaults: ConfigurationOptions = {
           + 'Avoid using long, heavily formatted responses.',
         environmentVariable: 'OPENAI_SYSTEM_PROMPT',
       },
+
+      /**
+       * OpenAI API request timeout in milliseconds
+       */
       timeout: {
         environmentVariable: 'OPENAI_TIMEOUT',
         value: 15000,
       },
+
     },
+
   },
+
 };
