@@ -1,7 +1,7 @@
-import { EventBus, EventMap } from './Core/EventBus/index.js';
-import { Configuration } from './Core/Configuration/index.js';
+import { EventBus, EventMap } from './EventBus/index.js';
+import { Configuration } from './Configuration/index.js';
 import { DiscordClient } from '../Clients/Discord/index.js';
-import { MessagePipeline } from './Core/MessagePipeline/index.js';
+import { MessagePipeline } from './MessagePipeline/index.js';
 import { OpenAIClient } from '../Clients/OpenAI/OpenAIClient.js';
 
 /** Botc */

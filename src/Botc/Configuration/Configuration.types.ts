@@ -22,6 +22,7 @@ export interface LlmsSettings {
 export interface OpenAISettings {
   apikey: ConfigurationSettings;
   model: ConfigurationSettings;
+  replyDecisionPrompt: ConfigurationSettings;
   systemPrompt: ConfigurationSettings;
 }
 

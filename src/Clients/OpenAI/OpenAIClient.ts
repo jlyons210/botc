@@ -1,8 +1,8 @@
 import { BotcMessage } from '../../Botc/index.js';
 import { ChatCompletionMessageParam } from 'openai/resources/index.mjs';
-import { EventBus } from '../../Botc/Core/EventBus/index.js';
+import { EventBus } from '../../Botc/EventBus/index.js';
 import OpenAI from 'openai';
-import { OpenAISettings } from '../../Botc/Core/Configuration/index.js';
+import { OpenAISettings } from '../../Botc/Configuration/index.js';
 
 /**
  * OpenAI client
@@ -93,12 +93,7 @@ export class OpenAIClient {
   private async willReplyToMessage(messageHistory: BotcMessage[]): Promise<boolean> {
     const payload = this.createPromptPayload(
       messageHistory,
-      'This prompt is meant to only produce a "yes" or "no" response - DO NOT CONVERSE.\n'
-      + 'This is a multi-user chat conversation. You should not reply every time. You may reply '
-      + 'if you have a unique perspective to add to the conversation, and haven\'t been '
-      + 'responding too frequently. If you have nothing to add, you should not reply.\n\n'
-      + 'Are you going to respond to this message?\n'
-      + 'Respond with only "yes" or "no". DO NOT CONVERSE.',
+      this.config.replyDecisionPrompt.value as string,
     );
 
     const responseMessage = await this.createCompletion(payload);
