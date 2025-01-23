@@ -21,6 +21,10 @@ export const ConfigurationDefaults: ConfigurationOptions = {
         secret: true,
         value: '',
       },
+      maxRetries: {
+        environmentVariable: 'OPENAI_MAX_RETRIES',
+        value: 3,
+      },
       model: {
         environmentVariable: 'OPENAI_MODEL',
         options: [
@@ -57,6 +61,10 @@ export const ConfigurationDefaults: ConfigurationOptions = {
           + 'conversational. Mimic the conversation style of those that you are interacting with. '
           + 'Avoid using long, heavily formatted responses.',
         environmentVariable: 'OPENAI_SYSTEM_PROMPT',
+      },
+      timeout: {
+        environmentVariable: 'OPENAI_TIMEOUT',
+        value: 15000,
       },
     },
   },

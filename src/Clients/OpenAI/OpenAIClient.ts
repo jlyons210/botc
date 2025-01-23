@@ -21,8 +21,8 @@ export class OpenAIClient {
 
     this.client = new OpenAI({
       apiKey: config.apikey.value as string,
-      maxRetries: 3,
-      timeout: 15000,
+      maxRetries: config.maxRetries.value as number,
+      timeout: config.maxRetries.value as number,
     });
   }
 

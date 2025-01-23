@@ -21,9 +21,11 @@ export interface LlmsSettings {
 
 export interface OpenAISettings {
   apikey: ConfigurationSettings;
+  maxRetries: ConfigurationSettings;
   model: ConfigurationSettings;
   replyDecisionPrompt: ConfigurationSettings;
   systemPrompt: ConfigurationSettings;
+  timeout: ConfigurationSettings;
 }
 
 export interface ConfigurationSettings {
