@@ -111,8 +111,6 @@ export class OpenAIClient {
    * @returns {Promise<boolean>} boolean
    */
   private async willReplyToMessage(messageHistory: BotcMessage[]): Promise<boolean> {
-    console.debug('Entering OpenAIClient.willReplyToMessage');
-
     const payload = this.createPromptPayload(
       messageHistory,
       this.config.replyDecisionPrompt.value as string,
@@ -122,17 +120,13 @@ export class OpenAIClient {
 
     try {
       const responseJson: replyDecisionResponse = JSON.parse(responseMessage);
-      const response = responseJson.respondToUser.toLowerCase() === 'yes';
-      return response;
+      return responseJson.respondToUser.toLowerCase() === 'yes';
     }
     catch (error) {
       console.error(`OpenAIClient.willReplyToMessage: Error ${error} parsing JSON: ${responseMessage}`);
 
       // Fail-safe: check for "yes" in malformed JSON response
-      const response = responseMessage.toLowerCase().includes('"yes"');
-      console.debug(`OpenAIClient.willReplyToMessage: response: ${response}`);
-
-      return response;
+      return responseMessage.toLowerCase().includes('"yes"');
     }
   }
 }
