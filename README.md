@@ -45,8 +45,8 @@ Configuration is achieved through environment variables, which are also easily p
 
 | Environment | Default | Description |
 |---|---|---|
-|`DISCORD_CHANNEL_HISTORY_HOURS` | `1` | Number of hours of past messsages to ingest for conversation context. |
-| `OPENAI_MAX_RETRIES` | `6` | Number of OpenAI API retries on retriable errors. |
+|`DISCORD_CHANNEL_HISTORY_HOURS` | `6` | Number of hours of past messsages to ingest for conversation context. |
+| `OPENAI_MAX_RETRIES` | `3` | Number of OpenAI API retries on retriable errors. |
 | `OPENAI_MODEL` | `gpt-4o-mini` | OpenAI model to use for chat completions. |
 | `OPENAI_REPLY_DECISION_PROMPT` | [Source](https://github.com/jlyons210/botc/blob/main/src/Botc/Configuration/Configuration.defaults.ts) | Prompt used to reason whether or not the bot should engage in conversation. |
 | `OPENAI_SYSTEM_PROMPT` | [Source](https://github.com/jlyons210/botc/blob/main/src/Botc/Configuration/Configuration.defaults.ts) | Behavioral prompt to set the overall bot behavior. |
@@ -54,7 +54,7 @@ Configuration is achieved through environment variables, which are also easily p
 
 ## History
 
-`Botc` supercedes my prior Discord bots:
+**Botc** supercedes my prior Discord bots:
 
 ### [discord-bot-ol-bootsie](https://github.com/jlyons210/discord-bot-ol-bootsie) (dbob)
 
