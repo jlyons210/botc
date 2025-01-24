@@ -67,6 +67,7 @@ export class OpenAIClient {
       }
       else {
         console.error(`OpenAIClient.createCompletion: ${error}`);
+        console.debug(`OpenAIClient.createCompletion: payload: ${JSON.stringify(payload)}`);
       }
 
       return '';
@@ -78,7 +79,13 @@ export class OpenAIClient {
    * @param {BotcMessage[]} messageHistory Message history
    */
   private async handleIncomingMessage(messageHistory: BotcMessage[]): Promise<void> {
-    if (!await this.willReplyToMessage(messageHistory)) return;
+    /**
+     * Bypass reply decision prompt for DMs, evaluate otherwise
+     */
+    const messageIsDM = messageHistory[0].type === 'DirectMessage';
+    if (!messageIsDM && !await this.willReplyToMessage(messageHistory)) {
+      return;
+    }
 
     const payload = await this.createPromptPayload(messageHistory);
     const responseMessage = await this.createCompletion(payload);
@@ -104,6 +111,8 @@ export class OpenAIClient {
    * @returns {Promise<boolean>} boolean
    */
   private async willReplyToMessage(messageHistory: BotcMessage[]): Promise<boolean> {
+    console.debug('Entering OpenAIClient.willReplyToMessage');
+
     const payload = this.createPromptPayload(
       messageHistory,
       this.config.replyDecisionPrompt.value as string,

@@ -56,12 +56,6 @@ export class BotcMessage {
     if (!this._nameSanitized) {
       this._nameSanitized = this.message.author.username.replace(/[^a-zA-Z0-9_-]/g, '-');
     }
-    /*
-     * Log timestamp in ISO format with sanitized name
-     * OpenAI is giving a 400 error on some names still.
-     */
-    console.debug(`${new Date(this.createdTimestamp).toISOString()} ${this._nameSanitized}: ${this.content}`);
-
     return this._nameSanitized;
   }
 
