@@ -58,7 +58,9 @@ export class DiscordClient {
    */
   private async handleClientReady(): Promise<void> {
     await this.logReadyBanner();
-    this.globalEvents.emit('DiscordClient:Ready', { message: 'Discord client is ready.' });
+    this.globalEvents.emit('DiscordClient:Ready', {
+      message: 'Discord client is ready.',
+    });
   }
 
   /**

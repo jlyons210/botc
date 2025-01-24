@@ -24,6 +24,10 @@ export class OpenAIClient {
       maxRetries: config.maxRetries.value as number,
       timeout: config.timeout.value as number,
     });
+
+    this.globalEvents.emit('OpenAIClient:Ready', {
+      message: 'OpenAI client is ready.',
+    });
   }
 
   /**

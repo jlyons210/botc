@@ -33,5 +33,13 @@ export class Botc {
     this.globalEvents.on('DiscordClient:Ready', (data) => {
       console.log(data.message);
     });
+
+    this.globalEvents.on('MessagePipeline:Ready', (data) => {
+      console.log(data.message);
+    });
+
+    this.globalEvents.on('OpenAIClient:Ready', (data) => {
+      console.log(data.message);
+    });
   }
 }
