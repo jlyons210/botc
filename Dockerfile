@@ -1,5 +1,5 @@
 # Build stage
-FROM node:lts-jod AS build
+FROM node:22-alpine AS build
 
 WORKDIR /usr/src/app
 
@@ -12,9 +12,12 @@ COPY . .
 RUN npm run build
 
 # Production stage
-FROM node:lts-jod AS production
+FROM node:22-alpine AS production
 
 WORKDIR /usr/src/app
+
+RUN addgroup -g 1001 nodejs && \
+    adduser -S -u 1001 -G nodejs nodejs
 
 RUN addgroup -g 1001 nodejs && \
     adduser -S -u 1001 -G nodejs nodejs
