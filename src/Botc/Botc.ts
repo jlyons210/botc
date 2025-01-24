@@ -16,10 +16,14 @@ export class Botc {
    * New Botc
    */
   constructor() {
+    const discordConfig = this.config.options.clients.discord;
+    const openAIConfig = this.config.options.llms.openai;
+
     this.registerHandlers();
-    this.discordClient = new DiscordClient(this.config.options.clients.discord);
+
+    this.discordClient = new DiscordClient(discordConfig);
     this.messagePipeline = new MessagePipeline(this.discordClient);
-    this.openAIClient = new OpenAIClient(this.config.options.llms.openai);
+    this.openAIClient = new OpenAIClient(openAIConfig);
   }
 
   /**

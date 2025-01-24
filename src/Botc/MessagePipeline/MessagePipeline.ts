@@ -32,7 +32,7 @@ export class MessagePipeline<T extends EventMap> {
    * @param {T['DiscordClient:IncomingMessage']} data Incoming message
    */
   private async handleIncomingMessage(data: T['DiscordClient:IncomingMessage']): Promise<void> {
-    // If the incoming message is from this bot, ignore it
+    // Ignore bot's own messages
     if (data.message.type === 'OwnMessage') return;
 
     const channelHistory = await this.getChannelHistory(data.message.originalMessage.channelId);

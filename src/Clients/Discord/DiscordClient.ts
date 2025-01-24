@@ -119,10 +119,13 @@ export class DiscordClient {
 
       // Pull last 100 channel messages
       const messages = (await channel.messages.fetch({ limit: 100 }))
-        // Filter messages created after afterTimestamp
+
+        // Limit to messages created later than afterTimestamp
         .filter(message => message.createdTimestamp > afterTimestamp)
+
         // Map messages to BotcMessage
         .map(message => new BotcMessage(message, String(this.discordClient.user?.id)))
+
         // Reverse messages so oldest is first
         .reverse();
 
@@ -134,7 +137,7 @@ export class DiscordClient {
   }
 
   /**
-   * Logs ready banner
+   * Log the ready banner
    */
   private async logReadyBanner(): Promise<void> {
     const guilds = this.discordClient.guilds.cache;
@@ -142,6 +145,7 @@ export class DiscordClient {
 
     for (const guild of guilds.values()) {
       guild.channels.fetch();
+
       const textChannelCount = guild.channels.cache.filter((channel) => {
         return channel.type === ChannelType.GuildText;
       }).size;
