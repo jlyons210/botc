@@ -23,4 +23,4 @@ COPY --chown=nodejs:nodejs --from=build /usr/src/app/dist ./dist
 
 USER nodejs
 
-CMD ["node", "start"]
+CMD ["npm", "start"]
