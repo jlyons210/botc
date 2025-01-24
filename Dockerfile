@@ -19,7 +19,7 @@ WORKDIR /usr/src/app
 RUN addgroup -g 1001 nodejs && \
     adduser -S -u 1001 -G nodejs nodejs
 
-COPY --chown=nodejs:nodejs --from=build /usr/src/dist ./dist
+COPY --chown=nodejs:nodejs --from=build /usr/src/app/dist ./dist
 
 USER nodejs
 
