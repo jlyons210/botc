@@ -51,6 +51,13 @@ export class DiscordClient {
       Events.MessageCreate,
       this.handleMessageCreate.bind(this),
     );
+
+    this.globalEvents.on('OpenAIClient:StartTyping', async (data) => {
+      const channel = await this.discordClient.channels.fetch(data.channelId);
+      if (channel?.isTextBased()) {
+        await (channel as TextChannel).sendTyping();
+      }
+    });
   }
 
   /**

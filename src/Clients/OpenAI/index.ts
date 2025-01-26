@@ -1,3 +1,8 @@
+import { CustomSystemPrompt, ReplyDecisionResponse } from './OpenAIClient.types.js';
 import { OpenAIClient } from './OpenAIClient.js';
 
-export { OpenAIClient };
+export {
+  CustomSystemPrompt,
+  OpenAIClient,
+  ReplyDecisionResponse,
+};

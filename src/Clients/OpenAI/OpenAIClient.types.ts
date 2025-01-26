@@ -1,4 +1,9 @@
-export interface replyDecisionResponse {
+export interface CustomSystemPrompt {
+  value: string,
+  append: boolean,
+}
+
+export interface ReplyDecisionResponse {
   respondToUser: string,
   reason: string,
   conversationTarget: string,
