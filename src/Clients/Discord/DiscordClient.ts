@@ -51,6 +51,13 @@ export class DiscordClient {
       Events.MessageCreate,
       this.handleMessageCreate.bind(this),
     );
+
+    this.globalEvents.on('OpenAIClient:StartTyping', async (data) => {
+      const channel = await this.discordClient.channels.fetch(data.channelId);
+      if (channel?.isTextBased()) {
+        await (channel as TextChannel).sendTyping();
+      }
+    });
   }
 
   /**
@@ -109,9 +116,10 @@ export class DiscordClient {
   /**
    * Get channel history
    * @param {string} channelId Channel ID
+   * @param {string} userId (optional) User ID
    * @returns {Promise<BotcMessage[]>} Channel history
    */
-  public async getChannelHistory(channelId: string): Promise<BotcMessage[]> {
+  public async getChannelHistory(channelId: string, userId?: string): Promise<BotcMessage[]> {
     const channel = await this.discordClient.channels.fetch(channelId);
     const isTextChannel = channel?.isTextBased();
 
@@ -130,6 +138,10 @@ export class DiscordClient {
 
         // Reverse messages so oldest is first
         .reverse();
+
+      if (userId) {
+        return messages.filter(message => message.originalMessage.author.id === userId);
+      }
 
       return messages;
     }

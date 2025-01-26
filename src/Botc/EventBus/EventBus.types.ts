@@ -14,6 +14,7 @@ export interface EventMap {
 
   'MessagePipeline:IncomingMessage': {
     messageHistory: BotcMessage[],
+    serverHistory: BotcMessage[],
   };
 
   'MessagePipeline:Ready': {
@@ -27,5 +28,9 @@ export interface EventMap {
   'OpenAIClient:ResponseComplete': {
     channelId: string,
     response: string,
+  };
+
+  'OpenAIClient:StartTyping': {
+    channelId: string,
   };
 };

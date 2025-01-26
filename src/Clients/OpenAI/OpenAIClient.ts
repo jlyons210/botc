@@ -1,9 +1,9 @@
+import { CustomSystemPrompt, ReplyDecisionResponse } from './index.js';
+import { EventBus, EventMap } from '../../Botc/EventBus/index.js';
 import { BotcMessage } from '../../Botc/index.js';
 import { ChatCompletionMessageParam } from 'openai/resources/index.mjs';
-import { EventBus } from '../../Botc/EventBus/index.js';
 import OpenAI from 'openai';
 import { OpenAISettings } from '../../Botc/Configuration/index.js';
-import { replyDecisionResponse } from './OpenAIClient.types.js';
 
 /**
  * OpenAI client
@@ -33,18 +33,22 @@ export class OpenAIClient {
   /**
    * Create prompt payload
    * @param {BotcMessage[]} messageHistory Message history
-   * @param {string} systemPromptOverride (optional) System prompt override
+   * @param {CustomSystemPrompt} customSystemPrompt Custom system prompt
    * @returns {ChatCompletionMessageParam[]} Chat completion message
    */
-  private createPromptPayload(messageHistory: BotcMessage[], systemPromptOverride?: string): ChatCompletionMessageParam[] {
+  private createPromptPayload(messageHistory: BotcMessage[], customSystemPrompt?: CustomSystemPrompt): ChatCompletionMessageParam[] {
     const payload = messageHistory.map(message => ({
       content: message.content,
       name: message.nameSanitized,
       role: message.role,
     } as ChatCompletionMessageParam));
 
+    const systemPrompt = (customSystemPrompt?.append)
+      ? `${this.config.systemPrompt.value as string}\n${customSystemPrompt.value}`
+      : customSystemPrompt?.value || this.config.systemPrompt.value as string;
+
     payload.unshift({
-      content: systemPromptOverride || this.config.systemPrompt.value as string,
+      content: systemPrompt,
       role: 'system',
     });
 
@@ -80,22 +84,41 @@ export class OpenAIClient {
 
   /**
    * Handle incoming message
-   * @param {BotcMessage[]} messageHistory Message history
+   * @param {EventMap['MessagePipeline:IncomingMessage']} data Incoming message
    */
-  private async handleIncomingMessage(messageHistory: BotcMessage[]): Promise<void> {
-    /**
-     * Bypass reply decision prompt for DMs, evaluate otherwise
-     */
-    const messageIsDM = messageHistory[0].type === 'DirectMessage';
-    if (!messageIsDM && !await this.willReplyToMessage(messageHistory)) {
+  private async handleIncomingMessage(data: EventMap['MessagePipeline:IncomingMessage']): Promise<void> {
+    // Bypass reply decision prompt for DMs, evaluate otherwise
+    const messageIsDM = data.messageHistory[0].type === 'DirectMessage';
+    if (!messageIsDM && !await this.willReplyToMessage(data.messageHistory)) {
       return;
     }
 
-    const payload = await this.createPromptPayload(messageHistory);
+    this.startTyping(data.messageHistory[0].channelId);
+
+    // Generate a summary of the user's server-wide behavior
+    const nameSanitized = data.messageHistory[0].nameSanitized;
+    const personaPrompt = await this.createPromptPayload(
+      data.serverHistory,
+      {
+        value: `Summarize the following messages to build a persona for the user ${nameSanitized}.`,
+        append: false,
+      },
+    );
+    const persona = await this.createCompletion(personaPrompt);
+
+    // Generate a response, factoring in the user's persona
+    const payload = await this.createPromptPayload(
+      data.messageHistory,
+      {
+        value: `For a richer response, here is a summary about ${nameSanitized}:\n${persona}`,
+        append: true,
+      },
+    );
     const responseMessage = await this.createCompletion(payload);
 
+    // Emit the response
     this.globalEvents.emit('OpenAIClient:ResponseComplete', {
-      channelId: messageHistory[0].channelId,
+      channelId: data.messageHistory[0].channelId,
       response: responseMessage,
     });
   }
@@ -105,7 +128,17 @@ export class OpenAIClient {
    */
   private registerHandlers(): void {
     this.globalEvents.on('MessagePipeline:IncomingMessage', (data) => {
-      this.handleIncomingMessage(data.messageHistory);
+      this.handleIncomingMessage(data);
+    });
+  }
+
+  /**
+   * Send typing indicator to channel
+   * @param {string} channelId Channel ID
+   */
+  private startTyping(channelId: string): void {
+    this.globalEvents.emit('OpenAIClient:StartTyping', {
+      channelId: channelId,
     });
   }
 
@@ -117,13 +150,16 @@ export class OpenAIClient {
   private async willReplyToMessage(messageHistory: BotcMessage[]): Promise<boolean> {
     const payload = this.createPromptPayload(
       messageHistory,
-      this.config.replyDecisionPrompt.value as string,
+      {
+        value: this.config.replyDecisionPrompt.value as string,
+        append: false,
+      },
     );
 
     const responseMessage = await this.createCompletion(payload);
 
     try {
-      const responseJson: replyDecisionResponse = JSON.parse(responseMessage);
+      const responseJson: ReplyDecisionResponse = JSON.parse(responseMessage);
       return responseJson.respondToUser.toLowerCase() === 'yes';
     }
     catch (error) {

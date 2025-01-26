@@ -1,12 +1,12 @@
 import { EventBus, EventMap } from '../EventBus/index.js';
-import { BotcMessage } from '../index.js';
+import { BotcMessage } from '../BotcMessage.js';
 import { DiscordClient } from '../../Clients/Discord/index.js';
 
 /**
  * The message pipeline is responsible for processing messages from the chat service and passing
  * them through the various stages of the bot's processing pipeline.
  */
-export class MessagePipeline<T extends EventMap> {
+export class MessagePipeline {
   private globalEvents = EventBus.attach();
 
   /**
@@ -22,36 +22,54 @@ export class MessagePipeline<T extends EventMap> {
   }
 
   /**
-   * Get channel history
-   * @param {string} channelId Channel ID
-   * @returns {Promise<BotcMessage[]>} Channel message history
+   * Summarize user behavior
+   * @param {EventMap['DiscordClient:IncomingMessage']} data Incoming message
+   * @returns {Promise<string>} User context
    */
-  private async getChannelHistory(channelId: string): Promise<BotcMessage[]> {
-    return await this.discordClient.getChannelHistory(channelId);
+  private async getServerHistoryForUser(data: EventMap['DiscordClient:IncomingMessage']): Promise<BotcMessage[]> {
+    const channels = await data.message.originalMessage.guild?.channels.fetch();
+
+    if (channels) {
+      const messages = await Promise.all(channels.map(channel => channels.get(channel?.id as string))
+        .filter(channel => channel?.isTextBased())
+        .map(async (channel) => {
+          return await this.discordClient.getChannelHistory(
+            channel?.id as string,
+            data.message.originalMessage.author.id,
+          ).then(history =>
+            history.filter(message => message.content.length > 0),
+          );
+        }));
+
+      return messages.flat();
+    }
+    else {
+      return [];
+    }
   }
 
   /**
    * Handle incoming message
-   * @template T EventMap
-   * @param {T['DiscordClient:IncomingMessage']} data Incoming message
+   * @param {EventMap['DiscordClient:IncomingMessage']} data Incoming message
    */
-  private async handleIncomingMessage(data: T['DiscordClient:IncomingMessage']): Promise<void> {
+  private async handleIncomingMessage(data: EventMap['DiscordClient:IncomingMessage']): Promise<void> {
     // Ignore bot's own messages
     if (data.message.type === 'OwnMessage') return;
 
-    const channelHistory = await this.getChannelHistory(data.message.originalMessage.channelId);
+    const channelHistory = await this.discordClient.getChannelHistory(data.message.originalMessage.channelId);
+    const serverHistory = await this.getServerHistoryForUser(data);
 
     this.globalEvents.emit('MessagePipeline:IncomingMessage', {
       messageHistory: channelHistory,
+      serverHistory: serverHistory,
     });
   }
 
   /**
    * Handle response complete
-   * @template T EventMap
-   * @param {T['OpenAIClient:ResponseComplete']} data Response complete
+   * @param {EventMap['OpenAIClient:ResponseComplete']} data Response complete
    */
-  private async handleResponseComplete(data: T['OpenAIClient:ResponseComplete']): Promise<void> {
+  private async handleResponseComplete(data: EventMap['OpenAIClient:ResponseComplete']): Promise<void> {
     await this.discordClient.sendMessage(data.channelId, data.response);
   }
 

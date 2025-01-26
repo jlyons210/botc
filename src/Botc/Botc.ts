@@ -1,6 +1,6 @@
-import { EventBus, EventMap } from './EventBus/index.js';
 import { Configuration } from './Configuration/index.js';
 import { DiscordClient } from '../Clients/Discord/index.js';
+import { EventBus } from './EventBus/index.js';
 import { MessagePipeline } from './MessagePipeline/index.js';
 import { OpenAIClient } from '../Clients/OpenAI/OpenAIClient.js';
 
@@ -9,7 +9,7 @@ export class Botc {
   private config = new Configuration();
   private discordClient: DiscordClient;
   private globalEvents = EventBus.attach();
-  private messagePipeline!: MessagePipeline<EventMap>;
+  private messagePipeline!: MessagePipeline;
   private openAIClient: OpenAIClient;
 
   /**
