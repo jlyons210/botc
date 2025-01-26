@@ -1,5 +1,4 @@
 import { EventBus, EventMap } from '../EventBus/index.js';
-import { BotcMessage } from '../index.js';
 import { DiscordClient } from '../../Clients/Discord/index.js';
 
 /**
@@ -22,15 +21,6 @@ export class MessagePipeline<T extends EventMap> {
   }
 
   /**
-   * Get channel history
-   * @param {string} channelId Channel ID
-   * @returns {Promise<BotcMessage[]>} Channel message history
-   */
-  private async getChannelHistory(channelId: string): Promise<BotcMessage[]> {
-    return await this.discordClient.getChannelHistory(channelId);
-  }
-
-  /**
    * Handle incoming message
    * @template T EventMap
    * @param {T['DiscordClient:IncomingMessage']} data Incoming message
@@ -39,10 +29,13 @@ export class MessagePipeline<T extends EventMap> {
     // Ignore bot's own messages
     if (data.message.type === 'OwnMessage') return;
 
-    const channelHistory = await this.getChannelHistory(data.message.originalMessage.channelId);
+    const userContext = await this.summarizeUser(data);
+
+    const channelHistory = await this.discordClient.getChannelHistory(data.message.originalMessage.channelId);
 
     this.globalEvents.emit('MessagePipeline:IncomingMessage', {
       messageHistory: channelHistory,
+      userContext: userContext,
     });
   }
 
@@ -66,5 +59,37 @@ export class MessagePipeline<T extends EventMap> {
     this.globalEvents.on('OpenAIClient:ResponseComplete', (data) => {
       this.handleResponseComplete(data);
     });
+  }
+
+  /**
+   * Summarize user behavior
+   * @template T EventMap
+   * @param {T['DiscordClient:IncomingMessage']} data Incoming message
+   * @returns {Promise<string>} User context
+   */
+  private async summarizeUser(data: T['DiscordClient:IncomingMessage']): Promise<string> {
+    const messages: string[] = [];
+    const channels = await data.message.originalMessage.guild?.channels.fetch();
+
+    if (channels) {
+      const channelWait = channels.map(async (channel) => {
+        const channelObject = channels.get(channel?.id as string);
+
+        if (channelObject?.isTextBased()) {
+          await this.discordClient.getChannelHistory(
+            channelObject.id,
+            data.message.originalMessage.author.id,
+          ).then(history => history
+            .filter(message => message.content.length > 0)
+            .map((message) => {
+              messages.push(message.content);
+            }));
+        }
+      });
+
+      await Promise.all(channelWait);
+    }
+
+    return messages.map(message => `- ${message}`).join('\n');
   }
 }

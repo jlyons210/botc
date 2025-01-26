@@ -14,6 +14,7 @@ export interface EventMap {
 
   'MessagePipeline:IncomingMessage': {
     messageHistory: BotcMessage[],
+    userContext: string,
   };
 
   'MessagePipeline:Ready': {

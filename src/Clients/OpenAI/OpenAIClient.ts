@@ -1,6 +1,6 @@
+import { EventBus, EventMap } from '../../Botc/EventBus/index.js';
 import { BotcMessage } from '../../Botc/index.js';
 import { ChatCompletionMessageParam } from 'openai/resources/index.mjs';
-import { EventBus } from '../../Botc/EventBus/index.js';
 import OpenAI from 'openai';
 import { OpenAISettings } from '../../Botc/Configuration/index.js';
 import { replyDecisionResponse } from './OpenAIClient.types.js';
@@ -8,7 +8,7 @@ import { replyDecisionResponse } from './OpenAIClient.types.js';
 /**
  * OpenAI client
  */
-export class OpenAIClient {
+export class OpenAIClient<T extends EventMap> {
   private client: OpenAI;
   private globalEvents = EventBus.attach();
 
@@ -80,22 +80,28 @@ export class OpenAIClient {
 
   /**
    * Handle incoming message
-   * @param {BotcMessage[]} messageHistory Message history
+   * @template T EventMap
+   * @param {T['MessagePipeline:IncomingMessage']} data Incoming message
    */
-  private async handleIncomingMessage(messageHistory: BotcMessage[]): Promise<void> {
+  private async handleIncomingMessage(data: T['MessagePipeline:IncomingMessage']): Promise<void> {
     /**
      * Bypass reply decision prompt for DMs, evaluate otherwise
      */
-    const messageIsDM = messageHistory[0].type === 'DirectMessage';
-    if (!messageIsDM && !await this.willReplyToMessage(messageHistory)) {
+    const messageIsDM = data.messageHistory[0].type === 'DirectMessage';
+    if (!messageIsDM && !await this.willReplyToMessage(data.messageHistory)) {
       return;
     }
 
-    const payload = await this.createPromptPayload(messageHistory);
+    const summary = await this.createPromptPayload(
+      data.userContext,
+      'Summarize the following messages to build a persona for the user.',
+    );
+
+    const payload = await this.createPromptPayload(data.messageHistory);
     const responseMessage = await this.createCompletion(payload);
 
     this.globalEvents.emit('OpenAIClient:ResponseComplete', {
-      channelId: messageHistory[0].channelId,
+      channelId: data.messageHistory[0].channelId,
       response: responseMessage,
     });
   }
@@ -105,7 +111,7 @@ export class OpenAIClient {
    */
   private registerHandlers(): void {
     this.globalEvents.on('MessagePipeline:IncomingMessage', (data) => {
-      this.handleIncomingMessage(data.messageHistory);
+      this.handleIncomingMessage(data);
     });
   }
 
