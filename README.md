@@ -21,14 +21,17 @@ My intent is for **Botc** to engage with chat users in a more human-like fashion
 ## Features
 
 - Monitors channels for active conversations, engaging automatically when a reasoning prompt determines that it would be appropriate.
+- Bot builds a server-wide persona of users being engaged to enhance responses. This will need caching to mitigate heavy Discord API polling.
+
+[View Changelog](doc/CHANGELOG.md)
 
 ## Roadmap
 
-- Build an understanding of each chat user based upon all of their observable channel activity, enabling much more unique engagement.
+- Timer for responding if no other users are active in chat.
+- User summary/persona caching
 - Examine and comprehend user attachments (audio, images) and crawl hyperlinks.
 - Image generation using DALL-E 3.
 - Perform web research on topics before responding, responding with citations.
-- Timer for responding if no other users are active in chat.
 
 ## Configuration
 
