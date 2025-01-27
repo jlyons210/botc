@@ -11,6 +11,7 @@ import { OpenAISettings } from '../../Botc/Configuration/index.js';
 export class OpenAIClient {
   private client: OpenAI;
   private globalEvents = EventBus.attach();
+  private model: string;
 
   /**
    * New OpenAIClient
@@ -25,9 +26,38 @@ export class OpenAIClient {
       timeout: config.timeout.value as number,
     });
 
+    this.model = config.model.value as string;
+
     this.globalEvents.emit('OpenAIClient:Ready', {
       message: 'OpenAI client is ready.',
     });
+  }
+
+  /**
+   * Create completion
+   * @param {ChatCompletionMessageParam[]} payload Chat completion message
+   * @returns {Promise<string>} string
+   */
+  public async createCompletion(payload: ChatCompletionMessageParam[]): Promise<string> {
+    try {
+      const completion = await this.client.chat.completions.create({
+        model: this.model,
+        messages: payload,
+      });
+
+      return completion.choices[0].message.content as string;
+    }
+    catch (error) {
+      if (error instanceof OpenAI.APIError) {
+        console.error(`OpenAIClient.createCompletion: OpenAI API error.`);
+      }
+      else {
+        console.error(`OpenAIClient.createCompletion: ${error}`);
+        console.debug(`OpenAIClient.createCompletion: payload: ${JSON.stringify(payload)}`);
+      }
+
+      return '';
+    }
   }
 
   /**
@@ -56,30 +86,36 @@ export class OpenAIClient {
   }
 
   /**
-   * Create completion
-   * @param {ChatCompletionMessageParam[]} payload Chat completion message
-   * @returns {Promise<string>} string
+   * Describe an image
+   * @param {string} imageUrl Image URL
+   * @returns {Promise<string>} Image description
    */
-  public async createCompletion(payload: ChatCompletionMessageParam[]): Promise<string> {
-    try {
-      const completion = await this.client.chat.completions.create({
-        model: this.config.model.value as string,
-        messages: payload,
-      });
+  public async describeImage(imageUrl: string): Promise<string> {
+    const payload = [{
+      content: [{
+        text: 'Describe this image in as much detail as is possible.',
+        type: 'text',
+      },
+      {
+        image_url: imageUrl,
+        type: 'image_url',
+      }],
+      role: 'user',
+    }] as ChatCompletionMessageParam[];
 
-      return completion.choices[0].message.content as string;
-    }
-    catch (error) {
-      if (error instanceof OpenAI.APIError) {
-        console.error(`OpenAIClient.createCompletion: OpenAI API error.`);
-      }
-      else {
-        console.error(`OpenAIClient.createCompletion: ${error}`);
-        console.debug(`OpenAIClient.createCompletion: payload: ${JSON.stringify(payload)}`);
-      }
+    return await this.createCompletion(payload);
+  }
 
-      return '';
-    }
+  /**
+   * Handle image description request
+   * @param {EventMap['BotcMessage:DescribeAttachedImages']} data Image description request
+   */
+  private async handleDescribeAttachedImages(data: EventMap['BotcMessage:DescribeAttachedImages']): Promise<void> {
+    Promise.all(data.message.attachedImages.map(async (image) => {
+      image.description = await this.describeImage(image.imageUrl);
+    }));
+
+    console.debug(`OpenAIClient.handleDescribeAttachedImages: ${JSON.stringify(data.message.attachedImages)}`);
   }
 
   /**
@@ -93,27 +129,22 @@ export class OpenAIClient {
       return;
     }
 
+    // Start typing indicator
     this.startTyping(data.messageHistory[0].channelId);
 
     // Generate a summary of the user's server-wide behavior
     const nameSanitized = data.messageHistory[0].nameSanitized;
-    const personaPrompt = await this.createPromptPayload(
-      data.serverHistory,
-      {
-        value: `Summarize the following messages to build a persona for the user ${nameSanitized}.`,
-        append: false,
-      },
-    );
+    const personaPrompt = await this.createPromptPayload(data.serverHistory, {
+      value: `Summarize the following messages to build a persona for the user ${nameSanitized}.`,
+      append: false,
+    });
     const persona = await this.createCompletion(personaPrompt);
 
     // Generate a response, factoring in the user's persona
-    const payload = await this.createPromptPayload(
-      data.messageHistory,
-      {
-        value: `For a richer response, here is a summary about ${nameSanitized}:\n${persona}`,
-        append: true,
-      },
-    );
+    const payload = await this.createPromptPayload(data.messageHistory, {
+      value: `For a richer response, here is a summary about ${nameSanitized}:\n${persona}`,
+      append: true,
+    });
     const responseMessage = await this.createCompletion(payload);
 
     // Emit the response
@@ -127,6 +158,10 @@ export class OpenAIClient {
    * Register event handlers
    */
   private registerHandlers(): void {
+    this.globalEvents.on('BotcMessage:DescribeAttachedImages', (data) => {
+      this.handleDescribeAttachedImages(data);
+    });
+
     this.globalEvents.on('MessagePipeline:IncomingMessage', (data) => {
       this.handleIncomingMessage(data);
     });
@@ -148,13 +183,10 @@ export class OpenAIClient {
    * @returns {Promise<boolean>} boolean
    */
   private async willReplyToMessage(messageHistory: BotcMessage[]): Promise<boolean> {
-    const payload = this.createPromptPayload(
-      messageHistory,
-      {
-        value: this.config.replyDecisionPrompt.value as string,
-        append: false,
-      },
-    );
+    const payload = this.createPromptPayload(messageHistory, {
+      value: this.config.replyDecisionPrompt.value as string,
+      append: false,
+    });
 
     const responseMessage = await this.createCompletion(payload);
 

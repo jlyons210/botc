@@ -1,18 +1,46 @@
 import { ChannelType, Message } from 'discord.js';
 import { BotcMessageType } from '../Botc/index.js';
+import { EventBus } from './EventBus/index.js';
 
 /** DiscordBotMessage */
 export class BotcMessage {
+  private globalEvents = EventBus.attach();
+
   /**
    * New DiscordBotMessage
    * @param {Message} message Message
    * @param {string} botUserId string
    */
-  constructor(private message: Message, private botUserId: string) { }
+  constructor(private message: Message, private botUserId: string) {
+    console.debug(`BotcMessage: New message has attached images: ${this.hasAttachedImages}`);
+    if (this.hasAttachedImages) {
+      this.describeAttachedImages();
+    }
+  }
+
+  /**
+   * Describe attached images
+   */
+  private async describeAttachedImages(): Promise<void> {
+    this.globalEvents.emit('BotcMessage:DescribeAttachedImages', {
+      message: this,
+    });
+  }
+
+  /**
+   * Returns a list of URLs for all attachments in the message
+   * @returns {BotcMessageImageAttachment[]} Image URLs
+   * @readonly
+   */
+  public get attachedImages(): BotcMessageImageAttachment[] {
+    return this._attachedImages;
+  }
+
+  private _attachedImages: BotcMessageImageAttachment[] = [];
 
   /**
    * Message channel ID
-   * @returns {string} string
+   * @returns {string} Channel ID
    * @readonly
    */
   public get channelId(): string {
@@ -44,6 +72,15 @@ export class BotcMessage {
    */
   public get displayName(): string {
     return this.message.member?.displayName || this.username;
+  }
+
+  /**
+   * Returns true if the message has any attachments
+   * @returns {boolean} boolean
+   * @readonly
+   */
+  public get hasAttachedImages(): boolean {
+    return this.attachedImages.length > 0 || this.originalMessage.attachments.size > 0;
   }
 
   /**
@@ -110,3 +147,8 @@ export class BotcMessage {
     return this.message.author.username;
   }
 }
+
+export type BotcMessageImageAttachment = {
+  imageUrl: string;
+  description: string;
+};
