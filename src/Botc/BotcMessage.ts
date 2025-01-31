@@ -124,15 +124,19 @@ export class BotcMessage {
    */
   public get type(): BotcMessageType {
     switch (true) {
+      // Incoming message from this bot
       case (this.message.author.id === this.botUserId):
         return 'OwnMessage';
 
+      // Incoming direct message
       case (this.message.channel.type === ChannelType.DM):
         return 'DirectMessage';
 
+      // Incoming message from another bot
       case (this.message.author.bot):
         return 'BotMessage';
 
+      // Any other channel message
       default:
         return 'ChannelMessage';
     }
