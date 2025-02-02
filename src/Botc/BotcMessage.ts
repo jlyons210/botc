@@ -1,5 +1,5 @@
+import { BotcMessageImageAttachment, BotcMessageType } from '../Botc/index.js';
 import { ChannelType, Message } from 'discord.js';
-import { BotcMessageType } from '../Botc/index.js';
 import { EventBus } from './EventBus/index.js';
 
 /** DiscordBotMessage */
@@ -23,28 +23,35 @@ export class BotcMessage {
 
   /**
    * Returns a list of URLs for all attachments in the message
-   * @returns {string[]} Image URLs
+   * @returns {BotcMessageImageAttachment[]} Image URLs
    * @readonly
    */
-  public get attachedImages(): string[] {
+  public get attachedImages(): BotcMessageImageAttachment[] {
     if (this._attachedImages.length === 0) {
       const allowedContentTypes = [
+        'image/gif',
         'image/jpeg',
         'image/png',
-        'image/gif',
+        'image/webp',
       ];
 
       this._attachedImages = this.message.attachments
         .filter(attachment =>
-          attachment.contentType
-          && allowedContentTypes.includes(attachment.contentType),
-        ).map(attachment => attachment.url);
+          attachment.contentType && allowedContentTypes.includes(attachment.contentType),
+        ).map(attachment =>
+          ({
+            contentType: attachment.contentType as string,
+            height: attachment.height as number,
+            imageUrl: attachment.url,
+            width: attachment.width as number,
+          }),
+        );
     }
 
     return this._attachedImages;
   }
 
-  private _attachedImages: string[] = [];
+  private _attachedImages: BotcMessageImageAttachment[] = [];
 
   /**
    * Message channel ID

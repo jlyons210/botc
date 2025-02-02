@@ -1,6 +1,6 @@
+import { BotcMessage, BotcMessageImageAttachment } from '../../Botc/index.js';
 import { CustomSystemPrompt, ReplyDecisionResponse } from './index.js';
 import { EventBus, EventMap } from '../../Botc/EventBus/index.js';
-import { BotcMessage } from '../../Botc/index.js';
 import { ChatCompletionMessageParam } from 'openai/resources/index.mjs';
 import OpenAI from 'openai';
 import { OpenAISettings } from '../../Botc/Configuration/index.js';
@@ -11,6 +11,7 @@ import { OpenAISettings } from '../../Botc/Configuration/index.js';
 export class OpenAIClient {
   private client: OpenAI;
   private globalEvents = EventBus.attach();
+  private imageDescriptionCache: Record<string, string> = {};
   private model: string;
 
   /**
@@ -67,10 +68,7 @@ export class OpenAIClient {
    * @param {CustomSystemPrompt} customSystemPrompt Custom system prompt
    * @returns {ChatCompletionMessageParam[]} Chat completion message
    */
-  private createPromptPayload(
-    messageHistory: BotcMessage[],
-    customSystemPrompt?: CustomSystemPrompt,
-  ): ChatCompletionMessageParam[] {
+  private createPromptPayload(messageHistory: BotcMessage[], customSystemPrompt?: CustomSystemPrompt): ChatCompletionMessageParam[] {
     const payload = messageHistory.map(message => ({
       content: message.content,
       name: message.nameSanitized,
@@ -86,29 +84,37 @@ export class OpenAIClient {
       role: 'system',
     });
 
-    console.debug(`--- Prompt payload: ${JSON.stringify(payload)}`);
-
     return payload;
   }
 
   /**
    * Describe an image
-   * @param {string} imageUrl Image URL
+   * @param {BotcMessageImageAttachment} image Image attachment
    * @returns {Promise<string>} Image description
    */
-  private async describeImage(imageUrl: string): Promise<string> {
+  private async describeImage(image: BotcMessageImageAttachment): Promise<string> {
+    console.debug(`--- Describing image: ${image.imageUrl}`);
+
+    // Check cache for image description and return if found
+    if (this.imageDescriptionCache[image.imageUrl]) {
+      console.debug(`--- Image description cache hit: ${this.imageDescriptionCache[image.imageUrl]}`);
+      return this.imageDescriptionCache[image.imageUrl];
+    }
+
     const describeImagePrompt = this.config.describeImagePrompt.value as string;
     const payload = [{
       role: 'user',
       content: [
         { type: 'text', text: describeImagePrompt },
-        { type: 'image_url', image_url: { url: imageUrl } },
+        { type: 'image_url', image_url: { url: image.imageUrl } },
       ],
     }] satisfies ChatCompletionMessageParam[];
 
-    console.debug(`--- Describing image: ${imageUrl}`);
+    console.debug(`--- Image description cache miss: ${image.imageUrl}`);
+    const description = await this.createCompletion(payload);
+    this.imageDescriptionCache[image.imageUrl] = description;
 
-    return await this.createCompletion(payload);
+    return description;
   }
 
   /**
@@ -130,8 +136,6 @@ export class OpenAIClient {
             message.addImageDescription(description);
           }),
         );
-
-        console.debug(`--- Image descriptions: ${message.imageDescriptions}`);
       }),
     );
   }
@@ -153,7 +157,6 @@ export class OpenAIClient {
     // Describe images in server and channel message history
     await this.describeImages(data.serverHistory);
     await this.describeImages(data.messageHistory);
-    console.debug(`--- Server history: ${JSON.stringify(data.serverHistory)}`);
 
     // Generate a summary of the user's server-wide behavior
     const nameSanitized = data.messageHistory[0].nameSanitized;

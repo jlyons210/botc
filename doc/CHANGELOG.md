@@ -4,10 +4,16 @@
 
 ## Pre-release
 
+- 0.3.x: [0.3.0](#030-2024-02-01)
 - 0.2.x: [0.2.0](#020-2024-01-26)
 - 0.1.x: [0.1.0](#010-2024-01-24)
 
 ---
+
+## 0.3.0 (2024-02-01)
+- Added attached image comprehension. It's still in early form with very rough caching that will eventually be a memory leak.
+
+[:arrow_up: Back to top](#changelog)
 
 ## 0.2.0 (2024-01-26)
 
