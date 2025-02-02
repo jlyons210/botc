@@ -54,6 +54,17 @@ export const ConfigurationDefaults: ConfigurationOptions = {
       },
 
       /**
+       * Used in OpenAIClient to describe images
+       */
+      describeImagePrompt: {
+        value: [
+          'Describe this image in reasonable detail. Don\t use line breaks. If the image is ',
+          'unclear, do your best. You are not being asked to identify individuals.',
+        ].join(''),
+        environmentVariable: 'OPENAI_DESCRIBE_IMAGE_PROMPT',
+      },
+
+      /**
        * Maximum number of retries for OpenAI API requests
        */
       maxRetries: {

@@ -9,7 +9,7 @@ export class Botc {
   private config = new Configuration();
   private discordClient: DiscordClient;
   private globalEvents = EventBus.attach();
-  private messagePipeline!: MessagePipeline;
+  private messagePipeline: MessagePipeline;
   private openAIClient: OpenAIClient;
 
   /**

@@ -22,6 +22,7 @@ My intent is for **Botc** to engage with chat users in a more human-like fashion
 
 - Monitors channels for active conversations, engaging automatically when a reasoning prompt determines that it would be appropriate.
 - Bot builds a server-wide persona of users being engaged to enhance responses. This will need caching to mitigate heavy Discord API polling.
+- Examine and comprehend user images attachments.
 
 [View Changelog](doc/CHANGELOG.md)
 
@@ -29,7 +30,7 @@ My intent is for **Botc** to engage with chat users in a more human-like fashion
 
 - Timer for responding if no other users are active in chat.
 - User summary/persona caching
-- Examine and comprehend user attachments (audio, images) and crawl hyperlinks.
+- Examine and comprehend user attachments (audio) and crawl hyperlinks.
 - Image generation using DALL-E 3.
 - Perform web research on topics before responding, responding with citations.
 
@@ -48,8 +49,9 @@ Configuration is achieved through environment variables, which are also easily p
 
 | Environment | Default | Description |
 |---|---|---|
-|`DISCORD_CHANNEL_HISTORY_HOURS` | `6` | Number of hours of past messsages to ingest for conversation context. |
-| `OPENAI_MAX_RETRIES` | `3` | Number of OpenAI API retries on retriable errors. |
+|`DISCORD_CHANNEL_HISTORY_HOURS` | `1` | Number of hours of past messsages to ingest for conversation context. |
+|`OPENAI_DESCRIBE_IMAGE_PROMPT` | [Source](https://github.com/jlyons210/botc/blob/main/src/Botc/Configuration/Configuration.defaults.ts) | Prompt used to describe attached images. |
+| `OPENAI_MAX_RETRIES` | `6` | Number of OpenAI API retries on retriable errors. |
 | `OPENAI_MODEL` | `gpt-4o-mini` | OpenAI model to use for chat completions. |
 | `OPENAI_REPLY_DECISION_PROMPT` | [Source](https://github.com/jlyons210/botc/blob/main/src/Botc/Configuration/Configuration.defaults.ts) | Prompt used to reason whether or not the bot should engage in conversation. |
 | `OPENAI_SYSTEM_PROMPT` | [Source](https://github.com/jlyons210/botc/blob/main/src/Botc/Configuration/Configuration.defaults.ts) | Behavioral prompt to set the overall bot behavior. |

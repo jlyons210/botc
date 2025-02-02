@@ -1,8 +1,11 @@
+import { BotcMessageImageAttachment, BotcMessageType } from '../Botc/index.js';
 import { ChannelType, Message } from 'discord.js';
-import { BotcMessageType } from '../Botc/index.js';
+import { EventBus } from './EventBus/index.js';
 
 /** DiscordBotMessage */
 export class BotcMessage {
+  private globalEvents = EventBus.attach();
+
   /**
    * New DiscordBotMessage
    * @param {Message} message Message
@@ -11,8 +14,48 @@ export class BotcMessage {
   constructor(private message: Message, private botUserId: string) { }
 
   /**
+   * Add a description for an image attached to the message
+   * @param {string} description Image description
+   */
+  public addImageDescription(description: string): void {
+    this._imageDescriptions.push(description);
+  }
+
+  /**
+   * Returns a list of URLs for all attachments in the message
+   * @returns {BotcMessageImageAttachment[]} Image URLs
+   * @readonly
+   */
+  public get attachedImages(): BotcMessageImageAttachment[] {
+    if (this._attachedImages.length === 0) {
+      const allowedContentTypes = [
+        'image/gif',
+        'image/jpeg',
+        'image/png',
+        'image/webp',
+      ];
+
+      this._attachedImages = this.message.attachments
+        .filter(attachment =>
+          attachment.contentType && allowedContentTypes.includes(attachment.contentType),
+        ).map(attachment =>
+          ({
+            contentType: attachment.contentType as string,
+            height: attachment.height as number,
+            imageUrl: attachment.url,
+            width: attachment.width as number,
+          }),
+        );
+    }
+
+    return this._attachedImages;
+  }
+
+  private _attachedImages: BotcMessageImageAttachment[] = [];
+
+  /**
    * Message channel ID
-   * @returns {string} string
+   * @returns {string} Channel ID
    * @readonly
    */
   public get channelId(): string {
@@ -25,7 +68,9 @@ export class BotcMessage {
    * @readonly
    */
   public get content(): string {
-    return this.message.content;
+    return (this.imageDescriptions)
+      ? `${this.message.content}\n${this.imageDescriptions}`
+      : this.message.content;
   }
 
   /**
@@ -45,6 +90,33 @@ export class BotcMessage {
   public get displayName(): string {
     return this.message.member?.displayName || this.username;
   }
+
+  /**
+   * Returns true if the message has any attachments
+   * @returns {boolean} boolean
+   * @readonly
+   */
+  public get hasAttachedImages(): boolean {
+    return this.attachedImages.length > 0 || this.originalMessage.attachments.size > 0;
+  }
+
+  /**
+   * Description of the images attached to the message
+   * @returns {string} string
+   */
+  public get imageDescriptions(): string {
+    if (this._imageDescriptions.length) {
+      return [
+        'Description of attached images:',
+        ...this._imageDescriptions,
+      ].join('\n');
+    }
+    else {
+      return '';
+    }
+  }
+
+  private _imageDescriptions: string[] = [];
 
   /**
    * Message author username (sanitized). The OpenAI API requires usernames to be alphanumeric with
@@ -87,15 +159,19 @@ export class BotcMessage {
    */
   public get type(): BotcMessageType {
     switch (true) {
+      // Incoming message from this bot
       case (this.message.author.id === this.botUserId):
         return 'OwnMessage';
 
+      // Incoming direct message
       case (this.message.channel.type === ChannelType.DM):
         return 'DirectMessage';
 
+      // Incoming message from another bot
       case (this.message.author.bot):
         return 'BotMessage';
 
+      // Any other channel message
       default:
         return 'ChannelMessage';
     }
