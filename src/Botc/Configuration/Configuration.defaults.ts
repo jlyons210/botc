@@ -58,7 +58,7 @@ export const ConfigurationDefaults: ConfigurationOptions = {
        */
       describeImagePrompt: {
         value: [
-          'Describe this image in reasonable detail. Don\t use line breaks. If the image is ',
+          'Describe this image in reasonable detail. Do not use line breaks. If the image is ',
           'unclear, do your best. You are not being asked to identify individuals.',
         ].join(''),
         environmentVariable: 'OPENAI_DESCRIBE_IMAGE_PROMPT',
@@ -105,7 +105,7 @@ export const ConfigurationDefaults: ConfigurationOptions = {
           + 'Are you going to respond to this message?\n'
           + 'Respond in JSON format: `{ "respondToUser": "[yes|no]", "reason": "[justification]", '
           + '"conversationTarget": "[conversationTarget]", "botcIsAddressed": "true|false" }`.\n'
-          + 'AGAIN, DO NOT CONVERSE.',
+          + 'AGAIN, DO NOT CONVERSE. DO NOT USE MARKDOWN FORMATTING.',
         environmentVariable: 'OPENAI_REPLY_DECISION_PROMPT',
       },
 
