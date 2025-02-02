@@ -1,7 +1,12 @@
 import { EventEmitter } from 'node:events';
 import { EventMap } from './index.js';
 
-/** Construct an EventEmitter using the singleton pattern */
+/**
+ * Construct an EventEmitter singleton for event handling
+ * @template T EventMap
+ * @template K EventMap key
+ * @class EventBus
+ */
 class EventBus<T extends EventMap> {
   private static instance: EventBus<EventMap>;
   private emitter = new EventEmitter();
