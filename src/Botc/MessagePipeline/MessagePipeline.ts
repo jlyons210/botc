@@ -1,10 +1,9 @@
 import { EventBus, EventMap } from '../EventBus/index.js';
-import { BotcMessage } from '../BotcMessage.js';
 import { DiscordClient } from '../../Clients/Discord/index.js';
 
 /**
- * The message pipeline is responsible for processing messages from the chat service and passing
- * them through the various stages of the bot's processing pipeline.
+ * MessagePipeline is responsible for processing messages from the chat service and passing them
+ * through the various stages of the bot's processing pipeline.
  */
 export class MessagePipeline {
   private globalEvents = EventBus.attach();
@@ -15,37 +14,20 @@ export class MessagePipeline {
    */
   constructor(private discordClient: DiscordClient) {
     this.registerHandlers();
-
-    this.globalEvents.emit('MessagePipeline:Ready', {
-      message: 'Message pipeline is ready.',
-    });
+    this.globalEvents.emit('MessagePipeline:Ready', { message: 'Message pipeline is ready.' });
   }
 
   /**
-   * Summarize user behavior
-   * @param {EventMap['DiscordClient:IncomingMessage']} data Incoming message
-   * @returns {Promise<string>} User context
+   * Register message pipeline event handlers
    */
-  private async getServerHistoryForUser(data: EventMap['DiscordClient:IncomingMessage']): Promise<BotcMessage[]> {
-    const channels = await data.message.originalMessage.guild?.channels.fetch();
+  private async registerHandlers(): Promise<void> {
+    this.globalEvents.on('DiscordClient:IncomingMessage',
+      this.handleIncomingMessage.bind(this),
+    );
 
-    if (channels) {
-      const messages = await Promise.all(channels.map(channel => channels.get(channel?.id as string))
-        .filter(channel => channel?.isTextBased())
-        .map(async (channel) => {
-          return await this.discordClient.getChannelHistory(
-            channel?.id as string,
-            data.message.originalMessage.author.id,
-          ).then(history =>
-            history.filter(message => message.content.length > 0),
-          );
-        }));
-
-      return messages.flat();
-    }
-    else {
-      return [];
-    }
+    this.globalEvents.on('OpenAIClient:ResponseComplete',
+      this.handleResponseComplete.bind(this),
+    );
   }
 
   /**
@@ -53,16 +35,30 @@ export class MessagePipeline {
    * @param {EventMap['DiscordClient:IncomingMessage']} data Incoming message
    */
   private async handleIncomingMessage(data: EventMap['DiscordClient:IncomingMessage']): Promise<void> {
-    // Ignore bot's own messages
+    // Ignore incoming messages sent from this bot
     if (data.message.type === 'OwnMessage') return;
 
-    const channelHistory = await this.discordClient.getChannelHistory(data.message.originalMessage.channelId);
-    const serverHistory = await this.getServerHistoryForUser(data);
+    const guild = data.message.originalMessage.guild;
 
-    this.globalEvents.emit('MessagePipeline:IncomingMessage', {
-      messageHistory: channelHistory,
-      serverHistory: serverHistory,
-    });
+    if (guild) {
+      // Get the current channel history
+      const messageChannelId = data.message.originalMessage.channelId;
+      const channelHistory = await this.discordClient.getChannelHistory(messageChannelId);
+
+      // Get the user's server-wide history
+      const authorId = data.message.originalMessage.author.id;
+      const serverHistory = await this.discordClient.getServerHistoryForUser(guild, authorId);
+
+      // Emit the incoming message event with the message histories
+      this.globalEvents.emit('MessagePipeline:IncomingMessage', {
+        messageHistory: channelHistory,
+        serverHistory: serverHistory,
+      });
+    }
+    else {
+      // This should never happen
+      throw new Error('MessagePipeline: Guild not found');
+    }
   }
 
   /**
@@ -71,18 +67,5 @@ export class MessagePipeline {
    */
   private async handleResponseComplete(data: EventMap['OpenAIClient:ResponseComplete']): Promise<void> {
     await this.discordClient.sendMessage(data.channelId, data.response);
-  }
-
-  /**
-   * Register message pipeline event handlers
-   */
-  private registerHandlers(): void {
-    this.globalEvents.on('DiscordClient:IncomingMessage', (data) => {
-      this.handleIncomingMessage(data);
-    });
-
-    this.globalEvents.on('OpenAIClient:ResponseComplete', (data) => {
-      this.handleResponseComplete(data);
-    });
   }
 }

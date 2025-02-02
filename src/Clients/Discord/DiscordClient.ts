@@ -5,6 +5,7 @@ import {
   DiscordjsErrorCodes,
   Events,
   GatewayIntentBits,
+  Guild,
   Message,
   Partials,
   TextChannel,
@@ -23,7 +24,7 @@ export class DiscordClient {
   private globalEvents = EventBus.attach();
 
   // Private properties
-  private readonly botUserId: string;
+  private botUserId!: string;
 
   /**
    * New DiscordBot
@@ -31,7 +32,6 @@ export class DiscordClient {
    */
   constructor(private config: DiscordClientSettings) {
     this.initialize();
-    this.botUserId = this.discordClient.user?.id as string;
   }
 
   /**
@@ -41,19 +41,18 @@ export class DiscordClient {
     this.discordClient = await this.createDiscordClient();
     await this.registerHandlers();
     await this.authenticateDiscordClient();
+    this.botUserId = this.discordClient.user?.id as string;
   }
 
   /**
    * Register Discord client event handlers
    */
   private async registerHandlers(): Promise<void> {
-    this.discordClient.on(
-      Events.ClientReady,
+    this.discordClient.on(Events.ClientReady,
       this.handleClientReady.bind(this),
     );
 
-    this.discordClient.on(
-      Events.MessageCreate,
+    this.discordClient.on(Events.MessageCreate,
       this.handleMessageCreate.bind(this),
     );
 
@@ -81,10 +80,10 @@ export class DiscordClient {
    */
   private async handleMessageCreate(message: Message): Promise<void> {
     // Wrap incoming message in BotcMessage
-    const botMessage = new BotcMessage({ botUserId: this.botUserId, message: message });
+    const botcMessage = new BotcMessage({ botUserId: this.botUserId, message: message });
 
     // Emit incoming message event
-    this.globalEvents.emit('DiscordClient:IncomingMessage', { message: botMessage });
+    this.globalEvents.emit('DiscordClient:IncomingMessage', { message: botcMessage });
   }
 
   /**
@@ -148,13 +147,51 @@ export class DiscordClient {
         .reverse();
 
       if (userId) {
+        // If userId is provided, filter messages to only those from userId
         return messages.filter(message => message.originalMessage.author.id === userId);
       }
-
-      return messages;
+      else {
+        // Otherwise, return all messages
+        return messages;
+      }
     }
     else {
       throw Error('Channel is not a text channel');
+    }
+  }
+
+  /**
+   * Summarize user behavior
+   * @param {string} guild Discord.js Guild object
+   * @param {string} authorId Author ID
+   * @returns {Promise<BotcMessage[]>} User context
+   */
+  public async getServerHistoryForUser(guild: Guild, authorId: string): Promise<BotcMessage[]> {
+    const channels = await guild.channels.fetch();
+
+    if (channels) {
+      const messages = await Promise.all(channels
+
+        // Retrieve channel objects using channel IDs
+        .map(channel => channels.get(channel?.id as string))
+
+        // Filter to text channels
+        .filter(channel => channel?.isTextBased())
+
+        // Return user's message history for each channel
+        .map(async (channel) => {
+          return await this.getChannelHistory(
+            channel?.id as string,
+            authorId,
+          );
+        }));
+
+      // Return flattened array of messages
+      return messages.flat();
+    }
+    else {
+      // Return empty array if user has no message history
+      return [];
     }
   }
 
