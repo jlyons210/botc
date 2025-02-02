@@ -49,7 +49,7 @@ Configuration is achieved through environment variables, which are also easily p
 
 | Environment | Default | Description |
 |---|---|---|
-|`DISCORD_CHANNEL_HISTORY_HOURS` | `1` | Number of hours of past messsages to ingest for conversation context. |
+|`DISCORD_CHANNEL_HISTORY_HOURS` | `24` | Number of hours of past messsages to ingest for conversation context. |
 |`OPENAI_DESCRIBE_IMAGE_PROMPT` | [Source](https://github.com/jlyons210/botc/blob/main/src/Botc/Configuration/Configuration.defaults.ts) | Prompt used to describe attached images. |
 | `OPENAI_MAX_RETRIES` | `6` | Number of OpenAI API retries on retriable errors. |
 | `OPENAI_MODEL` | `gpt-4o-mini` | OpenAI model to use for chat completions. |

@@ -17,7 +17,7 @@ export const ConfigurationDefaults: ConfigurationOptions = {
        * for messages to process as conversation context.
        */
       channelHistoryHours: {
-        value: 6,
+        value: 24,
         environmentVariable: 'DISCORD_CHANNEL_HISTORY_HOURS',
       },
 
