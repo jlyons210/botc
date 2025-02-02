@@ -1,17 +1,44 @@
-import { BotcMessageImageAttachment, BotcMessageType } from '../Botc/index.js';
+import {
+  BotcMessageConfig,
+  BotcMessageImageAttachment,
+  BotcMessageType,
+} from '../Botc/index.js';
+
 import { ChannelType, Message } from 'discord.js';
 import { EventBus } from './EventBus/index.js';
 
-/** DiscordBotMessage */
+/**
+ * **BotcMessage** A wrapper for Discord.js Message objects that provides additional properties and
+ * methods for interacting with the message.
+ * @class
+ * @todo
+ * - The `content` getter should only ever return the original message content.
+ * - Other message metadata should be appended to `content`, and stored in appropriate arrays.
+ *   - `createdTimestamp` should be appended to `content` as metadata.
+ *   - `imageDescriptions` should be appended to `content` as metadata.
+ * - A `getPromptContent` function could be added to return `content` with appended metadata.
+ */
 export class BotcMessage {
+  // Private objects
   private globalEvents = EventBus.attach();
 
+  // Private properties
+  private readonly message: Message;
+  private readonly botUserId: string;
+
+  // Private backing variables
+  private _attachedImages: BotcMessageImageAttachment[] = [];
+  private _imageDescriptions: string[] = [];
+  private _nameSanitized!: string;
+
   /**
-   * New DiscordBotMessage
-   * @param {Message} message Message
-   * @param {string} botUserId string
+   * New BotcMessage
+   * @param {BotcMessageConfig} config BotcMessageConfig object
    */
-  constructor(private message: Message, private botUserId: string) { }
+  constructor(config: BotcMessageConfig) {
+    this.message = config.message;
+    this.botUserId = config.botUserId;
+  }
 
   /**
    * Add a description for an image attached to the message
@@ -22,12 +49,16 @@ export class BotcMessage {
   }
 
   /**
-   * Returns a list of URLs for all attachments in the message
-   * @returns {BotcMessageImageAttachment[]} Image URLs
+   * Populates a collection of image attachments with metadata from the message
+   * @returns {BotcMessageImageAttachment[]} Collection of image attachments
    * @readonly
    */
   public get attachedImages(): BotcMessageImageAttachment[] {
     if (this._attachedImages.length === 0) {
+      /**
+       * Allowed content types for image attachments per the OpanAI API
+       * [Vision FAQ](https://platform.openai.com/docs/guides/vision#faq)
+       */
       const allowedContentTypes = [
         'image/gif',
         'image/jpeg',
@@ -35,23 +66,25 @@ export class BotcMessage {
         'image/webp',
       ];
 
+      // Assign any image attachments to the backing variable
       this._attachedImages = this.message.attachments
+
+        // Filter for allowed content types
         .filter(attachment =>
           attachment.contentType && allowedContentTypes.includes(attachment.contentType),
-        ).map(attachment =>
-          ({
-            contentType: attachment.contentType as string,
-            height: attachment.height as number,
-            imageUrl: attachment.url,
-            width: attachment.width as number,
-          }),
-        );
+        )
+
+        // Map matches to backing variable
+        .map(attachment => ({
+          contentType: attachment.contentType as string,
+          height: attachment.height as number,
+          imageUrl: attachment.url,
+          width: attachment.width as number,
+        }));
     }
 
     return this._attachedImages;
   }
-
-  private _attachedImages: BotcMessageImageAttachment[] = [];
 
   /**
    * Message channel ID
@@ -83,8 +116,8 @@ export class BotcMessage {
   }
 
   /**
-   * Message author display name
-   * @returns {string} string
+   * Message author display name. Falls back to username if no display name is available.
+   * @returns {string} Display name or username
    * @readonly
    */
   public get displayName(): string {
@@ -102,7 +135,8 @@ export class BotcMessage {
 
   /**
    * Description of the images attached to the message
-   * @returns {string} string
+   * @returns {string} Joined image descriptions
+   * @readonly
    */
   public get imageDescriptions(): string {
     if (this._imageDescriptions.length) {
@@ -116,13 +150,11 @@ export class BotcMessage {
     }
   }
 
-  private _imageDescriptions: string[] = [];
-
   /**
-   * Message author username (sanitized). The OpenAI API requires usernames to be alphanumeric with
-   * only hyphens and underscores allowed.
+   * Message author username (sanitized) used by the OpenAI prompt username field.
    * @returns {string} string
    * @readonly
+   * @todo Rename to `promptUsername`
    */
   public get nameSanitized(): string {
     if (!this._nameSanitized) {
@@ -131,20 +163,19 @@ export class BotcMessage {
     return this._nameSanitized;
   }
 
-  private _nameSanitized!: string;
-
   /**
    * Original Discord message
-   * @returns {Message} Message
+   * @returns {Message} Original Discord.js Message object
    */
   public get originalMessage(): Message {
     return this.message;
   }
 
   /**
-   * Message role
+   * Message role used by the OpenAI prompt role field.
    * @returns {string} string
    * @readonly
+   * @todo Rename to `promptRole`
    */
   public get role(): string {
     return (this.botUserId === this.message.author.id)
@@ -153,8 +184,8 @@ export class BotcMessage {
   }
 
   /**
-   * Message type
-   * @returns {BotcMessageType} BotcMessageType
+   * Discord message type
+   * @returns {BotcMessageType} Type of message being processed
    * @readonly
    */
   public get type(): BotcMessageType {
@@ -179,7 +210,7 @@ export class BotcMessage {
 
   /**
    * Message author username
-   * @returns {string} string
+   * @returns {string} Username (not displayname)
    * @readonly
    */
   public get username(): string {

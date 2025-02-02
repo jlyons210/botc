@@ -18,8 +18,12 @@ import { EventBus } from '../../Botc/EventBus/index.js';
  * Utility functions for DiscordBot
  */
 export class DiscordClient {
+  // Private objects
   private discordClient!: Client;
   private globalEvents = EventBus.attach();
+
+  // Private properties
+  private readonly botUserId: string;
 
   /**
    * New DiscordBot
@@ -27,6 +31,7 @@ export class DiscordClient {
    */
   constructor(private config: DiscordClientSettings) {
     this.initialize();
+    this.botUserId = this.discordClient.user?.id as string;
   }
 
   /**
@@ -75,7 +80,10 @@ export class DiscordClient {
    * @param {Message} message Message
    */
   private async handleMessageCreate(message: Message): Promise<void> {
-    const botMessage = new BotcMessage(message, String(this.discordClient.user?.id));
+    // Wrap incoming message in BotcMessage
+    const botMessage = new BotcMessage({ botUserId: this.botUserId, message: message });
+
+    // Emit incoming message event
     this.globalEvents.emit('DiscordClient:IncomingMessage', { message: botMessage });
   }
 
@@ -134,7 +142,7 @@ export class DiscordClient {
         .filter(message => message.createdTimestamp > afterTimestamp)
 
         // Map messages to BotcMessage
-        .map(message => new BotcMessage(message, String(this.discordClient.user?.id)))
+        .map(message => new BotcMessage({ botUserId: this.botUserId, message: message }))
 
         // Reverse messages so oldest is first
         .reverse();
