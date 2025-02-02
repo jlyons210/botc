@@ -1,16 +1,21 @@
 import { BotcMessage, BotcMessageImageAttachment } from '../../Botc/index.js';
-import { CustomSystemPrompt, ReplyDecisionResponse } from './index.js';
+import { CreatePromptPayloadConfig, ReplyDecisionResponse } from './index.js';
 import { EventBus, EventMap } from '../../Botc/EventBus/index.js';
 import { ChatCompletionMessageParam } from 'openai/resources/index.mjs';
 import OpenAI from 'openai';
 import { OpenAISettings } from '../../Botc/Configuration/index.js';
 
 /**
- * OpenAI client
+ * OpenAI client wrapper
+ * @class
+ * @todo Enhance API error handling. Returning '' will break Discord message sending.
  */
 export class OpenAIClient {
+  // Private objects
   private client: OpenAI;
   private globalEvents = EventBus.attach();
+
+  // Private properties
   private imageDescriptionCache: Record<string, string> = {};
   private model: string;
 
@@ -21,14 +26,17 @@ export class OpenAIClient {
   constructor(private config: OpenAISettings) {
     this.registerHandlers();
 
+    // Initialize OpenAI client
     this.client = new OpenAI({
       apiKey: config.apikey.value as string,
       maxRetries: config.maxRetries.value as number,
       timeout: config.timeout.value as number,
     });
 
+    // Set model from configuration
     this.model = config.model.value as string;
 
+    // Emit ready event
     this.globalEvents.emit('OpenAIClient:Ready', {
       message: 'OpenAI client is ready.',
     });
@@ -41,44 +49,51 @@ export class OpenAIClient {
    */
   public async createCompletion(payload: ChatCompletionMessageParam[]): Promise<string> {
     try {
+      // Create chat completion
       const completion = await this.client.chat.completions.create({
         model: this.model,
         messages: payload,
       });
 
+      // Return completion message content
       return completion.choices[0].message.content as string;
     }
     catch (error) {
       if (error instanceof OpenAI.APIError) {
+        // Log OpenAI API error
         console.error(`OpenAIClient.createCompletion: OpenAI API error.`);
         console.error(`OpenAIClient.createCompletion: error: ${error.message}`);
       }
       else {
+        // Log generic error
         console.error(`OpenAIClient.createCompletion: ${error}`);
         console.debug(`OpenAIClient.createCompletion: payload: ${JSON.stringify(payload)}`);
       }
 
+      // Return empty string on error
       return '';
     }
   }
 
   /**
    * Create prompt payload
-   * @param {BotcMessage[]} messageHistory Message history
-   * @param {CustomSystemPrompt} customSystemPrompt Custom system prompt
+   * @param {CreatePromptPayloadConfig} config Create prompt payload configuration
    * @returns {ChatCompletionMessageParam[]} Chat completion message
    */
-  private createPromptPayload(messageHistory: BotcMessage[], customSystemPrompt?: CustomSystemPrompt): ChatCompletionMessageParam[] {
-    const payload = messageHistory.map(message => ({
+  private async createPromptPayload(config: CreatePromptPayloadConfig): Promise<ChatCompletionMessageParam[]> {
+    // Map BotcMessage[] to ChatCompletionMessageParam[]
+    const payload = config.messageHistory.map(message => ({
       content: message.content,
       name: message.nameSanitized,
       role: message.role,
     } as ChatCompletionMessageParam));
 
-    const systemPrompt = (customSystemPrompt?.append)
-      ? `${this.config.systemPrompt.value as string}\n${customSystemPrompt.value}`
-      : customSystemPrompt?.value || this.config.systemPrompt.value as string;
+    // Construct system prompt
+    const systemPrompt = (config.customSystemPrompt?.append)
+      ? `${this.config.systemPrompt.value as string}\n${config.customSystemPrompt.value}`
+      : config.customSystemPrompt?.value || this.config.systemPrompt.value as string;
 
+    // Prepend system prompt
     payload.unshift({
       content: systemPrompt,
       role: 'system',
@@ -93,14 +108,12 @@ export class OpenAIClient {
    * @returns {Promise<string>} Image description
    */
   private async describeImage(image: BotcMessageImageAttachment): Promise<string> {
-    console.debug(`--- Describing image: ${image.imageUrl}`);
-
     // Check cache for image description and return if found
     if (this.imageDescriptionCache[image.imageUrl]) {
-      console.debug(`--- Image description cache hit: ${this.imageDescriptionCache[image.imageUrl]}`);
       return this.imageDescriptionCache[image.imageUrl];
     }
 
+    // Create completion for image description
     const describeImagePrompt = this.config.describeImagePrompt.value as string;
     const payload = [{
       role: 'user',
@@ -109,11 +122,12 @@ export class OpenAIClient {
         { type: 'image_url', image_url: { url: image.imageUrl } },
       ],
     }] satisfies ChatCompletionMessageParam[];
-
-    console.debug(`--- Image description cache miss: ${image.imageUrl}`);
     const description = await this.createCompletion(payload);
+
+    // Cache image description
     this.imageDescriptionCache[image.imageUrl] = description;
 
+    // Return image description
     return description;
   }
 
@@ -160,16 +174,22 @@ export class OpenAIClient {
 
     // Generate a summary of the user's server-wide behavior
     const nameSanitized = data.messageHistory[0].nameSanitized;
-    const personaPrompt = await this.createPromptPayload(data.serverHistory, {
-      value: `Summarize the following messages to build a persona for the user ${nameSanitized}.`,
-      append: false,
+    const personaPrompt = await this.createPromptPayload({
+      messageHistory: data.serverHistory,
+      customSystemPrompt: {
+        value: `Summarize the following messages to build a persona for the user ${nameSanitized}.`,
+        append: false,
+      },
     });
     const persona = await this.createCompletion(personaPrompt);
 
     // Generate a response, factoring in the user's persona
-    const payload = await this.createPromptPayload(data.messageHistory, {
-      value: `For a richer response, here is a summary about ${nameSanitized}:\n${persona}`,
-      append: true,
+    const payload = await this.createPromptPayload({
+      messageHistory: data.messageHistory,
+      customSystemPrompt: {
+        value: `For a richer response, here is a summary about ${nameSanitized}:\n${persona}`,
+        append: true,
+      },
     });
     const responseMessage = await this.createCompletion(payload);
 
@@ -184,9 +204,9 @@ export class OpenAIClient {
    * Register event handlers
    */
   private registerHandlers(): void {
-    this.globalEvents.on('MessagePipeline:IncomingMessage', (data) => {
-      this.handleIncomingMessage(data);
-    });
+    this.globalEvents.on('MessagePipeline:IncomingMessage',
+      this.handleIncomingMessage.bind(this),
+    );
   }
 
   /**
@@ -205,18 +225,23 @@ export class OpenAIClient {
    * @returns {Promise<boolean>} boolean
    */
   private async willReplyToMessage(messageHistory: BotcMessage[]): Promise<boolean> {
-    const payload = await this.createPromptPayload(messageHistory, {
-      value: this.config.replyDecisionPrompt.value as string,
-      append: false,
+    // Create completion for reply decision
+    const payload = await this.createPromptPayload({
+      messageHistory: messageHistory,
+      customSystemPrompt: {
+        value: this.config.replyDecisionPrompt.value as string,
+        append: false,
+      },
     });
-
     const responseMessage = await this.createCompletion(payload);
 
     try {
+      // Parse JSON response for decision to respond
       const responseJson: ReplyDecisionResponse = JSON.parse(responseMessage);
       return responseJson.respondToUser.toLowerCase() === 'yes';
     }
     catch (error) {
+      // Log error parsing JSON response - sometimes the API returns malformed JSON
       console.error(`OpenAIClient.willReplyToMessage: Error ${error} parsing JSON: ${responseMessage}`);
 
       // Fail-safe: check for "yes" in malformed JSON response
