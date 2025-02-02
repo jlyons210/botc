@@ -50,6 +50,7 @@ export class OpenAIClient {
     catch (error) {
       if (error instanceof OpenAI.APIError) {
         console.error(`OpenAIClient.createCompletion: OpenAI API error.`);
+        console.error(`OpenAIClient.createCompletion: error: ${error.message}`);
       }
       else {
         console.error(`OpenAIClient.createCompletion: ${error}`);
@@ -66,7 +67,10 @@ export class OpenAIClient {
    * @param {CustomSystemPrompt} customSystemPrompt Custom system prompt
    * @returns {ChatCompletionMessageParam[]} Chat completion message
    */
-  private createPromptPayload(messageHistory: BotcMessage[], customSystemPrompt?: CustomSystemPrompt): ChatCompletionMessageParam[] {
+  private createPromptPayload(
+    messageHistory: BotcMessage[],
+    customSystemPrompt?: CustomSystemPrompt,
+  ): ChatCompletionMessageParam[] {
     const payload = messageHistory.map(message => ({
       content: message.content,
       name: message.nameSanitized,
@@ -82,6 +86,8 @@ export class OpenAIClient {
       role: 'system',
     });
 
+    console.debug(`--- Prompt payload: ${JSON.stringify(payload)}`);
+
     return payload;
   }
 
@@ -90,32 +96,44 @@ export class OpenAIClient {
    * @param {string} imageUrl Image URL
    * @returns {Promise<string>} Image description
    */
-  public async describeImage(imageUrl: string): Promise<string> {
+  private async describeImage(imageUrl: string): Promise<string> {
+    const describeImagePrompt = this.config.describeImagePrompt.value as string;
     const payload = [{
-      content: [{
-        text: 'Describe this image in as much detail as is possible.',
-        type: 'text',
-      },
-      {
-        image_url: imageUrl,
-        type: 'image_url',
-      }],
       role: 'user',
-    }] as ChatCompletionMessageParam[];
+      content: [
+        { type: 'text', text: describeImagePrompt },
+        { type: 'image_url', image_url: { url: imageUrl } },
+      ],
+    }] satisfies ChatCompletionMessageParam[];
+
+    console.debug(`--- Describing image: ${imageUrl}`);
 
     return await this.createCompletion(payload);
   }
 
   /**
-   * Handle image description request
-   * @param {EventMap['BotcMessage:DescribeAttachedImages']} data Image description request
+   * Describe images in message history
+   * @param {BotcMessage[]} messageHistory Message history
    */
-  private async handleDescribeAttachedImages(data: EventMap['BotcMessage:DescribeAttachedImages']): Promise<void> {
-    Promise.all(data.message.attachedImages.map(async (image) => {
-      image.description = await this.describeImage(image.imageUrl);
-    }));
+  private async describeImages(messageHistory: BotcMessage[]): Promise<void> {
+    // Process entire message history
+    await Promise.all(messageHistory
 
-    console.debug(`OpenAIClient.handleDescribeAttachedImages: ${JSON.stringify(data.message.attachedImages)}`);
+      // Filter messages with attached images
+      .filter(message => message.hasAttachedImages)
+
+      // Describe attached images
+      .map(async (message) => {
+        await Promise.all(
+          message.attachedImages.map(async (image) => {
+            const description = await this.describeImage(image);
+            message.addImageDescription(description);
+          }),
+        );
+
+        console.debug(`--- Image descriptions: ${message.imageDescriptions}`);
+      }),
+    );
   }
 
   /**
@@ -131,6 +149,11 @@ export class OpenAIClient {
 
     // Start typing indicator
     this.startTyping(data.messageHistory[0].channelId);
+
+    // Describe images in server and channel message history
+    await this.describeImages(data.serverHistory);
+    await this.describeImages(data.messageHistory);
+    console.debug(`--- Server history: ${JSON.stringify(data.serverHistory)}`);
 
     // Generate a summary of the user's server-wide behavior
     const nameSanitized = data.messageHistory[0].nameSanitized;
@@ -158,10 +181,6 @@ export class OpenAIClient {
    * Register event handlers
    */
   private registerHandlers(): void {
-    this.globalEvents.on('BotcMessage:DescribeAttachedImages', (data) => {
-      this.handleDescribeAttachedImages(data);
-    });
-
     this.globalEvents.on('MessagePipeline:IncomingMessage', (data) => {
       this.handleIncomingMessage(data);
     });
@@ -183,7 +202,7 @@ export class OpenAIClient {
    * @returns {Promise<boolean>} boolean
    */
   private async willReplyToMessage(messageHistory: BotcMessage[]): Promise<boolean> {
-    const payload = this.createPromptPayload(messageHistory, {
+    const payload = await this.createPromptPayload(messageHistory, {
       value: this.config.replyDecisionPrompt.value as string,
       append: false,
     });
