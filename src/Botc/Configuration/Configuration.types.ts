@@ -18,6 +18,7 @@ export interface LlmsSettings {
 
 export interface OpenAISettings {
   apikey: ConfigurationSettings;
+  describeImageCacheTtlHours: ConfigurationSettings;
   describeImagePrompt: ConfigurationSettings;
   maxRetries: ConfigurationSettings;
   model: ConfigurationSettings;

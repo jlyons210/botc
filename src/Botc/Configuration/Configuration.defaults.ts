@@ -17,17 +17,17 @@ export const ConfigurationDefaults: ConfigurationOptions = {
        * for messages to process as conversation context.
        */
       channelHistoryHours: {
-        value: 24,
         environmentVariable: 'DISCORD_CHANNEL_HISTORY_HOURS',
+        value: 24,
       },
 
       /**
        * Discord bot token, used to authenticate with Discord API
        */
       token: {
-        value: '',
         environmentVariable: 'DISCORD_BOT_TOKEN',
         secret: true,
+        value: '',
       },
 
     },
@@ -54,14 +54,22 @@ export const ConfigurationDefaults: ConfigurationOptions = {
       },
 
       /**
+       * Time-to-live for image descriptions in cache in hours
+       */
+      describeImageCacheTtlHours: {
+        environmentVariable: 'OPENAI_DESCRIBE_IMAGE_CACHE_TTL_HOURS',
+        value: 24,
+      },
+
+      /**
        * Used in OpenAIClient to describe images
        */
       describeImagePrompt: {
+        environmentVariable: 'OPENAI_DESCRIBE_IMAGE_PROMPT',
         value: [
           'Describe this image in reasonable detail. Do not use line breaks. If the image is ',
           'unclear, do your best. You are not being asked to identify individuals.',
         ].join(''),
-        environmentVariable: 'OPENAI_DESCRIBE_IMAGE_PROMPT',
       },
 
       /**
@@ -88,6 +96,7 @@ export const ConfigurationDefaults: ConfigurationOptions = {
        * Used in OpenAIClient to determine whether or not to respond to a message
        */
       replyDecisionPrompt: {
+        environmentVariable: 'OPENAI_REPLY_DECISION_PROMPT',
         value: [
           'This prompt is meant to only produce a "yes" or "no" response in back-end code. DO NOT ',
           'CONVERSE.\n\n',
@@ -107,13 +116,13 @@ export const ConfigurationDefaults: ConfigurationOptions = {
           '"conversationTarget": "[conversationTarget]", "botcIsAddressed": "true|false" }`.\n',
           'AGAIN, DO NOT CONVERSE. DO NOT USE MARKDOWN FORMATTING.',
         ].join(''),
-        environmentVariable: 'OPENAI_REPLY_DECISION_PROMPT',
       },
 
       /**
        * OpenAI system prompt to use for chat completions
        */
       systemPrompt: {
+        environmentVariable: 'OPENAI_SYSTEM_PROMPT',
         value: [
           'You are `botc`: a simple, helpful, and friendly chatbot. You adhere to the three laws ',
           'of robotics. This is a Discord chat, so keep your responses concise and ',
@@ -121,7 +130,6 @@ export const ConfigurationDefaults: ConfigurationOptions = {
           'Avoid using long, heavily formatted responses. Do not repeat back any metadata ',
           'enclosed in angle brackets.',
         ].join(''),
-        environmentVariable: 'OPENAI_SYSTEM_PROMPT',
       },
 
       /**
