@@ -12,14 +12,9 @@ import { EventBus } from './EventBus/index.js';
  * interacting with the message.
  */
 export class BotcMessage {
-  // Private objects
   private globalEvents = EventBus.attach();
-
-  // Private properties
   private readonly message: Message;
   private readonly botUserId: string;
-
-  // Private backing variables
   private _attachedImages: BotcMessageImageAttachment[] = [];
   private _imageDescriptions: string[] = [];
   private _nameSanitized!: string;

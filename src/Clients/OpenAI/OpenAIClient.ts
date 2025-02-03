@@ -10,11 +10,8 @@ import { OpenAISettings } from '../../Botc/Configuration/index.js';
  * @todo Enhance API error handling. Returning '' will break Discord message sending.
  */
 export class OpenAIClient {
-  // Private objects
   private client: OpenAI;
   private globalEvents = EventBus.attach();
-
-  // Private properties
   private imageDescriptionCache: Record<string, string> = {};
   private model: string;
 
