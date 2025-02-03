@@ -11,12 +11,6 @@ import { EventBus } from './EventBus/index.js';
  * **BotcMessage** A wrapper for Discord.js Message objects that provides additional properties and
  * methods for interacting with the message.
  * @class
- * @todo
- * - The `content` getter should only ever return the original message content.
- * - Other message metadata should be appended to `content`, and stored in appropriate arrays.
- *   - `createdTimestamp` should be appended to `content` as metadata.
- *   - `imageDescriptions` should be appended to `content` as metadata.
- * - A `getPromptContent` function could be added to return `content` with appended metadata.
  */
 export class BotcMessage {
   // Private objects
@@ -46,6 +40,32 @@ export class BotcMessage {
    */
   public addImageDescription(description: string): void {
     this._imageDescriptions.push(description);
+  }
+
+  /**
+   * Get the content of the message for the OpenAI prompt
+   * @returns {string} Prompt content
+   */
+  private getPromptContent(): string {
+    const imageDescriptions = this.hasAttachedImages
+      ? `Image descriptions:\n${this.imageDescriptions.join('\n---\n')}`
+      : '';
+
+    const createTimestampLocal = new Date(this.createdTimestamp).toLocaleString('en-US', {
+      timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+    });
+
+    const promptContent = [
+      `${this.content}`,
+      `<Message Metadata>`,
+      `Message timestamp: ${createTimestampLocal}`,
+      `${imageDescriptions}`,
+      `</Message Metadata>`,
+    ].join('\n');
+
+    console.debug(`Prompt content:\n${promptContent}`);
+
+    return promptContent;
   }
 
   /**
@@ -101,9 +121,7 @@ export class BotcMessage {
    * @readonly
    */
   public get content(): string {
-    return (this.imageDescriptions)
-      ? `${this.message.content}\n${this.imageDescriptions}`
-      : this.message.content;
+    return this.message.content;
   }
 
   /**
@@ -134,33 +152,12 @@ export class BotcMessage {
   }
 
   /**
-   * Description of the images attached to the message
-   * @returns {string} Joined image descriptions
+   * Descriptions of images attached to the message
+   * @returns {string[]} Image descriptions
    * @readonly
    */
-  public get imageDescriptions(): string {
-    if (this._imageDescriptions.length) {
-      return [
-        'Description of attached images:',
-        ...this._imageDescriptions,
-      ].join('\n');
-    }
-    else {
-      return '';
-    }
-  }
-
-  /**
-   * Message author username (sanitized) used by the OpenAI prompt username field.
-   * @returns {string} string
-   * @readonly
-   * @todo Rename to `promptUsername`
-   */
-  public get nameSanitized(): string {
-    if (!this._nameSanitized) {
-      this._nameSanitized = this.message.author.username.replace(/[^a-zA-Z0-9_-]/g, '-');
-    }
-    return this._nameSanitized;
+  public get imageDescriptions(): string[] {
+    return this._imageDescriptions;
   }
 
   /**
@@ -172,15 +169,35 @@ export class BotcMessage {
   }
 
   /**
-   * Message role used by the OpenAI prompt role field.
-   * @returns {string} string
+   * Message content used by the OpenAI prompt content field.
+   * @returns {string} Prompt content
    * @readonly
-   * @todo Rename to `promptRole`
    */
-  public get role(): string {
+  public get promptContent(): string {
+    return this.getPromptContent();
+  }
+
+  /**
+   * Message role used by the OpenAI prompt role field.
+   * @returns {string} Prompt role
+   * @readonly
+   */
+  public get promptRole(): string {
     return (this.botUserId === this.message.author.id)
       ? 'assistant'
       : 'user';
+  }
+
+  /**
+   * Message author username (sanitized) used by the OpenAI prompt username field.
+   * @returns {string} Prompt username
+   * @readonly
+   */
+  public get promptUsername(): string {
+    if (!this._nameSanitized) {
+      this._nameSanitized = this.message.author.username.replace(/[^a-zA-Z0-9_-]/g, '-');
+    }
+    return this._nameSanitized;
   }
 
   /**

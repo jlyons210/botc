@@ -83,14 +83,17 @@ export class OpenAIClient {
   private async createPromptPayload(config: CreatePromptPayloadConfig): Promise<ChatCompletionMessageParam[]> {
     // Map BotcMessage[] to ChatCompletionMessageParam[]
     const payload = config.messageHistory.map(message => ({
-      content: message.content,
-      name: message.nameSanitized,
-      role: message.role,
+      content: message.promptContent,
+      name: message.promptUsername,
+      role: message.promptRole,
     } as ChatCompletionMessageParam));
 
     // Construct system prompt
     const systemPrompt = (config.customSystemPrompt?.append)
-      ? `${this.config.systemPrompt.value as string}\n${config.customSystemPrompt.value}`
+      ? [
+          `${this.config.systemPrompt.value as string}`,
+          `${config.customSystemPrompt.value}`,
+        ].join('\n')
       : config.customSystemPrompt?.value || this.config.systemPrompt.value as string;
 
     // Prepend system prompt
@@ -173,7 +176,7 @@ export class OpenAIClient {
     await this.describeImages(data.messageHistory);
 
     // Generate a summary of the user's server-wide behavior
-    const nameSanitized = data.messageHistory[0].nameSanitized;
+    const nameSanitized = data.messageHistory[0].promptUsername;
     const personaPrompt = await this.createPromptPayload({
       messageHistory: data.serverHistory,
       customSystemPrompt: {
@@ -187,7 +190,12 @@ export class OpenAIClient {
     const payload = await this.createPromptPayload({
       messageHistory: data.messageHistory,
       customSystemPrompt: {
-        value: `For a richer response, here is a summary about ${nameSanitized}:\n${persona}`,
+        value: [
+          `<Sender Persona>`,
+          `For a richer response, here is a summary about ${nameSanitized}:`,
+          `${persona}`,
+          `</Sender Persona>`,
+        ].join('\n'),
         append: true,
       },
     });
