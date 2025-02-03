@@ -7,7 +7,6 @@ import { OpenAISettings } from '../../Botc/Configuration/index.js';
 
 /**
  * OpenAI client wrapper
- * @class
  * @todo Enhance API error handling. Returning '' will break Discord message sending.
  */
 export class OpenAIClient {

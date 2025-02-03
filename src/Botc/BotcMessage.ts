@@ -8,9 +8,8 @@ import { ChannelType, Message } from 'discord.js';
 import { EventBus } from './EventBus/index.js';
 
 /**
- * **BotcMessage** A wrapper for Discord.js Message objects that provides additional properties and
- * methods for interacting with the message.
- * @class
+ * A wrapper for Discord.js Message objects that provides additional properties and methods for
+ * interacting with the message.
  */
 export class BotcMessage {
   // Private objects
@@ -71,7 +70,6 @@ export class BotcMessage {
   /**
    * Populates a collection of image attachments with metadata from the message
    * @returns {BotcMessageImageAttachment[]} Collection of image attachments
-   * @readonly
    */
   public get attachedImages(): BotcMessageImageAttachment[] {
     if (this._attachedImages.length === 0) {
@@ -109,7 +107,6 @@ export class BotcMessage {
   /**
    * Message channel ID
    * @returns {string} Channel ID
-   * @readonly
    */
   public get channelId(): string {
     return this.message.channel.id;
@@ -118,7 +115,6 @@ export class BotcMessage {
   /**
    * Message content
    * @returns {string} string
-   * @readonly
    */
   public get content(): string {
     return this.message.content;
@@ -127,7 +123,6 @@ export class BotcMessage {
   /**
    * Message created timestamp
    * @returns {number} number
-   * @readonly
    */
   public get createdTimestamp(): number {
     return this.message.createdTimestamp;
@@ -136,7 +131,6 @@ export class BotcMessage {
   /**
    * Message author display name. Falls back to username if no display name is available.
    * @returns {string} Display name or username
-   * @readonly
    */
   public get displayName(): string {
     return this.message.member?.displayName || this.username;
@@ -145,7 +139,6 @@ export class BotcMessage {
   /**
    * Returns true if the message has any attachments
    * @returns {boolean} boolean
-   * @readonly
    */
   public get hasAttachedImages(): boolean {
     return this.attachedImages.length > 0 || this.originalMessage.attachments.size > 0;
@@ -154,7 +147,6 @@ export class BotcMessage {
   /**
    * Descriptions of images attached to the message
    * @returns {string[]} Image descriptions
-   * @readonly
    */
   public get imageDescriptions(): string[] {
     return this._imageDescriptions;
@@ -171,7 +163,6 @@ export class BotcMessage {
   /**
    * Message content used by the OpenAI prompt content field.
    * @returns {string} Prompt content
-   * @readonly
    */
   public get promptContent(): string {
     return this.getPromptContent();
@@ -180,7 +171,6 @@ export class BotcMessage {
   /**
    * Message role used by the OpenAI prompt role field.
    * @returns {string} Prompt role
-   * @readonly
    */
   public get promptRole(): string {
     return (this.botUserId === this.message.author.id)
@@ -191,7 +181,6 @@ export class BotcMessage {
   /**
    * Message author username (sanitized) used by the OpenAI prompt username field.
    * @returns {string} Prompt username
-   * @readonly
    */
   public get promptUsername(): string {
     if (!this._nameSanitized) {
@@ -203,7 +192,6 @@ export class BotcMessage {
   /**
    * Discord message type
    * @returns {BotcMessageType} Type of message being processed
-   * @readonly
    */
   public get type(): BotcMessageType {
     switch (true) {
@@ -228,7 +216,6 @@ export class BotcMessage {
   /**
    * Message author username
    * @returns {string} Username (not displayname)
-   * @readonly
    */
   public get username(): string {
     return this.message.author.username;
