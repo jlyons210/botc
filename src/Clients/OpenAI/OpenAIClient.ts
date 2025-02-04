@@ -5,6 +5,7 @@ import { ChatCompletionMessageParam } from 'openai/resources/index.mjs';
 import { DescribeImageCache } from './DescribeImageCache/DescribeImageCache.js';
 import OpenAI from 'openai';
 import { OpenAISettings } from '../../Botc/Configuration/index.js';
+import { PersonaCache } from './PersonaCache/PersonaCache.js';
 
 /**
  * OpenAI client wrapper
@@ -14,7 +15,8 @@ export class OpenAIClient {
   private client: OpenAI;
   private globalEvents = EventBus.attach();
   private imageDescriptionCache!: DescribeImageCache;
-  private model: string;
+  private personaCache!: PersonaCache;
+  private readonly model: string;
 
   /**
    * New OpenAIClient
@@ -33,9 +35,13 @@ export class OpenAIClient {
     // Set model from configuration
     this.model = config.model.value as string;
 
-    // Initialize image description cache
+    // Initialize caches
     this.imageDescriptionCache = new DescribeImageCache({
       ttlHours: config.describeImageCacheTtlHours.value as number,
+    });
+
+    this.personaCache = new PersonaCache({
+      ttlHours: config.personaCacheTtlHours.value as number,
     });
 
     // Emit ready event
@@ -172,7 +178,6 @@ export class OpenAIClient {
       description: description,
     });
 
-    // Return image description
     return description;
   }
 
@@ -206,6 +211,13 @@ export class OpenAIClient {
    */
   private async generatePersonaSummary(serverHistory: BotcMessage[]): Promise<string> {
     const nameSanitized = serverHistory[0].promptUsername;
+
+    // Check cache for persona and return if found
+    if (this.personaCache.isCached(nameSanitized)) {
+      return this.personaCache.getPersona(nameSanitized);
+    }
+
+    // Create persona for user
     const payload = await this.createPromptPayload({
       messageHistory: serverHistory,
       customSystemPrompt: {
@@ -213,8 +225,15 @@ export class OpenAIClient {
         append: false,
       },
     });
+    const persona = await this.createCompletion(payload);
 
-    return await this.createCompletion(payload);
+    // Cache persona
+    this.personaCache.cache({
+      username: nameSanitized,
+      persona: persona,
+    });
+
+    return persona;
   }
 
   /**
