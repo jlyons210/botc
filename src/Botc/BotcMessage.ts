@@ -52,6 +52,7 @@ export class BotcMessage {
     const promptContent = [
       `${this.content}`,
       `<Message Metadata>`,
+      `Preferred name: ${this.displayName}`,
       `Message timestamp: ${createTimestampLocal}`,
       `${imageDescriptions}`,
       `</Message Metadata>`,
