@@ -16,13 +16,21 @@ export interface LlmsSettings {
   openai: OpenAISettings;
 }
 
+export interface OpenAICacheSettings {
+  describeImageCacheTtlHours: ConfigurationSettings;
+  logCacheEntries: ConfigurationSettings;
+  logCacheHits: ConfigurationSettings;
+  logCacheMisses: ConfigurationSettings;
+  logCachePurges: ConfigurationSettings;
+  personaCacheTtlHours: ConfigurationSettings;
+}
+
 export interface OpenAISettings {
   apikey: ConfigurationSettings;
-  describeImageCacheTtlHours: ConfigurationSettings;
+  caching: OpenAICacheSettings;
   describeImagePrompt: ConfigurationSettings;
   maxRetries: ConfigurationSettings;
   model: ConfigurationSettings;
-  personaCacheTtlHours: ConfigurationSettings;
   replyDecisionPrompt: ConfigurationSettings;
   systemPrompt: ConfigurationSettings;
   timeout: ConfigurationSettings;
@@ -32,5 +40,5 @@ export interface ConfigurationSettings {
   environmentVariable: string;
   secret?: boolean;
   options?: string[];
-  value: string | number;
+  value: string | number | boolean;
 };
