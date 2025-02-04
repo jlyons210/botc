@@ -2,10 +2,9 @@ import { BotcMessage, BotcMessageImageAttachment } from '../../Botc/index.js';
 import { CreatePromptPayloadConfig, ReplyDecisionResponse } from './index.js';
 import { EventBus, EventMap } from '../../Botc/EventBus/index.js';
 import { ChatCompletionMessageParam } from 'openai/resources/index.mjs';
-import { DescribeImageCache } from './DescribeImageCache/DescribeImageCache.js';
+import { ObjectCache } from './ObjectCache/ObjectCache.js';
 import OpenAI from 'openai';
 import { OpenAISettings } from '../../Botc/Configuration/index.js';
-import { PersonaCache } from './PersonaCache/PersonaCache.js';
 
 /**
  * OpenAI client wrapper
@@ -14,8 +13,8 @@ import { PersonaCache } from './PersonaCache/PersonaCache.js';
 export class OpenAIClient {
   private client: OpenAI;
   private globalEvents = EventBus.attach();
-  private imageDescriptionCache!: DescribeImageCache;
-  private personaCache!: PersonaCache;
+  private imageDescriptionCache!: ObjectCache;
+  private personaCache!: ObjectCache;
   private readonly model: string;
 
   /**
@@ -36,11 +35,11 @@ export class OpenAIClient {
     this.model = config.model.value as string;
 
     // Initialize caches
-    this.imageDescriptionCache = new DescribeImageCache({
+    this.imageDescriptionCache = new ObjectCache({
       ttlHours: config.describeImageCacheTtlHours.value as number,
     });
 
-    this.personaCache = new PersonaCache({
+    this.personaCache = new ObjectCache({
       ttlHours: config.personaCacheTtlHours.value as number,
     });
 
@@ -158,7 +157,7 @@ export class OpenAIClient {
   private async describeImage(image: BotcMessageImageAttachment): Promise<string> {
     // Check cache for image description and return if found
     if (this.imageDescriptionCache.isCached(image.imageUrl)) {
-      return this.imageDescriptionCache.getDescription(image.imageUrl);
+      return this.imageDescriptionCache.getValue(image.imageUrl);
     }
 
     // Create completion for image description
@@ -174,8 +173,8 @@ export class OpenAIClient {
 
     // Cache image description
     this.imageDescriptionCache.cache({
-      url: image.imageUrl,
-      description: description,
+      key: image.imageUrl,
+      value: description,
     });
 
     return description;
@@ -214,7 +213,7 @@ export class OpenAIClient {
 
     // Check cache for persona and return if found
     if (this.personaCache.isCached(nameSanitized)) {
-      return this.personaCache.getPersona(nameSanitized);
+      return this.personaCache.getValue(nameSanitized);
     }
 
     // Create persona for user
@@ -229,8 +228,8 @@ export class OpenAIClient {
 
     // Cache persona
     this.personaCache.cache({
-      username: nameSanitized,
-      persona: persona,
+      key: nameSanitized,
+      value: persona,
     });
 
     return persona;

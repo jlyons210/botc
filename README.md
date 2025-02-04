@@ -21,10 +21,9 @@ My intent is for **Botc** to engage with chat users in a more human-like fashion
 ## Features
 
 - Monitors channels for active conversations, engaging automatically when a reasoning prompt determines that it would be appropriate.
-- Bot builds a server-wide persona of users being engaged to enhance responses. This will need caching to mitigate heavy Discord API polling.
-- Examine and comprehend user images attachments. Image descriptions are cached to prevent repeated, slow/expensive API calls.
+- Bot builds a server-wide persona of users being engaged to enhance responses. Personas are cached to limit API polling.
+- Examine and comprehend user images attachments. Image descriptions are cached to limit API polling.
 - System/developer prompts and individual messages have a section containing metadata that enables the enriching of responses issued by the chat API.
-- User summary/persona caching.
 
 [View Changelog](doc/CHANGELOG.md)
 
