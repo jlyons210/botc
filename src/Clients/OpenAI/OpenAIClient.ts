@@ -2,21 +2,18 @@ import { BotcMessage, BotcMessageImageAttachment } from '../../Botc/index.js';
 import { CreatePromptPayloadConfig, ReplyDecisionResponse } from './index.js';
 import { EventBus, EventMap } from '../../Botc/EventBus/index.js';
 import { ChatCompletionMessageParam } from 'openai/resources/index.mjs';
+import { DescribeImageCache } from './DescribeImageCache/DescribeImageCache.js';
 import OpenAI from 'openai';
 import { OpenAISettings } from '../../Botc/Configuration/index.js';
 
 /**
  * OpenAI client wrapper
- * @class
  * @todo Enhance API error handling. Returning '' will break Discord message sending.
  */
 export class OpenAIClient {
-  // Private objects
   private client: OpenAI;
   private globalEvents = EventBus.attach();
-
-  // Private properties
-  private imageDescriptionCache: Record<string, string> = {};
+  private imageDescriptionCache!: DescribeImageCache;
   private model: string;
 
   /**
@@ -35,6 +32,11 @@ export class OpenAIClient {
 
     // Set model from configuration
     this.model = config.model.value as string;
+
+    // Initialize image description cache
+    this.imageDescriptionCache = new DescribeImageCache({
+      ttlHours: config.describeImageCacheTtlHours.value as number,
+    });
 
     // Emit ready event
     this.globalEvents.emit('OpenAIClient:Ready', {
@@ -112,8 +114,8 @@ export class OpenAIClient {
    */
   private async describeImage(image: BotcMessageImageAttachment): Promise<string> {
     // Check cache for image description and return if found
-    if (this.imageDescriptionCache[image.imageUrl]) {
-      return this.imageDescriptionCache[image.imageUrl];
+    if (this.imageDescriptionCache.isCached(image.imageUrl)) {
+      return this.imageDescriptionCache.getDescription(image.imageUrl);
     }
 
     // Create completion for image description
@@ -128,7 +130,10 @@ export class OpenAIClient {
     const description = await this.createCompletion(payload);
 
     // Cache image description
-    this.imageDescriptionCache[image.imageUrl] = description;
+    this.imageDescriptionCache.cache({
+      url: image.imageUrl,
+      description: description,
+    });
 
     // Return image description
     return description;

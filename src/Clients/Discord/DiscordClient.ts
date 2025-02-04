@@ -19,11 +19,8 @@ import { EventBus } from '../../Botc/EventBus/index.js';
  * Utility functions for DiscordBot
  */
 export class DiscordClient {
-  // Private objects
   private discordClient!: Client;
   private globalEvents = EventBus.attach();
-
-  // Private properties
   private botUserId!: string;
 
   /**

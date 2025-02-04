@@ -22,7 +22,7 @@ My intent is for **Botc** to engage with chat users in a more human-like fashion
 
 - Monitors channels for active conversations, engaging automatically when a reasoning prompt determines that it would be appropriate.
 - Bot builds a server-wide persona of users being engaged to enhance responses. This will need caching to mitigate heavy Discord API polling.
-- Examine and comprehend user images attachments.
+- Examine and comprehend user images attachments. Image descriptions are cached to prevent repeated, slow/expensive API calls.
 - System/developer prompts and individual messages have a section containing metadata that enables the enriching of responses issued by the chat API.
 
 [View Changelog](doc/CHANGELOG.md)
@@ -43,16 +43,17 @@ Configuration is achieved through environment variables, which are also easily p
 
 | Environment | Default | Description |
 |---|---|---|
-|`DISCORD_BOT_TOKEN`| N/A |Your [Discord Developer Portal](https://discord.com/developers/applications) bot token.|
-|`OPENAI_API_KEY`| N/A |Your [OpenAI platform](https://platform.openai.com/settings/) API key.|
+| `DISCORD_BOT_TOKEN` | N/A | Your [Discord Developer Portal](https://discord.com/developers/applications) bot token. |
+| `OPENAI_API_KEY` | N/A | Your [OpenAI platform](https://platform.openai.com/settings/) API key. |
 
 ### Optional
 
 | Environment | Default | Description |
-|---|---|---|
-|`DISCORD_CHANNEL_HISTORY_HOURS` | `24` | Number of hours of past messsages to ingest for conversation context. |
-|`OPENAI_DESCRIBE_IMAGE_PROMPT` | [Source](https://github.com/jlyons210/botc/blob/main/src/Botc/Configuration/Configuration.defaults.ts) | Prompt used to describe attached images. |
-| `OPENAI_MAX_RETRIES` | `6` | Number of OpenAI API retries on retriable errors. |
+| --- | --- | --- |
+| `DISCORD_CHANNEL_HISTORY_HOURS` | `24` | Number of hours of past messsages to ingest for conversation context. |
+| `OPENAI_DESCRIBE_IMAGE_CACHE_TTL_HOURS` | `24` | Number of hours to cache image descriptions (reduces repeat of slow API calls). |
+| `OPENAI_DESCRIBE_IMAGE_PROMPT` | [Source](https://github.com/jlyons210/botc/blob/main/src/Botc/Configuration/Configuration.defaults.ts) | Prompt used to describe attached images. |
+| `OPENAI_MAX_RETRIES` | `3` | Number of OpenAI API retries on retriable errors. |
 | `OPENAI_MODEL` | `gpt-4o-mini` | OpenAI model to use for chat completions. |
 | `OPENAI_REPLY_DECISION_PROMPT` | [Source](https://github.com/jlyons210/botc/blob/main/src/Botc/Configuration/Configuration.defaults.ts) | Prompt used to reason whether or not the bot should engage in conversation. |
 | `OPENAI_SYSTEM_PROMPT` | [Source](https://github.com/jlyons210/botc/blob/main/src/Botc/Configuration/Configuration.defaults.ts) | Behavioral prompt to set the overall bot behavior. |
