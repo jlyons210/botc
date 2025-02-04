@@ -51,20 +51,19 @@ export class ObjectCache {
   /**
    * Retrieve cached value from key
    * @param {string} key Entry key
-   * @returns {string} Cached value
-   * @throws {Error} if key not found
+   * @returns {string | undefined} Cached value or undefined if not found
    */
-  public getValue(key: string): string {
-    const value = this.cached[key];
+  public getValue(key: string): string | undefined {
+    const entry = this.cached[key];
 
-    if (value) {
-      if (this.config.logging?.logCacheHits) {
-        console.debug(`ObjectCache.getValue: Retrieving ${key}`);
-      }
-      return value.value;
+    if (entry && this.config.logging?.logCacheHits) {
+      console.debug(`ObjectCache.getValue: Cache hit for ${key}`);
+      return entry.value;
     }
-    else {
-      throw new Error(`ObjectCache.getValue: ${key} not found`);
+
+    if (!entry && this.config.logging?.logCacheMisses) {
+      console.debug(`ObjectCache.getValue: Cache miss for ${key}`);
+      return undefined;
     }
   }
 
@@ -74,6 +73,6 @@ export class ObjectCache {
    * @returns {boolean} true if cached
    */
   public isCached(key: string): boolean {
-    return (this.getValue(key) !== '');
+    return (this.getValue(key) !== undefined);
   }
 }

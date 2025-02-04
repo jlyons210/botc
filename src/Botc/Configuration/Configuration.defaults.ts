@@ -54,11 +54,58 @@ export const ConfigurationDefaults: ConfigurationOptions = {
       },
 
       /**
-       * Time-to-live for image descriptions in cache in hours
+       * OpenAI cache configuration
        */
-      describeImageCacheTtlHours: {
-        environmentVariable: 'OPENAI_DESCRIBE_IMAGE_CACHE_TTL_HOURS',
-        value: 24,
+      caching: {
+
+        /**
+         * Time-to-live for image descriptions in cache in hours
+         */
+        describeImageCacheTtlHours: {
+          environmentVariable: 'OPENAI_DESCRIBE_IMAGE_CACHE_TTL_HOURS',
+          value: 24,
+        },
+
+        /**
+         * Log new cache entries
+         */
+        logCacheEntries: {
+          environmentVariable: 'OPENAI_CACHE_LOG_ENTRIES',
+          value: false,
+        },
+
+        /**
+         * Log cache hits
+         */
+        logCacheHits: {
+          environmentVariable: 'OPENAI_CACHE_LOG_HITS',
+          value: false,
+        },
+
+        /**
+         * Log cache misses
+         */
+        logCacheMisses: {
+          environmentVariable: 'OPENAI_CACHE_LOG_MISSES',
+          value: false,
+        },
+
+        /**
+         * Log cache purges
+         */
+        logCachePurges: {
+          environmentVariable: 'OPENAI_CACHE_LOG_PURGES',
+          value: false,
+        },
+
+        /**
+         * Time-to-live for persona cache in hours
+         */
+        personaCacheTtlHours: {
+          environmentVariable: 'OPENAI_PERSONA_CACHE_TTL_HOURS',
+          value: 3,
+        },
+
       },
 
       /**
@@ -90,14 +137,6 @@ export const ConfigurationDefaults: ConfigurationOptions = {
           'gpt-4o-mini',
         ],
         value: 'gpt-4o-mini',
-      },
-
-      /**
-       * Time-to-live for persona cache in hours
-       */
-      personaCacheTtlHours: {
-        environmentVariable: 'OPENAI_PERSONA_CACHE_TTL_HOURS',
-        value: 3,
       },
 
       /**

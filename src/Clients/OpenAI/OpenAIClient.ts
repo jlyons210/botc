@@ -34,13 +34,26 @@ export class OpenAIClient {
     // Set model from configuration
     this.model = config.model.value as string;
 
-    // Initialize caches
+    // Initialize image description cache
     this.imageDescriptionCache = new ObjectCache({
-      ttlHours: config.describeImageCacheTtlHours.value as number,
+      ttlHours: config.caching.describeImageCacheTtlHours.value as number,
+      logging: {
+        logCacheEntries: config.caching.logCacheEntries.value as boolean,
+        logCacheHits: config.caching.logCacheHits.value as boolean,
+        logCacheMisses: config.caching.logCacheMisses.value as boolean,
+        logCachePurges: config.caching.logCachePurges.value as boolean,
+      },
     });
 
+    // Initialize persona cache
     this.personaCache = new ObjectCache({
-      ttlHours: config.personaCacheTtlHours.value as number,
+      ttlHours: config.caching.personaCacheTtlHours.value as number,
+      logging: {
+        logCacheEntries: config.caching.logCacheEntries.value as boolean,
+        logCacheHits: config.caching.logCacheHits.value as boolean,
+        logCacheMisses: config.caching.logCacheMisses.value as boolean,
+        logCachePurges: config.caching.logCachePurges.value as boolean,
+      },
     });
 
     // Emit ready event
@@ -157,7 +170,7 @@ export class OpenAIClient {
   private async describeImage(image: BotcMessageImageAttachment): Promise<string> {
     // Check cache for image description and return if found
     if (this.imageDescriptionCache.isCached(image.imageUrl)) {
-      return this.imageDescriptionCache.getValue(image.imageUrl);
+      return this.imageDescriptionCache.getValue(image.imageUrl) as string;
     }
 
     // Create completion for image description
@@ -213,7 +226,7 @@ export class OpenAIClient {
 
     // Check cache for persona and return if found
     if (this.personaCache.isCached(nameSanitized)) {
-      return this.personaCache.getValue(nameSanitized);
+      return this.personaCache.getValue(nameSanitized) as string;
     }
 
     // Create persona for user
