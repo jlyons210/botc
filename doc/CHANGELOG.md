@@ -14,6 +14,7 @@
 ---
 ## 0.6.0 (2024-02-03)
 - Added "Preferred name: (Discord display name)" to message metadata for more personalized responses.
+- Implemented a server-wide persona generation cache with TTL and automatic pruning.
 
 [:arrow_up: Back to top](#changelog)
 

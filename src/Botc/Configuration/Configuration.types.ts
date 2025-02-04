@@ -22,6 +22,7 @@ export interface OpenAISettings {
   describeImagePrompt: ConfigurationSettings;
   maxRetries: ConfigurationSettings;
   model: ConfigurationSettings;
+  personaCacheTtlHours: ConfigurationSettings;
   replyDecisionPrompt: ConfigurationSettings;
   systemPrompt: ConfigurationSettings;
   timeout: ConfigurationSettings;

@@ -93,6 +93,14 @@ export const ConfigurationDefaults: ConfigurationOptions = {
       },
 
       /**
+       * Time-to-live for persona cache in hours
+       */
+      personaCacheTtlHours: {
+        environmentVariable: 'OPENAI_PERSONA_CACHE_TTL_HOURS',
+        value: 3,
+      },
+
+      /**
        * Used in OpenAIClient to determine whether or not to respond to a message
        */
       replyDecisionPrompt: {
