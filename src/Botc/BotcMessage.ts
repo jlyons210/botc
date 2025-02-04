@@ -43,22 +43,20 @@ export class BotcMessage {
   private getPromptContent(): string {
     const imageDescriptions = this.hasAttachedImages
       ? `Image descriptions:\n${this.imageDescriptions.join('\n---\n')}`
-      : '';
+      : undefined;
 
     const createTimestampLocal = new Date(this.createdTimestamp).toLocaleString('en-US', {
       timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
     });
 
     const promptContent = [
-      `${this.content}`,
+      this.content,
       `<Message Metadata>`,
       `Preferred name: ${this.displayName}`,
       `Message timestamp: ${createTimestampLocal}`,
-      `${imageDescriptions}`,
+      imageDescriptions,
       `</Message Metadata>`,
     ].join('\n');
-
-    console.debug(`Prompt content:\n${promptContent}`);
 
     return promptContent;
   }
