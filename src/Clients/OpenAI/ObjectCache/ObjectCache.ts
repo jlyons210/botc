@@ -56,13 +56,18 @@ export class ObjectCache {
   public getValue(key: string): string | undefined {
     const entry = this.cached[key];
 
-    if (entry && this.config.logging?.logCacheHits) {
-      console.debug(`ObjectCache.getValue: Cache hit for ${key}`);
+    if (entry) {
+      if (this.config.logging?.logCacheHits) {
+        console.debug(`ObjectCache.getValue: Cache hit for ${key}`);
+      }
+
       return entry.value;
     }
+    else {
+      if (this.config.logging?.logCacheMisses) {
+        console.debug(`ObjectCache.getValue: Cache miss for ${key}`);
+      }
 
-    if (!entry && this.config.logging?.logCacheMisses) {
-      console.debug(`ObjectCache.getValue: Cache miss for ${key}`);
       return undefined;
     }
   }
