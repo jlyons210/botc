@@ -45,6 +45,46 @@ export class OpenAIClient {
   }
 
   /**
+   * Register event handlers
+   */
+  private registerHandlers(): void {
+    this.globalEvents.on('MessagePipeline:IncomingMessage',
+      this.handleIncomingMessage.bind(this),
+    );
+  }
+
+  /**
+   * Handle incoming message
+   * @param {EventMap['MessagePipeline:IncomingMessage']} data Incoming message
+   */
+  private async handleIncomingMessage(data: EventMap['MessagePipeline:IncomingMessage']): Promise<void> {
+    // Bypass reply decision prompt for DMs, evaluate otherwise
+    const messageIsDM = data.messageHistory[0].type === 'DirectMessage';
+    if (!messageIsDM && !await this.willReplyToMessage(data.messageHistory)) {
+      return;
+    }
+
+    // Start typing indicator
+    this.startTyping(data.messageHistory[0].channelId);
+
+    // Describe images in server and channel message history
+    await this.describeImages(data.serverHistory);
+    await this.describeImages(data.messageHistory);
+
+    // Generate a summary of the user's server-wide behavior
+    const persona = await this.generatePersonaSummary(data.serverHistory);
+
+    // Generate a response, factoring in the user's persona
+    const responseMessage = await this.generateResponseMessage(data.messageHistory, persona);
+
+    // Emit the response
+    this.globalEvents.emit('OpenAIClient:ResponseComplete', {
+      channelId: data.messageHistory[0].channelId,
+      response: responseMessage,
+    });
+  }
+
+  /**
    * Create completion
    * @param {ChatCompletionMessageParam[]} payload Chat completion message
    * @returns {Promise<string>} string
@@ -92,10 +132,7 @@ export class OpenAIClient {
 
     // Construct system prompt
     const systemPrompt = (config.customSystemPrompt?.append)
-      ? [
-          `${this.config.systemPrompt.value as string}`,
-          `${config.customSystemPrompt.value}`,
-        ].join('\n')
+      ? [this.config.systemPrompt.value as string, config.customSystemPrompt.value].join('\n')
       : config.customSystemPrompt?.value || this.config.systemPrompt.value as string;
 
     // Prepend system prompt
@@ -163,63 +200,43 @@ export class OpenAIClient {
   }
 
   /**
-   * Handle incoming message
-   * @param {EventMap['MessagePipeline:IncomingMessage']} data Incoming message
+   * Generate a persona for a user based on server history
+   * @param {BotcMessage[]} serverHistory Server message history
+   * @returns {Promise<string>} Persona
    */
-  private async handleIncomingMessage(data: EventMap['MessagePipeline:IncomingMessage']): Promise<void> {
-    // Bypass reply decision prompt for DMs, evaluate otherwise
-    const messageIsDM = data.messageHistory[0].type === 'DirectMessage';
-    if (!messageIsDM && !await this.willReplyToMessage(data.messageHistory)) {
-      return;
-    }
-
-    // Start typing indicator
-    this.startTyping(data.messageHistory[0].channelId);
-
-    // Describe images in server and channel message history
-    await this.describeImages(data.serverHistory);
-    await this.describeImages(data.messageHistory);
-
-    // Generate a summary of the user's server-wide behavior
-    const nameSanitized = data.messageHistory[0].promptUsername;
-    const personaPrompt = await this.createPromptPayload({
-      messageHistory: data.serverHistory,
+  private async generatePersonaSummary(serverHistory: BotcMessage[]): Promise<string> {
+    const nameSanitized = serverHistory[0].promptUsername;
+    const payload = await this.createPromptPayload({
+      messageHistory: serverHistory,
       customSystemPrompt: {
         value: `Summarize the following messages to build a persona for the user ${nameSanitized}.`,
         append: false,
       },
     });
-    const persona = await this.createCompletion(personaPrompt);
 
-    // Generate a response, factoring in the user's persona
+    return await this.createCompletion(payload);
+  }
+
+  /**
+   * Generate response message
+   * @param {BotcMessage[]} messageHistory Channel message history
+   * @param {string} persona Summarized user persona
+   * @returns {Promise<string>} Response message
+   */
+  private async generateResponseMessage(messageHistory: BotcMessage[], persona: string): Promise<string> {
     const payload = await this.createPromptPayload({
-      messageHistory: data.messageHistory,
+      messageHistory: messageHistory,
       customSystemPrompt: {
         value: [
           `<Sender Persona>`,
-          `For a richer response, here is a summary about ${nameSanitized}:`,
-          `${persona}`,
+          persona,
           `</Sender Persona>`,
         ].join('\n'),
         append: true,
       },
     });
-    const responseMessage = await this.createCompletion(payload);
 
-    // Emit the response
-    this.globalEvents.emit('OpenAIClient:ResponseComplete', {
-      channelId: data.messageHistory[0].channelId,
-      response: responseMessage,
-    });
-  }
-
-  /**
-   * Register event handlers
-   */
-  private registerHandlers(): void {
-    this.globalEvents.on('MessagePipeline:IncomingMessage',
-      this.handleIncomingMessage.bind(this),
-    );
+    return await this.createCompletion(payload);
   }
 
   /**
