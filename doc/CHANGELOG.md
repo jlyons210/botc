@@ -4,6 +4,7 @@
 
 ## Pre-release
 
+- 0.6.x: [0.6.0](#060-2024-02-03)
 - 0.5.x: [0.5.0](#050-2024-02-03)
 - 0.4.x: [0.4.0](#040-2024-02-02)
 - 0.3.x: [0.3.0](#030-2024-02-01), [0.3.1](#031-2024-02-02)
@@ -11,6 +12,12 @@
 - 0.1.x: [0.1.0](#010-2024-01-24)
 
 ---
+## 0.6.0 (2024-02-03)
+- Added "Preferred name: (Discord display name)" to message metadata for more personalized responses.
+- Implemented a server-wide persona generation cache with TTL and automatic pruning.
+
+[:arrow_up: Back to top](#changelog)
+
 ## 0.5.0 (2024-02-03)
 - Implemented an image description cache with TTL and automatic pruning.
 

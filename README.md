@@ -24,13 +24,13 @@ My intent is for **Botc** to engage with chat users in a more human-like fashion
 - Bot builds a server-wide persona of users being engaged to enhance responses. This will need caching to mitigate heavy Discord API polling.
 - Examine and comprehend user images attachments. Image descriptions are cached to prevent repeated, slow/expensive API calls.
 - System/developer prompts and individual messages have a section containing metadata that enables the enriching of responses issued by the chat API.
+- User summary/persona caching.
 
 [View Changelog](doc/CHANGELOG.md)
 
 ## Roadmap
 
 - Timer for responding if no other users are active in chat.
-- User summary/persona caching
 - Examine and comprehend user attachments (audio) and crawl hyperlinks.
 - Image generation using DALL-E 3.
 - Perform web research on topics before responding, responding with citations.
@@ -51,10 +51,11 @@ Configuration is achieved through environment variables, which are also easily p
 | Environment | Default | Description |
 | --- | --- | --- |
 | `DISCORD_CHANNEL_HISTORY_HOURS` | `24` | Number of hours of past messsages to ingest for conversation context. |
-| `OPENAI_DESCRIBE_IMAGE_CACHE_TTL_HOURS` | `24` | Number of hours to cache image descriptions (reduces repeat of slow API calls). |
+| `OPENAI_DESCRIBE_IMAGE_CACHE_TTL_HOURS` | `24` | Number of hours to cache image descriptions (optimizes API polling). |
 | `OPENAI_DESCRIBE_IMAGE_PROMPT` | [Source](https://github.com/jlyons210/botc/blob/main/src/Botc/Configuration/Configuration.defaults.ts) | Prompt used to describe attached images. |
 | `OPENAI_MAX_RETRIES` | `3` | Number of OpenAI API retries on retriable errors. |
 | `OPENAI_MODEL` | `gpt-4o-mini` | OpenAI model to use for chat completions. |
+| `OPENAI_PERSONA_CACHE_TTL_HOURS` | `3` | Number of hours to cache server-wide user personas (optimizes API polling). |
 | `OPENAI_REPLY_DECISION_PROMPT` | [Source](https://github.com/jlyons210/botc/blob/main/src/Botc/Configuration/Configuration.defaults.ts) | Prompt used to reason whether or not the bot should engage in conversation. |
 | `OPENAI_SYSTEM_PROMPT` | [Source](https://github.com/jlyons210/botc/blob/main/src/Botc/Configuration/Configuration.defaults.ts) | Behavioral prompt to set the overall bot behavior. |
 | `OPENAI_TIMEOUT` | `15000` | Milliseconds to wait for OpenAI API response. |

@@ -12,7 +12,7 @@ export class DescribeImageCache {
 
   /**
    * New DescribeImageCache
-   * @param {DescribeImageCache} config configuration
+   * @param {DescribeImageCacheConfig} config configuration
    */
   constructor(private config: DescribeImageCacheConfig) {
     setInterval(() => this.clearExpired(), 60000);
