@@ -16,6 +16,7 @@
 ## 0.7.0 (2024-02-04)
 - Implemented a generic key-value cache.
 - Deleted nearly-identical persona and image description cache implementations.
+- Added configuration options for cache logging.
 
 [:arrow_up: Back to top](#changelog)
 
