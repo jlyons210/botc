@@ -1,5 +1,2 @@
 import { MessagePipeline } from './MessagePipeline.js';
-
-export {
-  MessagePipeline,
-};
+export { MessagePipeline };
