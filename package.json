@@ -29,6 +29,7 @@
   "homepage": "https://github.com/jlyons210/botc#readme",
   "type": "module",
   "dependencies": {
+    "canvas": "^3.1.0",
     "discord.js": "^14.17.3",
     "openai": "^4.82.0"
   },
