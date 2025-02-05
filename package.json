@@ -1,6 +1,6 @@
 {
   "name": "botc",
-  "version": "0.8.0",
+  "version": "0.8.1",
   "description": "My most ambitious Discord bot yet.",
   "main": "src/app.ts",
   "scripts": {
@@ -30,7 +30,7 @@
   "type": "module",
   "dependencies": {
     "discord.js": "^14.17.3",
-    "openai": "^4.82.0",
+    "openai": "^4.83.0",
     "sharp": "^0.33.5"
   },
   "devDependencies": {

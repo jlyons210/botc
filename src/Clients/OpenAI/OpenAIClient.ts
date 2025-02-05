@@ -77,28 +77,29 @@ export class OpenAIClient {
    * @param {EventMap['MessagePipeline:IncomingMessage']} data Incoming message
    */
   private async handleIncomingMessage(data: EventMap['MessagePipeline:IncomingMessage']): Promise<void> {
-    // Bypass reply decision prompt for DMs, evaluate otherwise
-    const messageIsDM = data.messageHistory[0].type === 'DirectMessage';
-    if (!messageIsDM && !await this.willReplyToMessage(data.messageHistory)) {
+    // Get the current channel history
+    const messageChannelId = data.message.originalMessage.channelId;
+    const channelHistory = await data.discordClient.getChannelHistory(messageChannelId);
+
+    // Ignore incoming messages sent from this bot, always respond to direct messages, and decide
+    // whether to respond based on conversation history.
+    const isDirectMessage = channelHistory[0].type === 'DirectMessage';
+    const isOwnMessage = channelHistory.at(-1)?.type === 'OwnMessage';
+    const willRespond = isDirectMessage || (!isOwnMessage && await this.willReplyToMessage(channelHistory));
+
+    if (!willRespond) {
       return;
     }
 
     // Start typing indicator
-    this.startTyping(data.messageHistory[0].channelId);
+    this.startTyping(channelHistory[0].channelId);
 
-    // Describe images in server and channel message history
-    await this.describeImages(data.serverHistory);
-    await this.describeImages(data.messageHistory);
-
-    // Generate a summary of the user's server-wide behavior
-    const persona = await this.generatePersonaSummary(data.serverHistory);
-
-    // Generate a response, factoring in the user's persona
-    const responseMessage = await this.generateResponseMessage(data.messageHistory, persona);
+    // Prepare response
+    const responseMessage = await this.prepareResponse(data, channelHistory);
 
     // Emit the response
     this.globalEvents.emit('OpenAIClient:ResponseComplete', {
-      channelId: data.messageHistory[0].channelId,
+      channelId: channelHistory[0].channelId,
       response: responseMessage,
     });
   }
@@ -204,21 +205,39 @@ export class OpenAIClient {
    */
   private async describeImages(messageHistory: BotcMessage[]): Promise<void> {
     // Process entire message history
-    await Promise.all(messageHistory
-
-      // Filter messages with attached images
+    const images = messageHistory
       .filter(message => message.hasAttachedImages)
+      .flatMap(message => message.attachedImages
+        .map(image => ({ message, image })),
+      );
 
-      // Describe attached images
-      .map(async (message) => {
-        await Promise.all(
-          message.attachedImages.map(async (image) => {
-            const description = await this.describeImage(image);
-            message.addImageDescription(description);
-          }),
-        );
-      }),
-    );
+    // Describe all images in parallel
+    await Promise.all(images.map(async ({ message, image }) => {
+      const description = await this.describeImage(image);
+      message.addImageDescription(description);
+    }));
+  }
+
+  /**
+   * Generate response message
+   * @param {BotcMessage[]} messageHistory Channel message history
+   * @param {string} persona Summarized user persona
+   * @returns {Promise<string>} Response message
+   */
+  private async generatePersonalizedResponse(messageHistory: BotcMessage[], persona: string): Promise<string> {
+    const payload = await this.createPromptPayload({
+      messageHistory: messageHistory,
+      customSystemPrompt: {
+        value: [
+          `<Sender Persona>`,
+          persona,
+          `</Sender Persona>`,
+        ].join('\n'),
+        append: true,
+      },
+    });
+
+    return await this.createCompletion(payload);
   }
 
   /**
@@ -226,7 +245,7 @@ export class OpenAIClient {
    * @param {BotcMessage[]} serverHistory Server message history
    * @returns {Promise<string>} Persona
    */
-  private async generatePersonaSummary(serverHistory: BotcMessage[]): Promise<string> {
+  private async generateUserPersona(serverHistory: BotcMessage[]): Promise<string> {
     const nameSanitized = serverHistory[0].promptUsername;
 
     // Check cache for persona and return if found
@@ -254,25 +273,36 @@ export class OpenAIClient {
   }
 
   /**
-   * Generate response message
-   * @param {BotcMessage[]} messageHistory Channel message history
-   * @param {string} persona Summarized user persona
+   * Prepare response
+   * @param {EventMap['MessagePipeline:IncomingMessage']} data Incoming message
+   * @param {BotcMessage[]} channelHistory Channel message history
    * @returns {Promise<string>} Response message
    */
-  private async generateResponseMessage(messageHistory: BotcMessage[], persona: string): Promise<string> {
-    const payload = await this.createPromptPayload({
-      messageHistory: messageHistory,
-      customSystemPrompt: {
-        value: [
-          `<Sender Persona>`,
-          persona,
-          `</Sender Persona>`,
-        ].join('\n'),
-        append: true,
-      },
-    });
+  private async prepareResponse(
+    data: EventMap['MessagePipeline:IncomingMessage'],
+    channelHistory: BotcMessage[],
+  ): Promise<string> {
+    // Get the user's server-wide history
+    const authorId = data.message.originalMessage.author.id;
+    const guild = data.message.originalMessage.guild;
 
-    return await this.createCompletion(payload);
+    if (!guild) {
+      // This should never happen
+      throw new Error('OpenAIClient.prepareResponse: Guild not found');
+    }
+
+    // Get the user's server-wide history
+    const serverHistory = await data.discordClient.getServerHistoryForUser(guild, authorId);
+
+    // Describe images in server and channel message history
+    await this.describeImages(serverHistory);
+    await this.describeImages(channelHistory);
+
+    // Generate a user persona based upon server-wide behavior
+    const persona = await this.generateUserPersona(serverHistory);
+
+    // Generate a personalized response
+    return await this.generatePersonalizedResponse(channelHistory, persona);
   }
 
   /**

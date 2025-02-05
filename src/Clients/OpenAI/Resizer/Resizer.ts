@@ -16,7 +16,7 @@ export class Resizer {
       .then(buffer => Buffer.from(buffer))
       .then(buffer => sharp(buffer))
       .catch((error) => {
-        console.error(`OpenAIClient.resizeImageIfOversized: Error fetching image: ${error}`);
+        console.error(`Resizer.fetchImage: Error fetching image: ${error}`);
         return null;
       });
   }
@@ -63,7 +63,7 @@ export class Resizer {
    * @returns {string} Image URL
    */
   private async resizeImage(config: ResizeImageConfig): Promise<string> {
-    console.debug(`ResizedImage.resizeImage: Image dimensions exceed maximum size, resizing.`);
+    console.debug(`Resizer.resizeImage: Image dimensions exceed maximum size, resizing.`);
 
     // Resize image
     const resizedImageBuffer = await config.image

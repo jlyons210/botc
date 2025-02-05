@@ -14,6 +14,11 @@
 - 0.1.x: [0.1.0](#010-2024-01-24)
 
 ---
+## 0.8.1 (2024-02-05)
+- Cleanup and performance tuning.
+
+[:arrow_up: Back to top](#changelog)
+
 ## 0.8.0 (2024-02-04)
 - Implemented an image resizer for images that are too large for Vision descriptions.
 

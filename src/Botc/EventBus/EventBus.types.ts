@@ -1,4 +1,5 @@
 import { BotcMessage } from '../index.js';
+import { DiscordClient } from '../../Clients/Discord/DiscordClient.js';
 
 /**
  * EventMap is a map of event names to their payload types
@@ -13,8 +14,8 @@ export interface EventMap {
   };
 
   'MessagePipeline:IncomingMessage': {
-    messageHistory: BotcMessage[],
-    serverHistory: BotcMessage[],
+    discordClient: DiscordClient,
+    message: BotcMessage,
   };
 
   'MessagePipeline:Ready': {
