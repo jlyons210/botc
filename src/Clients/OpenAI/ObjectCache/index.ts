@@ -2,7 +2,6 @@ import {
   CacheConfig,
   CacheEntry,
   CacheValue,
-  ObjectCacheConfig,
 } from './ObjectCache.types.js';
 
 import { ObjectCache } from './ObjectCache.js';
@@ -12,5 +11,4 @@ export {
   CacheEntry,
   CacheValue,
   ObjectCache,
-  ObjectCacheConfig,
 };
