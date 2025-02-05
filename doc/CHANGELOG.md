@@ -4,6 +4,7 @@
 
 ## Pre-release
 
+- 0.8.x: [0.8.0](#080-2024-02-04)
 - 0.7.x: [0.7.0](#070-2024-02-04)
 - 0.6.x: [0.6.0](#060-2024-02-03)
 - 0.5.x: [0.5.0](#050-2024-02-03)
@@ -13,6 +14,11 @@
 - 0.1.x: [0.1.0](#010-2024-01-24)
 
 ---
+## 0.8.0 (2024-02-04)
+- Implemented an image resizer for images that are too large for Vision descriptions.
+
+[:arrow_up: Back to top](#changelog)
+
 ## 0.7.0 (2024-02-04)
 - Implemented a generic key-value cache.
 - Deleted nearly-identical persona and image description cache implementations.
