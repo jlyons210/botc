@@ -294,11 +294,9 @@ export class OpenAIClient {
     // Get the user's server-wide history
     const serverHistory = await data.discordClient.getServerHistoryForUser(guild, authorId);
 
-    // Describe images in user's server-wide message history, and all images in the current
-    // channel. Parallelize for performance.
-    const serverHistoryPromise = this.describeImages(serverHistory);
-    const channelHistoryPromise = this.describeImages(channelHistory);
-    await Promise.all([serverHistoryPromise, channelHistoryPromise]);
+    // Describe images in server and channel message history
+    await this.describeImages(serverHistory);
+    await this.describeImages(channelHistory);
 
     // Generate a user persona based upon server-wide behavior
     const persona = await this.generateUserPersona(serverHistory);
