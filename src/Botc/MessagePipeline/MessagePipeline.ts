@@ -14,7 +14,10 @@ export class MessagePipeline {
    */
   constructor(private discordClient: DiscordClient) {
     this.registerHandlers();
-    this.globalEvents.emit('MessagePipeline:Ready', { message: 'Message pipeline is ready.' });
+
+    this.globalEvents.emit('MessagePipeline:Ready', {
+      message: 'Message pipeline is ready.',
+    });
   }
 
   /**
