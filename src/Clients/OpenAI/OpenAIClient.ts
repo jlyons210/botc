@@ -219,12 +219,33 @@ export class OpenAIClient {
   }
 
   /**
+   * Generate response message
+   * @param {BotcMessage[]} messageHistory Channel message history
+   * @param {string} persona Summarized user persona
+   * @returns {Promise<string>} Response message
+   */
+  private async generatePersonalizedResponse(messageHistory: BotcMessage[], persona: string): Promise<string> {
+    const payload = await this.createPromptPayload({
+      messageHistory: messageHistory,
+      customSystemPrompt: {
+        value: [
+          `<Sender Persona>`,
+          persona,
+          `</Sender Persona>`,
+        ].join('\n'),
+        append: true,
+      },
+    });
+
+    return await this.createCompletion(payload);
+  }
+
+  /**
    * Generate a persona for a user based on server history
    * @param {BotcMessage[]} serverHistory Server message history
    * @returns {Promise<string>} Persona
-   * @todo Rename to generateUserPersona()
    */
-  private async generatePersonaSummary(serverHistory: BotcMessage[]): Promise<string> {
+  private async generateUserPersona(serverHistory: BotcMessage[]): Promise<string> {
     const nameSanitized = serverHistory[0].promptUsername;
 
     // Check cache for persona and return if found
@@ -249,28 +270,6 @@ export class OpenAIClient {
     });
 
     return persona;
-  }
-
-  /**
-   * Generate response message
-   * @param {BotcMessage[]} messageHistory Channel message history
-   * @param {string} persona Summarized user persona
-   * @returns {Promise<string>} Response message
-   */
-  private async generatePersonalizedResponse(messageHistory: BotcMessage[], persona: string): Promise<string> {
-    const payload = await this.createPromptPayload({
-      messageHistory: messageHistory,
-      customSystemPrompt: {
-        value: [
-          `<Sender Persona>`,
-          persona,
-          `</Sender Persona>`,
-        ].join('\n'),
-        append: true,
-      },
-    });
-
-    return await this.createCompletion(payload);
   }
 
   /**
@@ -302,7 +301,7 @@ export class OpenAIClient {
     await Promise.all([serverHistoryPromise, channelHistoryPromise]);
 
     // Generate a user persona based upon server-wide behavior
-    const persona = await this.generatePersonaSummary(serverHistory);
+    const persona = await this.generateUserPersona(serverHistory);
 
     // Generate a personalized response
     return await this.generatePersonalizedResponse(channelHistory, persona);
