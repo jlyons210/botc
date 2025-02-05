@@ -52,7 +52,7 @@ export class ResizedImage {
    * @returns {string} Image URL
    */
   private resizeImage(image: Image): string {
-    console.debug(`OpenAIClient.resizeImageIfOversized: Image dimensions exceed maximum size, resizing.`);
+    console.debug(`ResizedImage.resizeImage: Image dimensions exceed maximum size, resizing.`);
 
     // Calculate new image dimensions
     const aspectRatio = image.width / image.height;
