@@ -2,10 +2,10 @@ import { BotcMessage, BotcMessageImageAttachment } from '../../Botc/index.js';
 import { CreatePromptPayloadConfig, ReplyDecisionResponse } from './index.js';
 import { EventBus, EventMap } from '../../Botc/EventBus/index.js';
 import { ChatCompletionMessageParam } from 'openai/resources/index.mjs';
-import { ObjectCache } from './ObjectCache/ObjectCache.js';
+import { ObjectCache } from './ObjectCache/index.js';
 import OpenAI from 'openai';
 import { OpenAISettings } from '../../Botc/Configuration/index.js';
-import { ResizedImage } from './ResizedImage/ResizedImage.js';
+import { Resizer } from './Resizer/index.js';
 
 /**
  * OpenAI client wrapper
@@ -175,7 +175,7 @@ export class OpenAIClient {
     }
 
     // Resize image if oversized
-    const resize = new ResizedImage();
+    const resize = new Resizer();
     const promptUrl = await resize.getUrl(image.imageUrl);
 
     // Create completion for image description

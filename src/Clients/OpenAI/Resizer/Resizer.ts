@@ -1,23 +1,20 @@
-import {
-  Image,
-  createCanvas,
-  loadImage,
-} from 'canvas';
+import sharp, { Sharp } from 'sharp';
+import { ResizeImageConfig } from './index.js';
 
 /**
  * Resizes images to fit within Vision API size limits
  */
-export class ResizedImage {
+export class Resizer {
   /**
    * Fetch image
    * @param {string} imageUrl Image URL
    * @returns {Promise<Buffer | null>} Image buffer
    */
-  private async fetchImage(imageUrl: string): Promise<Image | null> {
+  private async fetchImage(imageUrl: string): Promise<Sharp | null> {
     return await fetch(imageUrl)
       .then(response => response.arrayBuffer())
       .then(buffer => Buffer.from(buffer))
-      .then(buffer => loadImage(buffer))
+      .then(buffer => sharp(buffer))
       .catch((error) => {
         console.error(`OpenAIClient.resizeImageIfOversized: Error fetching image: ${error}`);
         return null;
@@ -36,36 +33,45 @@ export class ResizedImage {
       return '';
     }
 
+    // Retrieve image width and height from original image
+    const metadata = await fetchedImage.metadata();
+    const originalWidth = metadata.width as number;
+    const originalHeight = metadata.height as number;
+
+    // Calculate new image dimensions
+    const aspectRatio = originalWidth / originalHeight;
+    const newWidth = (aspectRatio > 1) ? 2000 : 768;
+    const newHeight = Math.round(newWidth / aspectRatio);
+
     // Image long side must not be >2000px, and image short side must not be >768px
-    const longSide = Math.max(fetchedImage.width, fetchedImage.height);
-    const shortSide = Math.min(fetchedImage.width, fetchedImage.height);
+    const longSide = Math.max(originalWidth, originalHeight);
+    const shortSide = Math.min(originalWidth, originalHeight);
 
     // Return resized image URL if oversized or original image URL if within size limits
     return (longSide > 2000 || shortSide > 768)
-      ? this.resizeImage(fetchedImage)
+      ? this.resizeImage({
+          image: fetchedImage,
+          height: newHeight,
+          width: newWidth,
+        })
       : imageUrl;
   }
 
   /**
    * Resize image
-   * @param {Image} image Image (canvas)
+   * @param {ResizeImageConfig} config Resize image configuration
    * @returns {string} Image URL
    */
-  private resizeImage(image: Image): string {
+  private async resizeImage(config: ResizeImageConfig): Promise<string> {
     console.debug(`ResizedImage.resizeImage: Image dimensions exceed maximum size, resizing.`);
 
-    // Calculate new image dimensions
-    const aspectRatio = image.width / image.height;
-    const newWidth = (aspectRatio > 1) ? 2000 : 768;
-    const newHeight = Math.round(newWidth / aspectRatio);
-
     // Resize image
-    const canvas = createCanvas(newWidth, newHeight);
-    const context = canvas.getContext('2d');
-    context.drawImage(image, 0, 0, newWidth, newHeight);
-    const resizedImageBuffer = canvas.toBuffer('image/jpeg');
+    const resizedImageBuffer = await config.image
+      .resize(config.width, config.height)
+      .png()
+      .toBuffer();
 
     // Return resized image URL
-    return `data:image/jpeg;base64,${resizedImageBuffer.toString('base64')}`;
+    return `data:image/png;base64,${resizedImageBuffer.toString('base64')}`;
   }
 }
