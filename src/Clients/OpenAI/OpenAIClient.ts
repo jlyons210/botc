@@ -5,6 +5,7 @@ import { ChatCompletionMessageParam } from 'openai/resources/index.mjs';
 import { ObjectCache } from './ObjectCache/ObjectCache.js';
 import OpenAI from 'openai';
 import { OpenAISettings } from '../../Botc/Configuration/index.js';
+import { ResizedImage } from './ResizedImage/ResizedImage.js';
 
 /**
  * OpenAI client wrapper
@@ -173,13 +174,17 @@ export class OpenAIClient {
       return this.imageDescriptionCache.getValue(image.imageUrl) as string;
     }
 
+    // Resize image if oversized
+    const resize = new ResizedImage();
+    const promptUrl = await resize.getUrl(image.imageUrl);
+
     // Create completion for image description
     const describeImagePrompt = this.config.describeImagePrompt.value as string;
     const payload = [{
       role: 'user',
       content: [
         { type: 'text', text: describeImagePrompt },
-        { type: 'image_url', image_url: { url: image.imageUrl } },
+        { type: 'image_url', image_url: { url: promptUrl } },
       ],
     }] satisfies ChatCompletionMessageParam[];
     const description = await this.createCompletion(payload);
