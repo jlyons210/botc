@@ -1,8 +1,5 @@
-import {
-  CacheConfig,
-  CacheEntry,
-  ObjectCacheConfig,
-} from './index.js';
+import { CacheConfig, CacheEntry } from './index.js';
+import { OpenAICacheSettings } from '../../../Botc/Configuration/Configuration.types.js';
 
 /**
  * Multi-purpose key-value cache
@@ -12,10 +9,12 @@ export class ObjectCache {
 
   /**
    * New object cache
-   * @param {ObjectCacheConfig} config configuration
+   * @param {OpenAICacheSettings} config Cache settings
    */
-  constructor(private config: ObjectCacheConfig) {
+  constructor(private config: OpenAICacheSettings) {
     setInterval(() => this.clearExpired(), 60000);
+
+    console.debug(`ObjectCache: config: ${JSON.stringify(config)}`);
   }
 
   /**
@@ -25,10 +24,10 @@ export class ObjectCache {
   public cache(entry: CacheConfig): void {
     this.cached[entry.key] = {
       value: entry.value,
-      expiresAt: Date.now() + this.config.ttlHours * 60 * 60 * 1000,
+      expiresAt: Date.now() + (this.config.describeImageCacheTtlHours.value as number) * 60 * 60 * 1000,
     };
 
-    if (this.config.logging?.logCacheEntries) {
+    if (this.config.logCacheEntries.value.toString() === 'true') {
       console.debug(`ObjectCache.cache: Cached ${entry.key}`);
     }
   }
@@ -41,7 +40,7 @@ export class ObjectCache {
       if (this.cached[key].expiresAt < Date.now()) {
         delete this.cached[key];
 
-        if (this.config.logging?.logCachePurges) {
+        if (this.config.logCachePurges.value.toString() === 'true') {
           console.debug(`ObjectCache.clearExpired: Removing expired entry ${key}`);
         }
       }
@@ -57,14 +56,14 @@ export class ObjectCache {
     const entry = this.cached[key];
 
     if (entry) {
-      if (this.config.logging?.logCacheHits) {
+      if (this.config.logCacheHits.value.toString() === 'true') {
         console.debug(`ObjectCache.getValue: Cache hit for ${key}`);
       }
 
       return entry.value;
     }
     else {
-      if (this.config.logging?.logCacheMisses) {
+      if (this.config.logCacheMisses.value.toString() === 'true') {
         console.debug(`ObjectCache.getValue: Cache miss for ${key}`);
       }
 

@@ -36,26 +36,10 @@ export class OpenAIClient {
     this.model = config.model.value as string;
 
     // Initialize image description cache
-    this.imageDescriptionCache = new ObjectCache({
-      ttlHours: config.caching.describeImageCacheTtlHours.value as number,
-      logging: {
-        logCacheEntries: config.caching.logCacheEntries.value as boolean,
-        logCacheHits: config.caching.logCacheHits.value as boolean,
-        logCacheMisses: config.caching.logCacheMisses.value as boolean,
-        logCachePurges: config.caching.logCachePurges.value as boolean,
-      },
-    });
+    this.imageDescriptionCache = new ObjectCache(this.config.caching);
 
     // Initialize persona cache
-    this.personaCache = new ObjectCache({
-      ttlHours: config.caching.personaCacheTtlHours.value as number,
-      logging: {
-        logCacheEntries: config.caching.logCacheEntries.value as boolean,
-        logCacheHits: config.caching.logCacheHits.value as boolean,
-        logCacheMisses: config.caching.logCacheMisses.value as boolean,
-        logCachePurges: config.caching.logCachePurges.value as boolean,
-      },
-    });
+    this.personaCache = new ObjectCache(this.config.caching);
 
     // Emit ready event
     this.globalEvents.emit('OpenAIClient:Ready', {
