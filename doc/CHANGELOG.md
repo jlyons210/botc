@@ -14,6 +14,12 @@
 - 0.1.x: [0.1.0](#010-2024-01-24)
 
 ---
+## 0.8.4 (2024-02-06)
+- Fixed a fatal error handling DM conversations.
+- Tuned system prompt to mitigate rare responses that include metadata blocks.
+
+[:arrow_up: Back to top](#changelog)
+
 ## 0.8.3 (2024-02-06)
 - Fixed a fatal error fetching messages from private channels that the bot is not a member of.
 
