@@ -1,6 +1,7 @@
 import {
   ChannelType,
   Client,
+  DiscordAPIError,
   DiscordjsError,
   DiscordjsErrorCodes,
   Events,
@@ -131,25 +132,34 @@ export class DiscordClient {
       const channelHistoryHours = this.config.channelHistoryHours.value as number;
       const afterTimestamp = Date.now() - (channelHistoryHours * 60 * 60 * 1000);
 
-      // Pull last 100 channel messages
-      const messages = (await channel.messages.fetch({ limit: 100 }))
+      try {
+        // Pull last 100 channel messages
+        const messages = (await channel.messages.fetch({ limit: 100 }))
 
-        // Limit to messages created later than afterTimestamp
-        .filter(message => message.createdTimestamp > afterTimestamp)
+          // Limit to messages created later than afterTimestamp
+          .filter(message => message.createdTimestamp > afterTimestamp)
 
-        // Map messages to BotcMessage
-        .map(message => new BotcMessage({ botUserId: this.botUserId, message: message }))
+          // Map messages to BotcMessage
+          .map(message => new BotcMessage({ botUserId: this.botUserId, message: message }))
 
-        // Reverse messages so oldest is first
-        .reverse();
+          // Reverse messages so oldest is first
+          .reverse();
 
-      if (userId) {
-        // If userId is provided, filter messages to only those from userId
-        return messages.filter(message => message.originalMessage.author.id === userId);
+        if (userId) {
+          // If userId is provided, filter messages to only those from userId
+          return messages.filter(message => message.originalMessage.author.id === userId);
+        }
+        else {
+          // Otherwise, return all messages
+          return messages;
+        }
       }
-      else {
-        // Otherwise, return all messages
-        return messages;
+      catch (error) {
+        if (error instanceof DiscordAPIError) {
+          console.debug(`Error '${error.code}' (${error.message}) fetching channel history for ${channel.id}.`);
+        }
+
+        return [];
       }
     }
     else {
