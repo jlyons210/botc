@@ -80,8 +80,17 @@ export class DiscordClient {
     // Wrap incoming message in BotcMessage
     const botcMessage = new BotcMessage({ botUserId: this.botUserId, message: message });
 
+    // Trigger describeImages if message contains image attachments
+    if (botcMessage.hasAttachedImages) {
+      this.globalEvents.emit('DiscordClient:PrefetchImageDescriptions', {
+        messageHistory: [botcMessage],
+      });
+    }
+
     // Emit incoming message event
-    this.globalEvents.emit('DiscordClient:IncomingMessage', { message: botcMessage });
+    this.globalEvents.emit('DiscordClient:IncomingMessage', {
+      message: botcMessage,
+    });
   }
 
   /**

@@ -51,6 +51,11 @@ export class OpenAIClient {
    * Register event handlers
    */
   private registerHandlers(): void {
+    // Pre-fetch image descriptions
+    this.globalEvents.on('DiscordClient:PrefetchImageDescriptions', async (data) => {
+      await this.describeImages(data.messageHistory);
+    });
+
     this.globalEvents.on('MessagePipeline:IncomingMessage',
       this.handleIncomingMessage.bind(this),
     );
