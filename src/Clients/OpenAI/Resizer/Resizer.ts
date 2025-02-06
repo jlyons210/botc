@@ -63,8 +63,6 @@ export class Resizer {
    * @returns {string} Image URL
    */
   private async resizeImage(config: ResizeImageConfig): Promise<string> {
-    console.debug(`Resizer.resizeImage: Image dimensions exceed maximum size, resizing.`);
-
     // Resize image
     const resizedImageBuffer = await config.image
       .resize(config.width, config.height)

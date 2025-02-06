@@ -13,8 +13,6 @@ export class ObjectCache {
    */
   constructor(private config: OpenAICacheSettings) {
     setInterval(() => this.clearExpired(), 60000);
-
-    console.debug(`ObjectCache: config: ${JSON.stringify(config)}`);
   }
 
   /**

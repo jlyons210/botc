@@ -1,6 +1,6 @@
 {
   "name": "botc",
-  "version": "0.8.4",
+  "version": "0.8.5",
   "description": "My most ambitious Discord bot yet.",
   "main": "src/app.ts",
   "scripts": {
