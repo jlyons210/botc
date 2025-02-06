@@ -67,9 +67,9 @@ export class OpenAIClient {
 
     // Ignore incoming messages sent from this bot, always respond to direct messages, and decide
     // whether to respond based on conversation history.
-    const isDirectMessage = channelHistory[0].type === 'DirectMessage';
+    const isDirectMessage = channelHistory.at(-1)?.type === 'DirectMessage';
     const isOwnMessage = channelHistory.at(-1)?.type === 'OwnMessage';
-    const willRespond = isDirectMessage || (!isOwnMessage && await this.willReplyToMessage(channelHistory));
+    const willRespond = !isOwnMessage && (isDirectMessage || await this.willReplyToMessage(channelHistory));
 
     if (!willRespond) {
       return;
@@ -266,27 +266,28 @@ export class OpenAIClient {
     data: EventMap['MessagePipeline:IncomingMessage'],
     channelHistory: BotcMessage[],
   ): Promise<string> {
-    // Get the user's server-wide history
     const authorId = data.message.originalMessage.author.id;
     const guild = data.message.originalMessage.guild;
+    const isDirectMessage = channelHistory.at(-1)?.type === 'DirectMessage';
 
-    if (!guild) {
+    await this.describeImages(channelHistory);
+
+    // Guild is not populated for direct messages
+    if (guild) {
+      // Respond with personalized message from guild persona
+      const serverHistory = await data.discordClient.getServerHistoryForUser(guild, authorId);
+      await this.describeImages(serverHistory);
+      const persona = await this.generateUserPersona(serverHistory);
+      return await this.generatePersonalizedResponse(channelHistory, persona);
+    }
+    else if (isDirectMessage) {
+      // Respond directly to direct messages
+      return await this.generatePersonalizedResponse(channelHistory, '');
+    }
+    else {
       // This should never happen
       throw new Error('OpenAIClient.prepareResponse: Guild not found');
     }
-
-    // Get the user's server-wide history
-    const serverHistory = await data.discordClient.getServerHistoryForUser(guild, authorId);
-
-    // Describe images in server and channel message history
-    await this.describeImages(serverHistory);
-    await this.describeImages(channelHistory);
-
-    // Generate a user persona based upon server-wide behavior
-    const persona = await this.generateUserPersona(serverHistory);
-
-    // Generate a personalized response
-    return await this.generatePersonalizedResponse(channelHistory, persona);
   }
 
   /**
