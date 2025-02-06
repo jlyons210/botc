@@ -133,26 +133,18 @@ export class DiscordClient {
       const afterTimestamp = Date.now() - (channelHistoryHours * 60 * 60 * 1000);
 
       try {
-        // Pull last 100 channel messages
         const messages = (await channel.messages.fetch({ limit: 100 }))
-
-          // Limit to messages created later than afterTimestamp
           .filter(message => message.createdTimestamp > afterTimestamp)
-
-          // Map messages to BotcMessage
-          .map(message => new BotcMessage({ botUserId: this.botUserId, message: message }))
-
-          // Reverse messages so oldest is first
+          .map(message => new BotcMessage({
+            botUserId: this.botUserId,
+            message: message,
+          }))
           .reverse();
 
-        if (userId) {
-          // If userId is provided, filter messages to only those from userId
-          return messages.filter(message => message.originalMessage.author.id === userId);
-        }
-        else {
-          // Otherwise, return all messages
-          return messages;
-        }
+        return (userId)
+          // Filter messages to only those from userId, if provided
+          ? messages.filter(message => message.originalMessage.author.id === userId)
+          : messages;
       }
       catch (error) {
         if (error instanceof DiscordAPIError) {
