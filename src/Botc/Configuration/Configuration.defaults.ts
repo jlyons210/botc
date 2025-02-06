@@ -177,6 +177,7 @@ export const ConfigurationDefaults: ConfigurationOptions = {
           'Mimic the conversation style of those that you are interacting with. ',
           'Avoid using long, heavily formatted responses. ',
           'Do not repeat back any metadata enclosed in angle brackets. ',
+          'Do not include metadata blocks in your responses. ',
           'Respond to users using their preferred name or playful variations. ',
         ].join(''),
       },
