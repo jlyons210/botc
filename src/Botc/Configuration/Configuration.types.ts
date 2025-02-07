@@ -9,6 +9,7 @@ export interface ClientsSettings {
 
 export interface DiscordClientSettings {
   channelHistoryHours: ConfigurationSettings;
+  channelHistoryMessages: ConfigurationSettings;
   token: ConfigurationSettings;
 }
 

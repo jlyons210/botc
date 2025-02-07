@@ -10,6 +10,8 @@ Unlike [dbob](#discord-bot-ol-bootsie-dbob), which requires @-mentions, replies,
 
 My intent is for **Botc** to engage with chat users in a more human-like fashion. 
 
+![Wise, learned botc](assets/botc-profile.png)
+
 ## Contents
 
 - [Features](#features)
@@ -21,7 +23,7 @@ My intent is for **Botc** to engage with chat users in a more human-like fashion
 ## Features
 
 - Monitors channels for active conversations, engaging automatically when a reasoning prompt determines that it would be appropriate.
-- Responds to replies, @-mentions, and direct messages, and the bot will respond to replies to old messages with the correct context.
+- Responds to replies, @-mentions, and direct messages, and the bot will respond to replies to old messages using the expected context.
 - Bot builds a server-wide persona of users being engaged to enhance responses. Personas are cached to limit API polling.
 - Examine and comprehend user images attachments. Image descriptions are cached to limit API polling.
 - System/developer prompts and individual messages have a section containing metadata that enables the enriching of responses issued by the chat API.

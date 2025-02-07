@@ -4,6 +4,7 @@
 
 ## Pre-release
 
+- 0.10.x: [0.10.0](#0100-2024-02-07)
 - 0.9.x: [0.9.0](#090-2024-02-06)
 - 0.8.x:
     [0.8.0](#080-2024-02-04),
@@ -23,6 +24,13 @@
 - 0.1.x: [0.1.0](#010-2024-01-24)
 
 ---
+## 0.10.0 (2024-02-07)
+- Added `DISCORD_CHANNEL_HISTORY_MESSAGES` configuration setting.
+- Resolve @-mention tags in message content to display names (if available) or usernames.
+- Added Kubernetes deployment yaml example to configuration documentation.
+
+[:arrow_up: Back to top](#changelog)
+
 ## 0.9.0 (2024-02-06)
 - Bot intelligently handles replies to its messages. Replies, @-mentions, and direct messages will always get a bot response.
 

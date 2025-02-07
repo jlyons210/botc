@@ -139,10 +139,11 @@ export class DiscordClient {
 
     if (isTextChannel) {
       const channelHistoryHours = this.config.channelHistoryHours.value as number;
+      const channelHistoryMessages = this.config.channelHistoryMessages.value as number;
       const afterTimestamp = Date.now() - (channelHistoryHours * 60 * 60 * 1000);
 
       try {
-        const messages = (await channel.messages.fetch({ limit: 100 }))
+        const messages = (await channel.messages.fetch({ limit: channelHistoryMessages }))
           .filter(message => message.createdTimestamp > afterTimestamp)
           .map(message => new BotcMessage({
             botUserId: this.botUserId,

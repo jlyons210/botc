@@ -7,6 +7,7 @@ Configuration is achieved through environment variables, which are easily config
 - [Required](#required-settings)
 - [Optional](#optional)
   - [Caching-specific](#optional-caching-specific)
+- [Kubernetes deployment](#kubernetes-deployment)
 
 [:arrow_left: Back to README.md](/README.md)
 
@@ -24,6 +25,7 @@ Configuration is achieved through environment variables, which are easily config
 | Environment | Default | Description |
 | --- | --- | --- |
 | `DISCORD_CHANNEL_HISTORY_HOURS` | `24` | Number of hours of past messsages to ingest for conversation context. |
+| `DISCORD_CHANNEL_HISTORY_MESSAGES` | `100` | Number of past messages to ingest per-channel for conversation context. |
 | `OPENAI_DESCRIBE_IMAGE_PROMPT` | [Source](https://github.com/jlyons210/botc/blob/main/src/Botc/Configuration/Configuration.defaults.ts) | Prompt used to describe attached images. |
 | `OPENAI_MAX_RETRIES` | `3` | Number of OpenAI API retries on retriable errors. |
 | `OPENAI_MODEL` | `gpt-4o-mini` | OpenAI model to use for chat completions. |
@@ -34,6 +36,7 @@ Configuration is achieved through environment variables, which are easily config
 [:arrow_up: Back to top](#configuration)
 
 #### Optional: Caching-specific
+
 | Environment | Default | Description |
 | --- | --- | --- |
 | `OPENAI_DESCRIBE_IMAGE_CACHE_TTL_HOURS` | `24` | Number of hours to cache image descriptions (optimizes API polling). |
@@ -42,5 +45,52 @@ Configuration is achieved through environment variables, which are easily config
 | `OPENAI_CACHE_LOG_MISSES` | `false` | Enables logging of cache misses. |
 | `OPENAI_CACHE_LOG_PURGES` | `false` | Enables logging of cache entry expiration/purging. |
 | `OPENAI_PERSONA_CACHE_TTL_HOURS` | `3` | Number of hours to cache server-wide user personas (optimizes API polling). |
+
+[:arrow_up: Back to top](#configuration)
+
+## Kubernetes deployment
+
+Sample `deploy.yaml`
+
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: botc
+  namespace: discord-bots
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: botc
+  template:
+    metadata:
+      labels:
+        app: botc
+    spec:
+      restartPolicy: Always
+      containers:
+      - name: botc
+        image: ghcr.io/jlyons210/botc:latest
+        env:
+        - name: DISCORD_BOT_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: discord-bots
+              key: botc-discord-token
+        - name: OPENAI_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: discord-bots
+              key: openai-api-key
+        - name: OPENAI_CACHE_LOG_ENTRIES
+          value: "true"
+        - name: OPENAI_CACHE_LOG_MISSES
+          value: "true"
+        - name: OPENAI_CACHE_LOG_PURGES
+          value: "true"
+        - name: TZ
+          value: America/Denver
+```
 
 [:arrow_up: Back to top](#configuration)

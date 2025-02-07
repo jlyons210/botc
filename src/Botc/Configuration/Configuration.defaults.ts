@@ -22,6 +22,15 @@ export const ConfigurationDefaults: ConfigurationOptions = {
       },
 
       /**
+       * Number of messages to fetch from each channel
+       * when processing channel history.
+       */
+      channelHistoryMessages: {
+        environmentVariable: 'DISCORD_CHANNEL_HISTORY_MESSAGES',
+        value: 100,
+      },
+
+      /**
        * Discord bot token, used to authenticate with Discord API
        */
       token: {
