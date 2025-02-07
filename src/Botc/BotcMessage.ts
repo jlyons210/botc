@@ -42,6 +42,8 @@ export class BotcMessage {
    * @returns {string} Prompt content
    */
   private getPromptContent(): string {
+    const resolvedContent = this.resolveTaggedUsers();
+
     const imageDescriptions = this.hasAttachedImages
       ? `Image descriptions:\n${this.imageDescriptions.join('\n---\n')}`
       : undefined;
@@ -51,7 +53,7 @@ export class BotcMessage {
     });
 
     const promptContent = [
-      this.content,
+      resolvedContent,
       `<Message Metadata>`,
       `Preferred name: ${this.displayName}`,
       `Message timestamp: ${createTimestampLocal}`,
@@ -63,6 +65,20 @@ export class BotcMessage {
     console.debug(`BotcMessage.getPromptContent:\n${promptContent}`);
 
     return promptContent;
+  }
+
+  /**
+   * Resolve tagged users in the message content to their display names
+   * @returns {string} Resolved content
+   */
+  private resolveTaggedUsers(): string {
+    const resolvedContent = this.content.replace(/<@!?(?<userId>\d+)>/g, (match, userId) => {
+      const displayName = this.message.guild?.members.cache.get(userId)?.displayName;
+      const username = this.message.client.users.cache.get(userId)?.username;
+      return displayName || username || match;
+    });
+
+    return resolvedContent;
   }
 
   /**
