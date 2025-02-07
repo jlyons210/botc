@@ -157,7 +157,7 @@ export class DiscordClient {
       }
       catch (error) {
         if (error instanceof DiscordAPIError) {
-          console.debug(`Error '${error.code}' (${error.message}) fetching channel history for ${channel.id}.`);
+          console.error(`Error '${error.code}' (${error.message}) fetching channel history for ${channel.id}.`);
         }
 
         return [];
