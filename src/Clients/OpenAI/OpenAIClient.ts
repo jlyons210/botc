@@ -14,8 +14,9 @@ import { Resizer } from './Resizer/index.js';
 export class OpenAIClient {
   private client: OpenAI;
   private globalEvents = EventBus.attach();
-  private imageDescriptionCache!: ObjectCache;
-  private personaCache!: ObjectCache;
+  private imageDescriptionCache: ObjectCache;
+  private personaCache: ObjectCache;
+  private transcriptionCache: ObjectCache;
   private readonly model: string;
 
   /**
@@ -40,6 +41,9 @@ export class OpenAIClient {
 
     // Initialize persona cache
     this.personaCache = new ObjectCache(this.config.caching);
+
+    // Initialize transcription cache
+    this.transcriptionCache = new ObjectCache(this.config.caching);
 
     // Emit ready event
     this.globalEvents.emit('OpenAIClient:Ready', {
@@ -275,6 +279,9 @@ export class OpenAIClient {
     this.startTyping(channelHistory[0].channelId);
     await this.describeImages(channelHistory);
 
+    this.startTyping(channelHistory[0].channelId);
+    await this.transcribeVoiceMessages(channelHistory);
+
     // Guild is not populated for direct messages
     if (guild) {
       // Respond with personalized message from guild persona
@@ -309,6 +316,51 @@ export class OpenAIClient {
     this.globalEvents.emit('OpenAIClient:StartTyping', {
       channelId: channelId,
     });
+  }
+
+  /**
+   * Transcribe a voice message
+   * @param {BotcMessage[]} messageHistory Message history
+   */
+  private async transcribeVoiceMessages(messageHistory: BotcMessage[]): Promise<void> {
+    console.debug('OpenAIClient.transcribeVoiceMessages: Transcribing voice messages');
+
+    await Promise.all(messageHistory
+      .filter(message => message.hasVoiceMessage)
+      .map(async (message) => {
+        const voiceMessageUrl = message.voiceMessage?.url;
+
+        console.debug(`OpenAIClient.transcribeVoiceMessage: Transcribing voice message: ${voiceMessageUrl}`);
+
+        if (!voiceMessageUrl) {
+          return;
+        }
+
+        if (this.transcriptionCache.isCached(voiceMessageUrl)) {
+          message.voiceMessageTranscription = this.transcriptionCache.getValue(voiceMessageUrl) as string;
+          return;
+        }
+
+        const fetchedAudio = await fetch(voiceMessageUrl);
+        const audioBuffer = await fetchedAudio.arrayBuffer();
+        const audioFile = new File([audioBuffer], 'audio.ogg', {
+          type: 'audio/ogg',
+        });
+
+        const transcription = await this.client.audio.transcriptions.create({
+          file: audioFile,
+          model: 'whisper-1',
+          response_format: 'text',
+        });
+
+        this.transcriptionCache.cache({
+          key: voiceMessageUrl,
+          value: transcription,
+        });
+
+        message.voiceMessageTranscription = transcription;
+      }),
+    );
   }
 
   /**

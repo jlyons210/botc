@@ -4,6 +4,7 @@
 
 ## Pre-release
 
+- 0.11.x: [0.11.0](#0110-2024-02-07)
 - 0.10.x: [0.10.0](#0100-2024-02-07)
 - 0.9.x: [0.9.0](#090-2024-02-06)
 - 0.8.x:
@@ -24,6 +25,11 @@
 - 0.1.x: [0.1.0](#010-2024-01-24)
 
 ---
+## 0.11.0 (2024-02-07)
+- Bot can now comprehend voice messages (via transcription).
+
+[:arrow_up: Back to top](#changelog)
+
 ## 0.10.0 (2024-02-07)
 - Added `DISCORD_CHANNEL_HISTORY_MESSAGES` configuration setting.
 - Resolve @-mention tags in message content to display names (if available) or usernames.
