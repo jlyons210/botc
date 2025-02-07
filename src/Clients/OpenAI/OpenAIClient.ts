@@ -37,13 +37,22 @@ export class OpenAIClient {
     this.model = config.model.value as string;
 
     // Initialize image description cache
-    this.imageDescriptionCache = new ObjectCache(this.config.caching);
+    this.imageDescriptionCache = new ObjectCache(
+      this.config.caching.describeImageCacheTtlHours,
+      this.config.caching.logging,
+    );
 
     // Initialize persona cache
-    this.personaCache = new ObjectCache(this.config.caching);
+    this.personaCache = new ObjectCache(
+      this.config.caching.personaCacheTtlHours,
+      this.config.caching.logging,
+    );
 
     // Initialize transcription cache
-    this.transcriptionCache = new ObjectCache(this.config.caching);
+    this.transcriptionCache = new ObjectCache(
+      this.config.caching.voiceTranscriptCacheTtlHours,
+      this.config.caching.logging,
+    );
 
     // Emit ready event
     this.globalEvents.emit('OpenAIClient:Ready', {
