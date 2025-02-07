@@ -46,7 +46,8 @@ export type BotcMessageImageAttachment = {
 };
 
 export type BotcMessageType =
-  'BotMessage'
+  'AtMention'
+  | 'BotMessage'
   | 'ChannelMessage'
   | 'DirectMessage'
   | 'OwnMessage';

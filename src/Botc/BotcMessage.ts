@@ -18,6 +18,7 @@ export class BotcMessage {
   private _attachedImages: BotcMessageImageAttachment[] = [];
   private _imageDescriptions: string[] = [];
   private _nameSanitized!: string;
+  private _replyContext!: string | undefined;
 
   /**
    * New BotcMessage
@@ -55,10 +56,37 @@ export class BotcMessage {
       `Preferred name: ${this.displayName}`,
       `Message timestamp: ${createTimestampLocal}`,
       imageDescriptions,
+      this.replyContext,
       `</Message Metadata>`,
     ].join('\n');
 
+    console.debug(`BotcMessage.getPromptContent:\n${promptContent}`);
+
     return promptContent;
+  }
+
+  /**
+   * Get the context of the message that was replied to for the OpenAI prompt
+   */
+  public async setReplyContext(): Promise<void> {
+    if (this.isReply && this.message.reference?.messageId) {
+      const replyMessageId = this.message.reference.messageId;
+      const replyMessage = await this.message.channel.messages.fetch(replyMessageId);
+      const replyContent = replyMessage.content;
+      const replyAuthor = replyMessage.author.displayName || replyMessage.author.username;
+      const replyTimestampLocal = new Date(replyMessage.createdTimestamp).toLocaleString('en-US', {
+        timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+      });
+
+      this._replyContext = [
+        `---`,
+        `Focus your response on this message that was replied to:`,
+        `- Message author: ${replyAuthor}`,
+        `- Message timestamp: ${replyTimestampLocal}`,
+        `- Message content: ${replyContent}`,
+        `---`,
+      ].join('\n');
+    }
   }
 
   /**
@@ -147,6 +175,14 @@ export class BotcMessage {
   }
 
   /**
+   * Returns true if the message is a reply to another message
+   * @returns {boolean} boolean
+   */
+  public get isReply(): boolean {
+    return this.message.reference !== null;
+  }
+
+  /**
    * Original Discord message
    * @returns {Message} Original Discord.js Message object
    */
@@ -184,24 +220,31 @@ export class BotcMessage {
   }
 
   /**
+   * Context of the message that was replied to for the OpenAI prompt
+   * @returns {string | undefined} Prompt context
+   */
+  public get replyContext(): string | undefined {
+    return this._replyContext;
+  }
+
+  /**
    * Discord message type
    * @returns {BotcMessageType} Type of message being processed
    */
   public get type(): BotcMessageType {
     switch (true) {
-      // Incoming message from this bot
       case (this.message.author.id === this.botUserId):
         return 'OwnMessage';
 
-      // Incoming direct message
       case (this.message.channel.type === ChannelType.DM):
         return 'DirectMessage';
 
-      // Incoming message from another bot
       case (this.message.author.bot):
         return 'BotMessage';
 
-      // Any other channel message
+      case (this.message.mentions.has(this.botUserId)):
+        return 'AtMention';
+
       default:
         return 'ChannelMessage';
     }
