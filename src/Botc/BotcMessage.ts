@@ -1,10 +1,15 @@
 import {
+  Attachment,
+  ChannelType,
+  Message,
+} from 'discord.js';
+
+import {
   BotcMessageConfig,
   BotcMessageImageAttachment,
   BotcMessageType,
 } from '../Botc/index.js';
 
-import { ChannelType, Message } from 'discord.js';
 import { EventBus } from './EventBus/index.js';
 
 /**
@@ -19,6 +24,7 @@ export class BotcMessage {
   private _imageDescriptions: string[] = [];
   private _nameSanitized!: string;
   private _replyContext!: string | undefined;
+  private _voiceMessageTranscription: string | undefined;
 
   /**
    * New BotcMessage
@@ -42,10 +48,16 @@ export class BotcMessage {
    * @returns {string} Prompt content
    */
   private getPromptContent(): string {
-    const resolvedContent = this.resolveTaggedUsers();
+    const resolvedContent = (this.content === '' && this.voiceMessageTranscription)
+      ? this.voiceMessageTranscription
+      : this.resolveTaggedUsers();
 
-    const imageDescriptions = this.hasAttachedImages
+    const imageDescriptions = (this.hasAttachedImages)
       ? `Image descriptions:\n${this.imageDescriptions.join('\n---\n')}`
+      : undefined;
+
+    const voiceMessageTranscription = (this.voiceMessageTranscription)
+      ? `Voice message transcription:\n${this.voiceMessageTranscription}`
       : undefined;
 
     const createTimestampLocal = new Date(this.createdTimestamp).toLocaleString('en-US', {
@@ -58,6 +70,7 @@ export class BotcMessage {
       `Preferred name: ${this.displayName}`,
       `Message timestamp: ${createTimestampLocal}`,
       imageDescriptions,
+      voiceMessageTranscription,
       this.replyContext,
       `</Message Metadata>`,
     ].join('\n');
@@ -175,11 +188,21 @@ export class BotcMessage {
   }
 
   /**
+   * Returns true if the message has any audio attachments
+   * @returns {boolean} boolean
+   */
+  public get hasVoiceMessage(): boolean {
+    return this.message.attachments.some(attachment =>
+      attachment.contentType?.startsWith('audio/ogg'),
+    );
+  }
+
+  /**
    * Returns true if the message has any attachments
    * @returns {boolean} boolean
    */
   public get hasAttachedImages(): boolean {
-    return this.attachedImages.length > 0 || this.originalMessage.attachments.size > 0;
+    return this.attachedImages.length > 0;
   }
 
   /**
@@ -272,5 +295,32 @@ export class BotcMessage {
    */
   public get username(): string {
     return this.message.author.username;
+  }
+
+  /**
+   * Voice message attachment
+   * @returns {any | undefined} Voice message attachment
+   */
+  public get voiceMessage(): Attachment | undefined {
+    return this.message.attachments.find(attachment =>
+      attachment.contentType?.startsWith('audio/ogg'),
+    );
+  }
+
+  /**
+   * Voice message transcription
+   * @returns {string | undefined} Transcription
+   */
+  public get voiceMessageTranscription(): string | undefined {
+    return this._voiceMessageTranscription;
+  }
+
+  /**
+   * Voice message transcription
+   * @param {string} transcription Transcription
+   */
+  public set voiceMessageTranscription(transcription: string) {
+    this._voiceMessageTranscription = transcription;
+    console.debug(`BotcMessage.voiceMessageTranscription:\n${this.voiceMessageTranscription}`);
   }
 }
