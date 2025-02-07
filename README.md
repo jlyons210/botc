@@ -6,7 +6,7 @@
 
 **Botc** pulls together things I've learned over a couple of [previous Discord bot projects](#history) as well as advancements in how developers utilize LLMs, and is an ambitious attempt to make large iterations on those learnings.
 
-Unlike [dbob](#discord-bot-ol-bootsie-dbob), which requires @-mentions, replies, or a dice roll to determine whether the bot should engage with users, **Botc** monitors conversations and uses a [reasoning prompt](#optional) to decide whether it would be appropriate to engage.
+Unlike [dbob](#discord-bot-ol-bootsie-dbob), which requires @-mentions, replies, or a dice roll to determine whether the bot should engage with users, **Botc** monitors conversations and uses a [decision prompt](doc/configuration.md#optional) to decide whether it would be appropriate to engage.
 
 My intent is for **Botc** to engage with chat users in a more human-like fashion. 
 
@@ -21,6 +21,7 @@ My intent is for **Botc** to engage with chat users in a more human-like fashion
 ## Features
 
 - Monitors channels for active conversations, engaging automatically when a reasoning prompt determines that it would be appropriate.
+- Responds to replies, @-mentions, and direct messages, and the bot will respond to replies to old messages with the correct context.
 - Bot builds a server-wide persona of users being engaged to enhance responses. Personas are cached to limit API polling.
 - Examine and comprehend user images attachments. Image descriptions are cached to limit API polling.
 - System/developer prompts and individual messages have a section containing metadata that enables the enriching of responses issued by the chat API.

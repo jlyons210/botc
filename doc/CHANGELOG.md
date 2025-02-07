@@ -4,6 +4,7 @@
 
 ## Pre-release
 
+- 0.9.x: [0.9.0](#090-2024-02-06)
 - 0.8.x:
     [0.8.0](#080-2024-02-04),
     [0.8.1](#081-2024-02-05),
@@ -22,6 +23,11 @@
 - 0.1.x: [0.1.0](#010-2024-01-24)
 
 ---
+## 0.9.0 (2024-02-06)
+- Bot intelligently handles replies to its messages. Replies, @-mentions, and direct messages will always get a bot response.
+
+[:arrow_up: Back to top](#changelog)
+
 ## 0.8.5 (2024-02-06)
 - Pre-fetch attached image descriptions as soon as they hit the channel.
 
