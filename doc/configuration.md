@@ -39,12 +39,13 @@ Configuration is achieved through environment variables, which are easily config
 
 | Environment | Default | Description |
 | --- | --- | --- |
-| `OPENAI_DESCRIBE_IMAGE_CACHE_TTL_HOURS` | `24` | Number of hours to cache image descriptions (optimizes API polling). |
+| `OPENAI_DESCRIBE_IMAGE_CACHE_TTL_HOURS` | `24` | Hours to cache image descriptions. |
 | `OPENAI_CACHE_LOG_ENTRIES` | `false` | Enables logging of new cache entries. |
 | `OPENAI_CACHE_LOG_HITS` | `false` | Enables logging of cache hits. |
 | `OPENAI_CACHE_LOG_MISSES` | `false` | Enables logging of cache misses. |
 | `OPENAI_CACHE_LOG_PURGES` | `false` | Enables logging of cache entry expiration/purging. |
-| `OPENAI_PERSONA_CACHE_TTL_HOURS` | `3` | Number of hours to cache server-wide user personas (optimizes API polling). |
+| `OPENAI_PERSONA_CACHE_TTL_HOURS` | `3` | Hours to cache server-wide user personas. |
+| `OPENAI_VOICE_TRANSCRIPT_CACHE_TTL_HOURS` | `24` | Hours to cache voice message transcriptions.
 
 [:arrow_up: Back to top](#configuration)
 
