@@ -17,13 +17,18 @@ export interface LlmsSettings {
   openai: OpenAISettings;
 }
 
-export interface OpenAICacheSettings {
-  describeImageCacheTtlHours: ConfigurationSettings;
+export interface OpenAICacheLoggingSettings {
   logCacheEntries: ConfigurationSettings;
   logCacheHits: ConfigurationSettings;
   logCacheMisses: ConfigurationSettings;
   logCachePurges: ConfigurationSettings;
+}
+
+export interface OpenAICacheSettings {
+  describeImageCacheTtlHours: ConfigurationSettings;
+  logging: OpenAICacheLoggingSettings;
   personaCacheTtlHours: ConfigurationSettings;
+  voiceTranscriptCacheTtlHours: ConfigurationSettings;
 }
 
 export interface OpenAISettings {

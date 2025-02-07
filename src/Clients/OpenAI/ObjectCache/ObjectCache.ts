@@ -1,5 +1,5 @@
 import { CacheConfig, CacheEntry } from './index.js';
-import { OpenAICacheSettings } from '../../../Botc/Configuration/Configuration.types.js';
+import { ConfigurationSettings, OpenAICacheLoggingSettings, OpenAICacheSettings } from '../../../Botc/Configuration/Configuration.types.js';
 
 /**
  * Multi-purpose key-value cache
@@ -9,9 +9,10 @@ export class ObjectCache {
 
   /**
    * New object cache
-   * @param {OpenAICacheSettings} config Cache settings
+   * @param {OpenAICacheSettings} ttlConfig Cache TTL configuration
+   * @param {OpenAICacheLoggingSettings} logConfig Cache logging configuration
    */
-  constructor(private config: OpenAICacheSettings) {
+  constructor(private ttlConfig: ConfigurationSettings, private logConfig: OpenAICacheLoggingSettings) {
     setInterval(() => this.clearExpired(), 60000);
   }
 
@@ -22,10 +23,10 @@ export class ObjectCache {
   public cache(entry: CacheConfig): void {
     this.cached[entry.key] = {
       value: entry.value,
-      expiresAt: Date.now() + (this.config.describeImageCacheTtlHours.value as number) * 60 * 60 * 1000,
+      expiresAt: Date.now() + (this.ttlConfig.value as number) * 60 * 60 * 1000,
     };
 
-    if (this.config.logCacheEntries.value.toString() === 'true') {
+    if (this.logConfig.logCacheEntries.value.toString() === 'true') {
       console.log(`ObjectCache.cache: Cached ${entry.key}`);
     }
   }
@@ -38,7 +39,7 @@ export class ObjectCache {
       if (this.cached[key].expiresAt < Date.now()) {
         delete this.cached[key];
 
-        if (this.config.logCachePurges.value.toString() === 'true') {
+        if (this.logConfig.logCachePurges.value.toString() === 'true') {
           console.log(`ObjectCache.clearExpired: Removing expired entry ${key}`);
         }
       }
@@ -54,14 +55,14 @@ export class ObjectCache {
     const entry = this.cached[key];
 
     if (entry) {
-      if (this.config.logCacheHits.value.toString() === 'true') {
+      if (this.logConfig.logCacheHits.value.toString() === 'true') {
         console.log(`ObjectCache.getValue: Cache hit for ${key}`);
       }
 
       return entry.value;
     }
     else {
-      if (this.config.logCacheMisses.value.toString() === 'true') {
+      if (this.logConfig.logCacheMisses.value.toString() === 'true') {
         console.log(`ObjectCache.getValue: Cache miss for ${key}`);
       }
 

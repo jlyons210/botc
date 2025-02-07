@@ -76,35 +76,42 @@ export const ConfigurationDefaults: ConfigurationOptions = {
         },
 
         /**
-         * Log new cache entries
+         * OpenAI cache logging configuration
          */
-        logCacheEntries: {
-          environmentVariable: 'OPENAI_CACHE_LOG_ENTRIES',
-          value: false,
-        },
+        logging: {
 
-        /**
-         * Log cache hits
-         */
-        logCacheHits: {
-          environmentVariable: 'OPENAI_CACHE_LOG_HITS',
-          value: false,
-        },
+          /**
+           * Log new cache entries
+           */
+          logCacheEntries: {
+            environmentVariable: 'OPENAI_CACHE_LOG_ENTRIES',
+            value: false,
+          },
 
-        /**
-         * Log cache misses
-         */
-        logCacheMisses: {
-          environmentVariable: 'OPENAI_CACHE_LOG_MISSES',
-          value: false,
-        },
+          /**
+           * Log cache hits
+           */
+          logCacheHits: {
+            environmentVariable: 'OPENAI_CACHE_LOG_HITS',
+            value: false,
+          },
 
-        /**
-         * Log cache purges
-         */
-        logCachePurges: {
-          environmentVariable: 'OPENAI_CACHE_LOG_PURGES',
-          value: false,
+          /**
+           * Log cache misses
+           */
+          logCacheMisses: {
+            environmentVariable: 'OPENAI_CACHE_LOG_MISSES',
+            value: false,
+          },
+
+          /**
+           * Log cache purges
+           */
+          logCachePurges: {
+            environmentVariable: 'OPENAI_CACHE_LOG_PURGES',
+            value: false,
+          },
+
         },
 
         /**
@@ -113,6 +120,14 @@ export const ConfigurationDefaults: ConfigurationOptions = {
         personaCacheTtlHours: {
           environmentVariable: 'OPENAI_PERSONA_CACHE_TTL_HOURS',
           value: 3,
+        },
+
+        /**
+         * Time-to-live for voice transcript cache in hours
+         */
+        voiceTranscriptCacheTtlHours: {
+          environmentVariable: 'OPENAI_VOICE_TRANSCRIPT_CACHE_TTL_HOURS',
+          value: 24,
         },
 
       },
