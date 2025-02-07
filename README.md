@@ -25,7 +25,7 @@ My intent is for **Botc** to engage with chat users in a more human-like fashion
 - Monitors channels for active conversations, engaging automatically when a reasoning prompt determines that it would be appropriate.
 - Responds to replies, @-mentions, and direct messages, and the bot will respond to replies to old messages using the expected context.
 - Bot builds a server-wide persona of users being engaged to enhance responses. Personas are cached to limit API polling.
-- Examine and comprehend user images attachments. Image descriptions are cached to limit API polling.
+- Examine and comprehend user image attachments and voice messages. Image descriptions and transcriptions are cached to limit API polling.
 - System/developer prompts and individual messages have a section containing metadata that enables the enriching of responses issued by the chat API.
 
 [View Changelog](doc/CHANGELOG.md)
@@ -33,7 +33,7 @@ My intent is for **Botc** to engage with chat users in a more human-like fashion
 ## Roadmap
 
 - Timer for responding if no other users are active in chat.
-- Examine and comprehend user attachments (audio) and crawl hyperlinks.
+- Follow hyperlinks and summarize pages into conversation context.
 - Image generation using DALL-E 3.
 - Perform web research on topics before responding, responding with citations.
 
