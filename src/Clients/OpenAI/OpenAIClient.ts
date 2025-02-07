@@ -51,7 +51,6 @@ export class OpenAIClient {
    * Register event handlers
    */
   private registerHandlers(): void {
-    // Pre-fetch image descriptions
     this.globalEvents.on('DiscordClient:PrefetchImageDescriptions', async (data) => {
       await this.describeImages(data.messageHistory);
     });
@@ -70,18 +69,16 @@ export class OpenAIClient {
     const messageChannelId = data.message.originalMessage.channelId;
     const channelHistory = await data.discordClient.getChannelHistory(messageChannelId);
 
-    // Ignore incoming messages sent from this bot, always respond to direct messages, and decide
-    // whether to respond based on conversation history.
-    const isDirectMessage = channelHistory.at(-1)?.type === 'DirectMessage';
-    const isOwnMessage = channelHistory.at(-1)?.type === 'OwnMessage';
-    const willRespond = !isOwnMessage && (isDirectMessage || await this.willReplyToMessage(channelHistory));
+    // If the last message is a reply, set the reply context
+    if (channelHistory.at(-1)?.isReply) {
+      channelHistory.at(-1)?.setReplyContext();
+    }
+
+    const willRespond = await this.willReplyToMessage(channelHistory);
 
     if (!willRespond) {
       return;
     }
-
-    // Start typing indicator
-    this.startTyping(channelHistory[0].channelId);
 
     // Prepare response
     const responseMessage = await this.prepareResponse(data, channelHistory);
@@ -275,18 +272,27 @@ export class OpenAIClient {
     const guild = data.message.originalMessage.guild;
     const isDirectMessage = channelHistory.at(-1)?.type === 'DirectMessage';
 
+    this.startTyping(channelHistory[0].channelId);
     await this.describeImages(channelHistory);
 
     // Guild is not populated for direct messages
     if (guild) {
       // Respond with personalized message from guild persona
+      this.startTyping(channelHistory[0].channelId);
       const serverHistory = await data.discordClient.getServerHistoryForUser(guild, authorId);
+
+      this.startTyping(channelHistory[0].channelId);
       await this.describeImages(serverHistory);
+
+      this.startTyping(channelHistory[0].channelId);
       const persona = await this.generateUserPersona(serverHistory);
+
+      this.startTyping(channelHistory[0].channelId);
       return await this.generatePersonalizedResponse(channelHistory, persona);
     }
     else if (isDirectMessage) {
       // Respond directly to direct messages
+      this.startTyping(channelHistory[0].channelId);
       return await this.generatePersonalizedResponse(channelHistory, '');
     }
     else {
@@ -311,7 +317,21 @@ export class OpenAIClient {
    * @returns {Promise<boolean>} boolean
    */
   private async willReplyToMessage(messageHistory: BotcMessage[]): Promise<boolean> {
-    // Create completion for reply decision
+    // Screen based upon message type
+    const lastMessageType = messageHistory.at(-1)?.type;
+    const isAtMentionOrReply = lastMessageType === 'AtMention';
+    const isDirectMessage = lastMessageType === 'DirectMessage';
+    const isOwnMessage = lastMessageType === 'OwnMessage';
+
+    // Automatic true or false based on message type
+    if (isOwnMessage) {
+      return false;
+    }
+    else if (isAtMentionOrReply || isDirectMessage) {
+      return true;
+    }
+
+    // Otherwise, use decision prompt to determine response
     const payload = await this.createPromptPayload({
       messageHistory: messageHistory,
       customSystemPrompt: {

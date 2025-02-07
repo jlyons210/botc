@@ -26,7 +26,7 @@ export class ObjectCache {
     };
 
     if (this.config.logCacheEntries.value.toString() === 'true') {
-      console.debug(`ObjectCache.cache: Cached ${entry.key}`);
+      console.log(`ObjectCache.cache: Cached ${entry.key}`);
     }
   }
 
@@ -39,7 +39,7 @@ export class ObjectCache {
         delete this.cached[key];
 
         if (this.config.logCachePurges.value.toString() === 'true') {
-          console.debug(`ObjectCache.clearExpired: Removing expired entry ${key}`);
+          console.log(`ObjectCache.clearExpired: Removing expired entry ${key}`);
         }
       }
     }
@@ -55,14 +55,14 @@ export class ObjectCache {
 
     if (entry) {
       if (this.config.logCacheHits.value.toString() === 'true') {
-        console.debug(`ObjectCache.getValue: Cache hit for ${key}`);
+        console.log(`ObjectCache.getValue: Cache hit for ${key}`);
       }
 
       return entry.value;
     }
     else {
       if (this.config.logCacheMisses.value.toString() === 'true') {
-        console.debug(`ObjectCache.getValue: Cache miss for ${key}`);
+        console.log(`ObjectCache.getValue: Cache miss for ${key}`);
       }
 
       return undefined;
