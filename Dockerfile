@@ -6,7 +6,7 @@ WORKDIR /usr/src/app
 
 COPY package*.json ./
 
-RUN npm ci --ignore-scripts && \
+RUN npm ci --omit=dev --ignore-scripts && \
     npm cache verify
 
 # Build stage
