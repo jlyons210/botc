@@ -9,7 +9,7 @@ export class ObjectCache {
 
   /**
    * New object cache
-   * @param {OpenAICacheSettings} ttlConfig Cache TTL configuration
+   * @param {ConfigurationSettings} ttlConfig Cache TTL configuration
    * @param {OpenAICacheLoggingSettings} logConfig Cache logging configuration
    */
   constructor(private ttlConfig: ConfigurationSettings, private logConfig: OpenAICacheLoggingSettings) {
