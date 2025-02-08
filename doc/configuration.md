@@ -17,6 +17,7 @@ Configuration is achieved through environment variables, which are easily config
 |---|---|---|
 | `DISCORD_BOT_TOKEN` | N/A | Your [Discord Developer Portal](https://discord.com/developers/applications) bot token. |
 | `OPENAI_API_KEY` | N/A | Your [OpenAI platform](https://platform.openai.com/settings/) API key. |
+| `ELEVENLABS_API_KEY` | N/A | Your [ElevenLabs](https://elevenlabs.io/app/settings/api-keys) API key. |
 
 [:arrow_up: Back to top](#configuration)
 
@@ -26,6 +27,8 @@ Configuration is achieved through environment variables, which are easily config
 | --- | --- | --- |
 | `DISCORD_CHANNEL_HISTORY_HOURS` | `24` | Number of hours of past messsages to ingest for conversation context. |
 | `DISCORD_CHANNEL_HISTORY_MESSAGES` | `100` | Number of past messages to ingest per-channel for conversation context. |
+| `ELEVENLABS_MODEL_ID` | `eleven_multilingual_v2` | Speech synthesis models offered by the ElevenLabs API. |
+| `ELEVENLABS_VOICE_ID` | `oR4uRy4fHDUGGISL0Rev` | ElevenLabs text-to-speech voice ID. |
 | `OPENAI_DESCRIBE_IMAGE_PROMPT` | [Source](https://github.com/jlyons210/botc/blob/main/src/Botc/Configuration/Configuration.defaults.ts) | Prompt used to describe attached images. |
 | `OPENAI_MAX_RETRIES` | `3` | Number of OpenAI API retries on retriable errors. |
 | `OPENAI_MODEL` | `gpt-4o-mini` | OpenAI model to use for chat completions. |
@@ -79,6 +82,11 @@ spec:
             secretKeyRef:
               name: discord-bots
               key: botc-discord-token
+        - name: ELEVENLABS_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: discord-bots
+              key: elevenlabs-api-key
         - name: OPENAI_API_KEY
           valueFrom:
             secretKeyRef:

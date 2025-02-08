@@ -2,6 +2,8 @@ import {
   ConfigurationOptions,
   ConfigurationSettings,
   DiscordClientSettings,
+  ElevenLabsSettings,
+  OpenAICacheLoggingSettings,
   OpenAISettings,
 } from './Configuration.types.js';
 import { Configuration } from './Configuration.js';
@@ -13,5 +15,7 @@ export {
   ConfigurationOptions,
   ConfigurationSettings,
   DiscordClientSettings,
+  ElevenLabsSettings,
+  OpenAICacheLoggingSettings,
   OpenAISettings,
 };

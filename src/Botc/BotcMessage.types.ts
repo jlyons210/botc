@@ -50,4 +50,5 @@ export type BotcMessageType =
   | 'BotMessage'
   | 'ChannelMessage'
   | 'DirectMessage'
-  | 'OwnMessage';
+  | 'OwnMessage'
+  | 'VoiceMessage';

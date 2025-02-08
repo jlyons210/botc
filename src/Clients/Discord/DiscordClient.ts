@@ -1,4 +1,5 @@
 import {
+  AttachmentBuilder,
   ChannelType,
   Client,
   DiscordAPIError,
@@ -12,9 +13,11 @@ import {
   TextChannel,
 } from 'discord.js';
 
+import { DiscordClientSettings, ElevenLabsSettings } from '../../Botc/Configuration/index.js';
 import { BotcMessage } from '../../Botc/index.js';
-import { DiscordClientSettings } from '../../Botc/Configuration/index.js';
+import { ElevenLabs } from '../ElevenLabs/index.js';
 import { EventBus } from '../../Botc/EventBus/index.js';
+import fs from 'node:fs/promises';
 
 /**
  * Utility functions for DiscordBot
@@ -26,9 +29,10 @@ export class DiscordClient {
 
   /**
    * New DiscordBot
-   * @param {DiscordClientSettings} config Discord client
+   * @param {DiscordClientSettings} discordConfig Discord client
+   * @param {ElevenLabsSettings} elevenlabsConfig Eleven Labs settings
    */
-  constructor(private config: DiscordClientSettings) {
+  constructor(private discordConfig: DiscordClientSettings, private elevenlabsConfig: ElevenLabsSettings) {
     this.initialize();
   }
 
@@ -98,7 +102,7 @@ export class DiscordClient {
    */
   private async authenticateDiscordClient(): Promise<void> {
     try {
-      await this.discordClient.login(this.config.token.value as string);
+      await this.discordClient.login(this.discordConfig.token.value as string);
     }
     catch (error) {
       if (error instanceof DiscordjsError && error.code === DiscordjsErrorCodes.TokenInvalid) {
@@ -138,8 +142,8 @@ export class DiscordClient {
     const isTextChannel = channel?.isTextBased();
 
     if (isTextChannel) {
-      const channelHistoryHours = this.config.channelHistoryHours.value as number;
-      const channelHistoryMessages = this.config.channelHistoryMessages.value as number;
+      const channelHistoryHours = this.discordConfig.channelHistoryHours.value as number;
+      const channelHistoryMessages = this.discordConfig.channelHistoryMessages.value as number;
       const afterTimestamp = Date.now() - (channelHistoryHours * 60 * 60 * 1000);
 
       try {
@@ -226,13 +230,45 @@ export class DiscordClient {
   /**
    * Send message
    * @param {string} channelId Channel ID
-   * @param {string} message Message
+   * @param {string} message Message text
    */
   public async sendMessage(channelId: string, message: string): Promise<void> {
     const channel = await this.discordClient.channels.fetch(channelId);
 
     if (channel?.isTextBased()) {
       await (channel as TextChannel).send(message);
+    }
+  }
+
+  /**
+   * Send voice message
+   * @param {string} channelId Channel ID
+   * @param {string} message Message text
+   */
+  public async sendVoiceMessage(channelId: string, message: string): Promise<void> {
+    const channel = await this.discordClient.channels.fetch(channelId);
+
+    if (channel?.isTextBased()) {
+      const elevenlabs = new ElevenLabs(this.elevenlabsConfig);
+      const filename = `voice-response-${Date.now()}.mp3`;
+
+      // Generate audio file
+      const audioFile = await elevenlabs.generateSpeech(message).then(async (response) => {
+        await fs.writeFile(filename, response, 'binary');
+        return filename;
+      });
+
+      // Create attachment
+      const attachment = new AttachmentBuilder(audioFile, {
+        description: 'Botc voice response',
+        name: filename,
+      });
+
+      // Send voice message to Discord channel
+      await (channel as TextChannel).send({ files: [attachment] });
+
+      // Cleanup audio file
+      await fs.unlink(audioFile);
     }
   }
 }

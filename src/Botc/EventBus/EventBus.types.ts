@@ -38,4 +38,9 @@ export interface EventMap {
   'OpenAIClient:StartTyping': {
     channelId: string,
   };
+
+  'OpenAIClient:VoiceResponseComplete': {
+    channelId: string,
+    response: string,
+  };
 };
