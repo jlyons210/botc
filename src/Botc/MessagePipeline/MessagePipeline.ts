@@ -31,6 +31,10 @@ export class MessagePipeline {
     this.globalEvents.on('OpenAIClient:ResponseComplete',
       this.handleResponseComplete.bind(this),
     );
+
+    this.globalEvents.on('OpenAIClient:VoiceResponseComplete',
+      this.handleVoiceResponseComplete.bind(this),
+    );
   }
 
   /**
@@ -47,9 +51,17 @@ export class MessagePipeline {
 
   /**
    * Handle response complete
-   * @param {EventMap['OpenAIClient:ResponseComplete']} data Response complete
+   * @param {EventMap['OpenAIClient:ResponseComplete']} data Response data
    */
   private async handleResponseComplete(data: EventMap['OpenAIClient:ResponseComplete']): Promise<void> {
     await this.discordClient.sendMessage(data.channelId, data.response);
+  }
+
+  /**
+   * Handle voice response complete
+   * @param {EventMap['OpenAIClient:VoiceResponseComplete']} data Voice response data
+   */
+  private async handleVoiceResponseComplete(data: EventMap['OpenAIClient:VoiceResponseComplete']): Promise<void> {
+    await this.discordClient.sendVoiceMessage(data.channelId, data.response);
   }
 }

@@ -1,5 +1,5 @@
 import { CacheConfig, CacheEntry } from './index.js';
-import { ConfigurationSettings, OpenAICacheLoggingSettings, OpenAICacheSettings } from '../../../Botc/Configuration/Configuration.types.js';
+import { ConfigurationSettings, OpenAICacheLoggingSettings } from '../../../Botc/Configuration/index.js';
 
 /**
  * Multi-purpose key-value cache

@@ -49,6 +49,42 @@ export const ConfigurationDefaults: ConfigurationOptions = {
   llms: {
 
     /**
+     * ElevenLabs configuration
+     */
+    elevenlabs: {
+
+      /**
+       * ElevenLabs API key, used to authenticate with ElevenLabs API
+       */
+      apikey: {
+        environmentVariable: 'ELEVENLABS_API_KEY',
+        secret: true,
+        value: '',
+      },
+
+      /**
+       * ElevenLabs model ID, used to generate speech from text
+       */
+      modelId: {
+        environmentVariable: 'ELEVENLABS_MODEL_ID',
+        options: [
+          'eleven_flash_v2_5',
+          'eleven_multilingual_v2',
+        ],
+        value: 'eleven_multilingual_v2',
+      },
+
+      /**
+       * ElevenLabs voice ID, used to generate speech
+       */
+      voiceId: {
+        environmentVariable: 'ELEVENLABS_VOICE_ID',
+        value: 'oR4uRy4fHDUGGISL0Rev',
+      },
+
+    },
+
+    /**
      * OpenAI configuration
      */
     openai: {

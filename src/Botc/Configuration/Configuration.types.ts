@@ -13,7 +13,14 @@ export interface DiscordClientSettings {
   token: ConfigurationSettings;
 }
 
+export interface ElevenLabsSettings {
+  apikey: ConfigurationSettings;
+  modelId: ConfigurationSettings;
+  voiceId: ConfigurationSettings;
+}
+
 export interface LlmsSettings {
+  elevenlabs: ElevenLabsSettings;
   openai: OpenAISettings;
 }
 

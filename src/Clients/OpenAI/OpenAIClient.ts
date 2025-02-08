@@ -78,13 +78,17 @@ export class OpenAIClient {
    * @param {EventMap['MessagePipeline:IncomingMessage']} data Incoming message
    */
   private async handleIncomingMessage(data: EventMap['MessagePipeline:IncomingMessage']): Promise<void> {
-    // Get the current channel history
     const messageChannelId = data.message.originalMessage.channelId;
     const channelHistory = await data.discordClient.getChannelHistory(messageChannelId);
+    const lastMessage = channelHistory.at(-1);
+
+    if (!lastMessage) {
+      return;
+    }
 
     // If the last message is a reply, set the reply context
-    if (channelHistory.at(-1)?.isReply) {
-      channelHistory.at(-1)?.setReplyContext();
+    if (lastMessage.isReply) {
+      lastMessage.setReplyContext();
     }
 
     const willRespond = await this.willReplyToMessage(channelHistory);
@@ -96,8 +100,12 @@ export class OpenAIClient {
     // Prepare response
     const responseMessage = await this.prepareResponse(data, channelHistory);
 
-    // Emit the response
-    this.globalEvents.emit('OpenAIClient:ResponseComplete', {
+    const responseEvent = (!lastMessage.hasVoiceMessage)
+      ? 'OpenAIClient:ResponseComplete'
+      : 'OpenAIClient:VoiceResponseComplete';
+
+    // Emit the response event
+    this.globalEvents.emit(responseEvent, {
       channelId: channelHistory[0].channelId,
       response: responseMessage,
     });
@@ -383,12 +391,13 @@ export class OpenAIClient {
     const isAtMentionOrReply = lastMessageType === 'AtMention';
     const isDirectMessage = lastMessageType === 'DirectMessage';
     const isOwnMessage = lastMessageType === 'OwnMessage';
+    const IsVoiceMessage = lastMessageType === 'VoiceMessage';
 
     // Automatic true or false based on message type
     if (isOwnMessage) {
       return false;
     }
-    else if (isAtMentionOrReply || isDirectMessage) {
+    else if (isAtMentionOrReply || isDirectMessage || IsVoiceMessage) {
       return true;
     }
 

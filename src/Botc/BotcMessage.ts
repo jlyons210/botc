@@ -193,7 +193,8 @@ export class BotcMessage {
    */
   public get hasVoiceMessage(): boolean {
     return this.message.attachments.some(attachment =>
-      attachment.contentType?.startsWith('audio/ogg'),
+      attachment.contentType?.startsWith('audio/ogg')
+      && attachment.waveform !== null,
     );
   }
 
@@ -274,6 +275,9 @@ export class BotcMessage {
     switch (true) {
       case (this.message.author.id === this.botUserId):
         return 'OwnMessage';
+
+      case (this.hasVoiceMessage):
+        return 'VoiceMessage';
 
       case (this.message.channel.type === ChannelType.DM):
         return 'DirectMessage';
