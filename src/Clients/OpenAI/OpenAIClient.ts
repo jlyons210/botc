@@ -291,32 +291,34 @@ export class OpenAIClient {
   ): Promise<string> {
     const authorId = data.message.originalMessage.author.id;
     const guild = data.message.originalMessage.guild;
-    const isDirectMessage = channelHistory.at(-1)?.type === 'DirectMessage';
+    const lastMessage = channelHistory.at(-1) as BotcMessage;
+    const isDirectMessage = lastMessage.type === 'DirectMessage';
+    const isVoiceMessage = lastMessage.type === 'VoiceMessage';
 
-    this.startTyping(channelHistory[0].channelId);
+    this.startTyping(lastMessage.channelId);
     await this.describeImages(channelHistory);
 
-    this.startTyping(channelHistory[0].channelId);
+    this.startTyping(lastMessage.channelId);
     await this.transcribeVoiceMessages(channelHistory);
 
     // Guild is not populated for direct messages
     if (guild) {
       // Respond with personalized message from guild persona
-      this.startTyping(channelHistory[0].channelId);
+      this.startTyping(lastMessage.channelId);
       const serverHistory = await data.discordClient.getServerHistoryForUser(guild, authorId);
 
-      this.startTyping(channelHistory[0].channelId);
+      this.startTyping(lastMessage.channelId);
       await this.describeImages(serverHistory);
 
-      this.startTyping(channelHistory[0].channelId);
+      this.startTyping(lastMessage.channelId);
       const persona = await this.generateUserPersona(serverHistory);
 
-      this.startTyping(channelHistory[0].channelId);
+      this.startTyping(lastMessage.channelId);
       return await this.generatePersonalizedResponse(channelHistory, persona);
     }
-    else if (isDirectMessage) {
+    else if (isDirectMessage || isVoiceMessage) {
       // Respond directly to direct messages
-      this.startTyping(channelHistory[0].channelId);
+      this.startTyping(lastMessage.channelId);
       return await this.generatePersonalizedResponse(channelHistory, '');
     }
     else {
