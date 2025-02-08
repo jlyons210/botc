@@ -18,6 +18,9 @@ import { BotcMessage } from '../../Botc/index.js';
 import { ElevenLabs } from '../ElevenLabs/index.js';
 import { EventBus } from '../../Botc/EventBus/index.js';
 import fs from 'node:fs/promises';
+import { join } from 'node:path';
+import { mkdtempSync } from 'node:fs';
+import { tmpdir } from 'node:os';
 
 /**
  * Utility functions for DiscordBot
@@ -250,25 +253,26 @@ export class DiscordClient {
 
     if (channel?.isTextBased()) {
       const elevenlabs = new ElevenLabs(this.elevenlabsConfig);
-      const filename = `voice-response-${Date.now()}.mp3`;
+      const outputFile = `voice-response-${Date.now()}.mp3`;
+
+      // Set file path to temp directory using node fs module
+      const outputDir = mkdtempSync(join(tmpdir(), 'botc-'));
+      const fullPath = join(outputDir, outputFile);
+      console.debug(`DiscordClient.sendVoiceMessage: tempDir: ${outputDir}`);
+      console.debug(`DiscordClient.sendVoiceMessage: fullPath: ${fullPath}`);
 
       // Generate audio file
-      const audioFile = await elevenlabs.generateSpeech(message).then(async (response) => {
-        await fs.writeFile(filename, response, 'binary');
-        return filename;
-      });
+      const response = await elevenlabs.generateSpeech(message);
+      await fs.writeFile(fullPath, response, 'binary');
 
       // Create attachment
-      const attachment = new AttachmentBuilder(audioFile, {
-        description: 'Botc voice response',
-        name: filename,
-      });
+      const attachment = new AttachmentBuilder(fullPath);
 
       // Send voice message to Discord channel
       await (channel as TextChannel).send({ files: [attachment] });
 
       // Cleanup audio file
-      await fs.unlink(audioFile);
+      await fs.unlink(fullPath);
     }
   }
 }
