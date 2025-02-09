@@ -1,6 +1,9 @@
 import { ElevenLabsClient } from 'elevenlabs';
 import { ElevenLabsSettings } from '../../Botc/Configuration/index.js';
-import { Readable } from 'node:stream';
+import fs from 'node:fs/promises';
+import { join } from 'node:path';
+import { mkdtempSync } from 'node:fs';
+import { tmpdir } from 'node:os';
 
 /**
  * ElevenLabs client wrapper
@@ -21,10 +24,11 @@ export class ElevenLabs {
   /**
    * Generate speech from text
    * @param {string} text Text to generate speech from
-   * @returns {Promise<any>} Speech generation response
+   * @returns {Promise<string>} Path to generated audio file
    */
-  public async generateSpeech(text: string): Promise<Readable> {
-    return await this.client.generate({
+  public async generateVoiceFile(text: string): Promise<string> {
+    // Generate voice from text using ElevenLabs API
+    const response = await this.client.generate({
       model_id: this.config.modelId.value as string,
       text: text,
       voice: this.config.voiceId.value as string,
@@ -33,5 +37,12 @@ export class ElevenLabs {
         stability: 0.5,
       },
     });
+
+    // Save the audio file to a temporary directory
+    const tempDir = mkdtempSync(join(tmpdir(), 'botc-'));
+    const fullPath = join(tempDir, `botc-voice-response-${Date.now()}.mp3`);
+    await fs.writeFile(fullPath, response, 'binary');
+
+    return fullPath;
   }
 }

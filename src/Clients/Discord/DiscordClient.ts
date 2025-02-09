@@ -13,14 +13,9 @@ import {
   TextChannel,
 } from 'discord.js';
 
-import { DiscordClientSettings, ElevenLabsSettings } from '../../Botc/Configuration/index.js';
 import { BotcMessage } from '../../Botc/index.js';
-import { ElevenLabs } from '../ElevenLabs/index.js';
+import { DiscordClientSettings } from '../../Botc/Configuration/index.js';
 import { EventBus } from '../../Botc/EventBus/index.js';
-import fs from 'node:fs/promises';
-import { join } from 'node:path';
-import { mkdtempSync } from 'node:fs';
-import { tmpdir } from 'node:os';
 
 /**
  * Utility functions for DiscordBot
@@ -33,9 +28,8 @@ export class DiscordClient {
   /**
    * New DiscordBot
    * @param {DiscordClientSettings} discordConfig Discord client
-   * @param {ElevenLabsSettings} elevenlabsConfig Eleven Labs settings
    */
-  constructor(private discordConfig: DiscordClientSettings, private elevenlabsConfig: ElevenLabsSettings) {
+  constructor(private discordConfig: DiscordClientSettings) {
     this.initialize();
   }
 
@@ -234,45 +228,34 @@ export class DiscordClient {
    * Send message
    * @param {string} channelId Channel ID
    * @param {string} message Message text
+   * @param {string[]} files (optional) Array of file paths
    */
-  public async sendMessage(channelId: string, message: string): Promise<void> {
+  public async sendMessage(channelId: string, message: string, files?: string[]): Promise<void> {
+    const maxRetries = this.discordConfig.maxSendMessageRetries.value as number;
+
+    const attachments = (files?.length)
+      ? files?.map(file => new AttachmentBuilder(file))
+      : [];
+
     const channel = await this.discordClient.channels.fetch(channelId);
 
     if (channel?.isTextBased()) {
-      await (channel as TextChannel).send(message);
-    }
-  }
+      let errorCount = 0;
 
-  /**
-   * Send voice message
-   * @param {string} channelId Channel ID
-   * @param {string} message Message text
-   */
-  public async sendVoiceMessage(channelId: string, message: string): Promise<void> {
-    const channel = await this.discordClient.channels.fetch(channelId);
+      while (errorCount < maxRetries) {
+        try {
+          await (channel as TextChannel).send({
+            files: attachments,
+            content: message,
+          });
 
-    if (channel?.isTextBased()) {
-      const elevenlabs = new ElevenLabs(this.elevenlabsConfig);
-      const outputFile = `voice-response-${Date.now()}.mp3`;
-
-      // Set file path to temp directory using node fs module
-      const outputDir = mkdtempSync(join(tmpdir(), 'botc-'));
-      const fullPath = join(outputDir, outputFile);
-      console.debug(`DiscordClient.sendVoiceMessage: tempDir: ${outputDir}`);
-      console.debug(`DiscordClient.sendVoiceMessage: fullPath: ${fullPath}`);
-
-      // Generate audio file
-      const response = await elevenlabs.generateSpeech(message);
-      await fs.writeFile(fullPath, response, 'binary');
-
-      // Create attachment
-      const attachment = new AttachmentBuilder(fullPath);
-
-      // Send voice message to Discord channel
-      await (channel as TextChannel).send({ files: [attachment] });
-
-      // Cleanup audio file
-      await fs.unlink(fullPath);
+          return;
+        }
+        catch (error) {
+          console.error(`Error sending message to channel ${channelId}: ${error}`);
+          await new Promise(resolve => setTimeout(resolve, 1000 * errorCount++));
+        }
+      }
     }
   }
 }
