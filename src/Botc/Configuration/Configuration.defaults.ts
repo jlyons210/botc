@@ -31,6 +31,15 @@ export const ConfigurationDefaults: ConfigurationOptions = {
       },
 
       /**
+       * Number of times to retry sending a message before giving
+       * up. Retry interval is a multiple of the retry count.
+       */
+      maxSendMessageRetries: {
+        environmentVariable: 'DISCORD_MAX_SEND_MESSAGE_RETRIES',
+        value: 5,
+      },
+
+      /**
        * Discord bot token, used to authenticate with Discord API
        */
       token: {

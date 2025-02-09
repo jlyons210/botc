@@ -10,6 +10,7 @@ export interface ClientsSettings {
 export interface DiscordClientSettings {
   channelHistoryHours: ConfigurationSettings;
   channelHistoryMessages: ConfigurationSettings;
+  maxSendMessageRetries: ConfigurationSettings;
   token: ConfigurationSettings;
 }
 
