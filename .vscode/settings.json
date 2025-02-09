@@ -1,5 +1,5 @@
 {
-    "editor.fontSize": 12, 
-    "editor.tabSize": 2,
-    "typescript.tsdk": "node_modules/typescript/lib",
+  "editor.fontSize": 12,
+  "editor.tabSize": 2,
+  "typescript.tsdk": "node_modules/typescript/lib",
 }
