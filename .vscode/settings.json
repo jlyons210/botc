@@ -1,5 +1,6 @@
 {
   "editor.fontSize": 12,
+  "editor.lineHeight": 1.75,
   "editor.tabSize": 2,
   "typescript.tsdk": "node_modules/typescript/lib",
 }
