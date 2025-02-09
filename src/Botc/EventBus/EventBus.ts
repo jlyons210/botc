@@ -14,9 +14,10 @@ class EventBus<T extends EventMap> {
    * @returns {EventBus<T>} EventBus instance
    */
   static attach<T extends EventMap>(): EventBus<T> {
-    return (!EventBus.instance)
-      ? new EventBus()
-      : EventBus.instance as EventBus<T>;
+    if (!EventBus.instance) {
+      EventBus.instance = new EventBus();
+    }
+    return EventBus.instance as EventBus<T>;
   }
 
   /**
