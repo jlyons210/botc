@@ -17,6 +17,10 @@ export interface EventMap {
     message: string,
   };
 
+  'ElevenLabsClient:Ready': {
+    message: string,
+  };
+
   'MessagePipeline:IncomingMessage': {
     discordClient: DiscordClient,
     message: BotcMessage,
