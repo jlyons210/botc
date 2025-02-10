@@ -113,6 +113,7 @@ export class Botc {
           ? { channelId, content: '', filenames: attachments }
           : { channelId, content: responseContent, filenames: [] };
 
+        // Stop triggering typing indicator
         clearInterval(typingInterval);
 
         this.globalEvents.emit('Botc:ResponseComplete', payload);
