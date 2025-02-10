@@ -31,6 +31,15 @@ export const ConfigurationDefaults: ConfigurationOptions = {
       },
 
       /**
+       * Number of times to retry Discord APIs before giving up.
+       * Retry interval is `1 second * retry count`.
+       */
+      maxDiscordRetries: {
+        environmentVariable: 'DISCORD_MAX_RETRIES',
+        value: 5,
+      },
+
+      /**
        * Discord bot token, used to authenticate with Discord API
        */
       token: {

@@ -18,8 +18,8 @@ import { EventBus } from './EventBus/index.js';
  */
 export class BotcMessage {
   private globalEvents = EventBus.attach();
-  private readonly message: Message;
   private readonly botUserId: string;
+  private readonly message: Message;
   private _attachedImages: BotcMessageImageAttachment[] = [];
   private _imageDescriptions: string[] = [];
   private _nameSanitized!: string;
@@ -30,9 +30,17 @@ export class BotcMessage {
    * New BotcMessage
    * @param {BotcMessageConfig} config BotcMessageConfig object
    */
-  constructor(config: BotcMessageConfig) {
-    this.message = config.message;
+  constructor(private config: BotcMessageConfig) {
     this.botUserId = config.botUserId;
+    this.message = config.discordMessage;
+    this.initialize();
+  }
+
+  /**
+   * Initialize the BotcMessage object
+   */
+  private async initialize(): Promise<void> {
+    await this.addMessageReplyContext();
   }
 
   /**
@@ -41,6 +49,30 @@ export class BotcMessage {
    */
   public addImageDescription(description: string): void {
     this._imageDescriptions.push(description);
+  }
+
+  /**
+   * Add the context of the message that was replied to for prompt enrichment
+   */
+  private async addMessageReplyContext(): Promise<void> {
+    if (this.isReply && this.originalMessage.reference?.messageId) {
+      const replyMessageId = this.originalMessage.reference.messageId;
+      const replyMessage = await this.originalMessage.channel.messages.fetch(replyMessageId);
+      const replyContent = replyMessage.content;
+      const replyAuthor = replyMessage.author.displayName || replyMessage.author.username;
+      const replyTimestampLocal = new Date(replyMessage.createdTimestamp).toLocaleString('en-US', {
+        timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+      });
+
+      this._replyContext = [
+        `---`,
+        `Focus your response on this message that was replied to:`,
+        `- Message author: ${replyAuthor}`,
+        `- Message timestamp: ${replyTimestampLocal}`,
+        `- Message content: ${replyContent}`,
+        `---`,
+      ].join('\n');
+    }
   }
 
   /**
@@ -75,8 +107,6 @@ export class BotcMessage {
       `</Message Metadata>`,
     ].join('\n');
 
-    console.debug(`BotcMessage.getPromptContent:\n${promptContent}`);
-
     return promptContent;
   }
 
@@ -92,30 +122,6 @@ export class BotcMessage {
     });
 
     return resolvedContent;
-  }
-
-  /**
-   * Get the context of the message that was replied to for the OpenAI prompt
-   */
-  public async setReplyContext(): Promise<void> {
-    if (this.isReply && this.message.reference?.messageId) {
-      const replyMessageId = this.message.reference.messageId;
-      const replyMessage = await this.message.channel.messages.fetch(replyMessageId);
-      const replyContent = replyMessage.content;
-      const replyAuthor = replyMessage.author.displayName || replyMessage.author.username;
-      const replyTimestampLocal = new Date(replyMessage.createdTimestamp).toLocaleString('en-US', {
-        timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-      });
-
-      this._replyContext = [
-        `---`,
-        `Focus your response on this message that was replied to:`,
-        `- Message author: ${replyAuthor}`,
-        `- Message timestamp: ${replyTimestampLocal}`,
-        `- Message content: ${replyContent}`,
-        `---`,
-      ].join('\n');
-    }
   }
 
   /**
@@ -267,30 +273,35 @@ export class BotcMessage {
     return this._replyContext;
   }
 
+  private _typeAttributes: BotcMessageType[] = [];
+
   /**
-   * Discord message type
-   * @returns {BotcMessageType} Type of message being processed
+   * Message type attributes
+   * @returns {BotcMessageType[]} Type attributes
    */
-  public get type(): BotcMessageType {
-    switch (true) {
-      case (this.message.author.id === this.botUserId):
-        return 'OwnMessage';
-
-      case (this.hasVoiceMessage):
-        return 'VoiceMessage';
-
-      case (this.message.channel.type === ChannelType.DM):
-        return 'DirectMessage';
-
-      case (this.message.author.bot):
-        return 'BotMessage';
-
-      case (this.message.mentions.has(this.botUserId)):
-        return 'AtMention';
-
-      default:
-        return 'ChannelMessage';
+  public get typeAttributes(): BotcMessageType[] {
+    if (this._typeAttributes.length === 0) {
+      if (this.message.author.id === this.botUserId) {
+        this._typeAttributes.push('OwnMessage');
+      }
+      if (this.hasVoiceMessage) {
+        this._typeAttributes.push('VoiceMessage');
+      }
+      if (this.message.channel.type === ChannelType.DM) {
+        this._typeAttributes.push('DirectMessage');
+      }
+      if (this.message.author.bot) {
+        this._typeAttributes.push('BotMessage');
+      }
+      if (this.message.mentions.has(this.botUserId)) {
+        this._typeAttributes.push('AtMention');
+      }
+      if (this._typeAttributes.length === 0) {
+        this._typeAttributes.push('ChannelMessage');
+      }
     }
+
+    return this._typeAttributes;
   }
 
   /**
@@ -325,6 +336,5 @@ export class BotcMessage {
    */
   public set voiceMessageTranscription(transcription: string) {
     this._voiceMessageTranscription = transcription;
-    console.debug(`BotcMessage.voiceMessageTranscription:\n${this.voiceMessageTranscription}`);
   }
 }

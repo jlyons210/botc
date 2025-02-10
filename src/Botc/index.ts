@@ -1,4 +1,12 @@
 import {
+  BotcCacheModules,
+  BotcClientModules,
+  BotcModules,
+  CustomSystemPrompt,
+  ReplyDecisionResponse,
+} from './Botc.types.js';
+
+import {
   BotcMessageConfig,
   BotcMessageImageAttachment,
   BotcMessageType,
@@ -9,8 +17,13 @@ import { BotcMessage } from './BotcMessage.js';
 
 export {
   Botc,
+  BotcCacheModules,
+  BotcClientModules,
   BotcMessage,
   BotcMessageConfig,
   BotcMessageImageAttachment,
   BotcMessageType,
+  BotcModules,
+  CustomSystemPrompt,
+  ReplyDecisionResponse,
 };

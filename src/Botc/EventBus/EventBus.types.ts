@@ -1,28 +1,17 @@
 import { BotcMessage } from '../index.js';
-import { DiscordClient } from '../../Clients/Discord/DiscordClient.js';
 
 /**
  * EventMap is a map of event names to their payload types
  */
 export interface EventMap {
-  'DiscordClient:PrefetchImageDescriptions': {
-    messageHistory: BotcMessage[],
-  };
 
-  'DiscordClient:IncomingMessage': {
-    message: BotcMessage,
-  };
+  // Client ready events
 
   'DiscordClient:Ready': {
     message: string,
   };
 
-  'MessagePipeline:IncomingMessage': {
-    discordClient: DiscordClient,
-    message: BotcMessage,
-  };
-
-  'MessagePipeline:Ready': {
+  'ElevenLabsClient:Ready': {
     message: string,
   };
 
@@ -30,17 +19,19 @@ export interface EventMap {
     message: string,
   };
 
-  'OpenAIClient:ResponseComplete': {
+  // Application events
+
+  'Botc:ResponseComplete': {
     channelId: string,
-    response: string,
+    content: string,
+    filenames: string[],
   };
 
-  'OpenAIClient:StartTyping': {
-    channelId: string,
+  'DiscordClient:IncomingMessage': {
+    message: BotcMessage,
   };
 
-  'OpenAIClient:VoiceResponseComplete': {
+  'DiscordClient:StartTyping': {
     channelId: string,
-    response: string,
   };
 };

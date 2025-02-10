@@ -78,4 +78,12 @@ export class ObjectCache {
   public isCached(key: string): boolean {
     return (this.getValue(key) !== undefined);
   }
+
+  /**
+   * Get number of cache entries
+   * @returns {number} Number of cache entries
+   */
+  public get entryCount(): number {
+    return Object.keys(this.cached).length;
+  }
 }

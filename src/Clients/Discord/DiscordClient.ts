@@ -13,14 +13,9 @@ import {
   TextChannel,
 } from 'discord.js';
 
-import { DiscordClientSettings, ElevenLabsSettings } from '../../Botc/Configuration/index.js';
+import { EventBus, EventMap } from '../../Botc/EventBus/index.js';
 import { BotcMessage } from '../../Botc/index.js';
-import { ElevenLabs } from '../ElevenLabs/index.js';
-import { EventBus } from '../../Botc/EventBus/index.js';
-import fs from 'node:fs/promises';
-import { join } from 'node:path';
-import { mkdtempSync } from 'node:fs';
-import { tmpdir } from 'node:os';
+import { DiscordClientSettings } from '../../Botc/Configuration/index.js';
 
 /**
  * Utility functions for DiscordBot
@@ -33,9 +28,8 @@ export class DiscordClient {
   /**
    * New DiscordBot
    * @param {DiscordClientSettings} discordConfig Discord client
-   * @param {ElevenLabsSettings} elevenlabsConfig Eleven Labs settings
    */
-  constructor(private discordConfig: DiscordClientSettings, private elevenlabsConfig: ElevenLabsSettings) {
+  constructor(private discordConfig: DiscordClientSettings) {
     this.initialize();
   }
 
@@ -51,22 +45,28 @@ export class DiscordClient {
 
   /**
    * Register Discord client event handlers
+   * @todo
+   *   - 'OpenAIClient:StartTyping' should be a Discord event
+   *   - channel.sendTyping should be on an interval that aborts
+   *     when the associated message is sent
    */
   private async registerHandlers(): Promise<void> {
     this.discordClient.on(Events.ClientReady,
       this.handleClientReady.bind(this),
     );
 
+    // This event kicks off everything in the bot message handling flow
     this.discordClient.on(Events.MessageCreate,
       this.handleMessageCreate.bind(this),
     );
 
-    this.globalEvents.on('OpenAIClient:StartTyping', async (data) => {
-      const channel = await this.discordClient.channels.fetch(data.channelId);
-      if (channel?.isTextBased()) {
-        await (channel as TextChannel).sendTyping();
-      }
-    });
+    this.globalEvents.on('Botc:ResponseComplete',
+      this.handleResponseComplete.bind(this),
+    );
+
+    this.globalEvents.on('DiscordClient:StartTyping',
+      this.handleStartTyping.bind(this),
+    );
   }
 
   /**
@@ -81,18 +81,13 @@ export class DiscordClient {
 
   /**
    * Handle Discord MessageCreate event
-   * @param {Message} message Message
+   * @param {Message} discordMessage Discord.js Message object
    */
-  private async handleMessageCreate(message: Message): Promise<void> {
-    // Wrap incoming message in BotcMessage
-    const botcMessage = new BotcMessage({ botUserId: this.botUserId, message: message });
-
-    // Trigger describeImages if message contains image attachments
-    if (botcMessage.hasAttachedImages) {
-      this.globalEvents.emit('DiscordClient:PrefetchImageDescriptions', {
-        messageHistory: [botcMessage],
-      });
-    }
+  private async handleMessageCreate(discordMessage: Message): Promise<void> {
+    const botcMessage = new BotcMessage({
+      botUserId: this.botUserId,
+      discordMessage: discordMessage,
+    });
 
     // Emit incoming message event
     this.globalEvents.emit('DiscordClient:IncomingMessage', {
@@ -101,7 +96,53 @@ export class DiscordClient {
   }
 
   /**
+   * Send message to Discord channel
+   * @param {EventMap['OpenAIClient:ResponseComplete']} payload Response payload
+   */
+  public async handleResponseComplete(payload: EventMap['Botc:ResponseComplete']): Promise<void> {
+    const { channelId, content, filenames } = payload;
+    const maxRetries = this.discordConfig.maxDiscordRetries.value as number;
+
+    const attachments = (filenames?.length)
+      ? filenames.map(filename => new AttachmentBuilder(filename))
+      : [];
+
+    const channel = await this.discordClient.channels.fetch(channelId);
+
+    if (channel && channel.isTextBased()) {
+      let errorCount = 0;
+
+      while (errorCount < maxRetries) {
+        try {
+          await (channel as TextChannel).send({
+            content: content,
+            files: attachments,
+          });
+
+          return;
+        }
+        catch (error) {
+          console.error(`Error sending message to channel ${channelId}: ${error}`);
+          await new Promise(resolve => setTimeout(resolve, 1000 * errorCount++));
+        }
+      }
+    }
+  }
+
+  /**
+   * Start typing in Discord channel
+   * @param {EventMap['DiscordClient:StartTyping']} data StartTyping event data
+   */
+  private async handleStartTyping(data: EventMap['DiscordClient:StartTyping']): Promise<void> {
+    const channel = await this.discordClient.channels.fetch(data.channelId);
+    if (channel?.isTextBased()) {
+      await (channel as TextChannel).sendTyping();
+    }
+  }
+
+  /**
    * Authenticate Discord client
+   * This is a separate function to allow event handlers to be registered before authenticating.
    */
   private async authenticateDiscordClient(): Promise<void> {
     try {
@@ -135,6 +176,20 @@ export class DiscordClient {
   }
 
   /**
+   * Get all guilds history
+   * @returns {Promise<BotcMessage[]>} All guilds history
+   */
+  public async getAllGuildsHistory(): Promise<BotcMessage[]> {
+    const guilds = this.discordClient.guilds.cache;
+
+    const messages = await Promise.all(guilds.map(async (guild) => {
+      return await this.getGuildHistory(guild);
+    }));
+
+    return messages.flat();
+  }
+
+  /**
    * Get channel history
    * @param {string} channelId Channel ID
    * @param {string} userId (optional) User ID
@@ -154,7 +209,7 @@ export class DiscordClient {
           .filter(message => message.createdTimestamp > afterTimestamp)
           .map(message => new BotcMessage({
             botUserId: this.botUserId,
-            message: message,
+            discordMessage: message,
           }))
           .reverse();
 
@@ -179,16 +234,16 @@ export class DiscordClient {
   /**
    * Summarize user behavior
    * @param {string} guild Discord.js Guild object
-   * @param {string} authorId Author ID
+   * @param {string} userId Discord user ID for message filtering
    * @returns {Promise<BotcMessage[]>} User context
    */
-  public async getServerHistoryForUser(guild: Guild, authorId: string): Promise<BotcMessage[]> {
+  public async getGuildHistory(guild: Guild, userId?: string): Promise<BotcMessage[]> {
     const channels = await guild.channels.fetch();
 
     if (channels) {
       const messages = await Promise.all(channels
 
-        // Retrieve channel objects using channel IDs
+        // Retrieve Discord.js channel objects using channel IDs
         .map(channel => channels.get(channel?.id as string))
 
         // Filter to text channels
@@ -196,10 +251,7 @@ export class DiscordClient {
 
         // Return user's message history for each channel
         .map(async (channel) => {
-          return await this.getChannelHistory(
-            channel?.id as string,
-            authorId,
-          );
+          return await this.getChannelHistory(channel?.id as string, userId);
         }));
 
       // Return flattened array of messages
@@ -227,52 +279,6 @@ export class DiscordClient {
 
       guild.members.fetch();
       console.log(`- ${guild.name} (${guild.memberCount} members, ${textChannelCount} text channels)`);
-    }
-  }
-
-  /**
-   * Send message
-   * @param {string} channelId Channel ID
-   * @param {string} message Message text
-   */
-  public async sendMessage(channelId: string, message: string): Promise<void> {
-    const channel = await this.discordClient.channels.fetch(channelId);
-
-    if (channel?.isTextBased()) {
-      await (channel as TextChannel).send(message);
-    }
-  }
-
-  /**
-   * Send voice message
-   * @param {string} channelId Channel ID
-   * @param {string} message Message text
-   */
-  public async sendVoiceMessage(channelId: string, message: string): Promise<void> {
-    const channel = await this.discordClient.channels.fetch(channelId);
-
-    if (channel?.isTextBased()) {
-      const elevenlabs = new ElevenLabs(this.elevenlabsConfig);
-      const outputFile = `voice-response-${Date.now()}.mp3`;
-
-      // Set file path to temp directory using node fs module
-      const outputDir = mkdtempSync(join(tmpdir(), 'botc-'));
-      const fullPath = join(outputDir, outputFile);
-      console.debug(`DiscordClient.sendVoiceMessage: tempDir: ${outputDir}`);
-      console.debug(`DiscordClient.sendVoiceMessage: fullPath: ${fullPath}`);
-
-      // Generate audio file
-      const response = await elevenlabs.generateSpeech(message);
-      await fs.writeFile(fullPath, response, 'binary');
-
-      // Create attachment
-      const attachment = new AttachmentBuilder(fullPath);
-
-      // Send voice message to Discord channel
-      await (channel as TextChannel).send({ files: [attachment] });
-
-      // Cleanup audio file
-      await fs.unlink(fullPath);
     }
   }
 }
