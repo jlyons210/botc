@@ -100,17 +100,16 @@ export class Botc {
           this.startTyping(lastMessage.channelId);
         }, 9000);
 
-        const isVoiceMessage = lastMessage.typeAttributes.includes('VoiceMessage');
         const responseContent = await this.prepareResponse(data, channelHistory);
 
         const attachments = [];
-        if (isVoiceMessage) {
+        if (lastMessage.isVoiceMessage) {
           const elevenlabs = this.modules.clients.elevenlabs;
           const voiceMessage = await elevenlabs.generateVoiceFile(responseContent);
           attachments.push(voiceMessage);
         }
 
-        const payload = (isVoiceMessage)
+        const payload = (lastMessage.isVoiceMessage)
           ? { channelId, content: '', filenames: attachments }
           : { channelId, content: responseContent, filenames: [] };
 
@@ -250,8 +249,6 @@ export class Botc {
   private async prepareResponse(data: EventMap['DiscordClient:IncomingMessage'], channelHistory: BotcMessage[]): Promise<string> {
     const guild = data.message.originalMessage.guild;
     const lastMessage = channelHistory.at(-1) as BotcMessage;
-    const isDirectMessage = lastMessage.typeAttributes.includes('DirectMessage');
-    const isVoiceMessage = lastMessage.typeAttributes.includes('VoiceMessage');
 
     await this.describeImages(channelHistory);
     await this.transcribeVoiceMessages(channelHistory);
@@ -267,7 +264,7 @@ export class Botc {
 
       return await this.generatePersonalizedResponse(channelHistory, persona);
     }
-    else if (isDirectMessage || isVoiceMessage) {
+    else if (lastMessage.isDirectMessage || lastMessage.isVoiceMessage) {
       // Respond directly to direct messages
       return await this.generatePersonalizedResponse(channelHistory, '');
     }
@@ -332,17 +329,19 @@ export class Botc {
    * @returns {Promise<boolean>} boolean
    */
   private async willReplyToMessage(messageHistory: BotcMessage[]): Promise<boolean> {
-    const lastMessageTypeAttributes = messageHistory.at(-1)?.typeAttributes;
-    const isAtMentionOrReply = (lastMessageTypeAttributes?.includes('AtMention'));
-    const isDirectMessage = (lastMessageTypeAttributes?.includes('DirectMessage'));
-    const isOwnMessage = (lastMessageTypeAttributes?.includes('OwnMessage'));
-    const IsVoiceMessage = (lastMessageTypeAttributes?.includes('VoiceMessage'));
+    const lastMessage = messageHistory.at(-1) as BotcMessage;
+    const automaticYes = (
+      lastMessage.isAtMention
+      || lastMessage.isDirectMessage
+      || lastMessage.isVoiceMessage
+    );
 
-    // Automatic true or false based on message type
-    if (isOwnMessage) {
+    // Don't reply to own messages
+    if (lastMessage.isOwnMessage) {
       return false;
     }
-    else if (isAtMentionOrReply || isDirectMessage || IsVoiceMessage) {
+    // Do reply for automaticYes types
+    else if (automaticYes) {
       return true;
     }
     // Otherwise, use decision prompt to determine response

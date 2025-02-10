@@ -10,20 +10,19 @@ import {
   BotcMessageType,
 } from '../Botc/index.js';
 
-import { EventBus } from './EventBus/index.js';
-
 /**
  * A wrapper for Discord.js Message objects that provides additional properties and methods for
  * interacting with the message.
  */
 export class BotcMessage {
-  private globalEvents = EventBus.attach();
   private readonly botUserId: string;
   private readonly message: Message;
+
   private _attachedImages: BotcMessageImageAttachment[] = [];
   private _imageDescriptions: string[] = [];
   private _nameSanitized!: string;
   private _replyContext!: string | undefined;
+  private _typeAttributes: BotcMessageType[] = [];
   private _voiceMessageTranscription: string | undefined;
 
   /**
@@ -115,13 +114,11 @@ export class BotcMessage {
    * @returns {string} Resolved content
    */
   private resolveTaggedUsers(): string {
-    const resolvedContent = this.content.replace(/<@!?(?<userId>\d+)>/g, (match, userId) => {
+    return this.content.replace(/<@!?(?<userId>\d+)>/g, (match, userId) => {
       const displayName = this.message.guild?.members.cache.get(userId)?.displayName;
       const username = this.message.client.users.cache.get(userId)?.username;
       return displayName || username || match;
     });
-
-    return resolvedContent;
   }
 
   /**
@@ -221,11 +218,59 @@ export class BotcMessage {
   }
 
   /**
+   * Message has a mention of the bot
+   * @returns {boolean} boolean
+   */
+  public get isAtMention(): boolean {
+    return this.message.mentions.has(this.botUserId);
+  }
+
+  /**
+   * Message author is a bot
+   * @returns {boolean} boolean
+   */
+  public get isBotMessage(): boolean {
+    return this.message.author.bot;
+  }
+
+  /**
+   * Message is a channel message
+   * @returns {boolean} boolean
+   */
+  public get isChannelMessage(): boolean {
+    return (this.message.channel.type === ChannelType.GuildText);
+  }
+
+  /**
+   * Message is a direct message
+   * @returns {boolean} boolean
+   */
+  public get isDirectMessage(): boolean {
+    return (this.message.channel.type === ChannelType.DM);
+  }
+
+  /**
+   * Message is from this bot
+   * @returns {boolean} boolean
+   */
+  public get isOwnMessage(): boolean {
+    return (this.message.author.id === this.botUserId);
+  }
+
+  /**
    * Returns true if the message is a reply to another message
    * @returns {boolean} boolean
    */
   public get isReply(): boolean {
     return this.message.reference !== null;
+  }
+
+  /**
+   * Message is a voice message
+   * @returns {boolean} boolean
+   */
+  public get isVoiceMessage(): boolean {
+    return this.hasVoiceMessage;
   }
 
   /**
@@ -271,37 +316,6 @@ export class BotcMessage {
    */
   public get replyContext(): string | undefined {
     return this._replyContext;
-  }
-
-  private _typeAttributes: BotcMessageType[] = [];
-
-  /**
-   * Message type attributes
-   * @returns {BotcMessageType[]} Type attributes
-   */
-  public get typeAttributes(): BotcMessageType[] {
-    if (this._typeAttributes.length === 0) {
-      if (this.message.author.id === this.botUserId) {
-        this._typeAttributes.push('OwnMessage');
-      }
-      if (this.hasVoiceMessage) {
-        this._typeAttributes.push('VoiceMessage');
-      }
-      if (this.message.channel.type === ChannelType.DM) {
-        this._typeAttributes.push('DirectMessage');
-      }
-      if (this.message.author.bot) {
-        this._typeAttributes.push('BotMessage');
-      }
-      if (this.message.mentions.has(this.botUserId)) {
-        this._typeAttributes.push('AtMention');
-      }
-      if (this._typeAttributes.length === 0) {
-        this._typeAttributes.push('ChannelMessage');
-      }
-    }
-
-    return this._typeAttributes;
   }
 
   /**
