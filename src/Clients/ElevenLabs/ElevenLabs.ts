@@ -1,5 +1,6 @@
 import { ElevenLabsClient } from 'elevenlabs';
 import { ElevenLabsSettings } from '../../Botc/Configuration/index.js';
+import EventBus from '../../Botc/EventBus/EventBus.js';
 import fs from 'node:fs/promises';
 import { join } from 'node:path';
 import { mkdtempSync } from 'node:fs';
@@ -10,6 +11,7 @@ import { tmpdir } from 'node:os';
  */
 export class ElevenLabs {
   private client: ElevenLabsClient;
+  private globalEvents = EventBus.attach();
 
   /**
    * New ElevenLabsClient
@@ -18,6 +20,10 @@ export class ElevenLabs {
   constructor(private config: ElevenLabsSettings) {
     this.client = new ElevenLabsClient({
       apiKey: config.apikey.value as string,
+    });
+
+    this.globalEvents.emit('ElevenLabsClient:Ready', {
+      message: 'ElevenLabs client is ready.',
     });
   }
 
