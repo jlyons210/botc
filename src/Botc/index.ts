@@ -9,7 +9,6 @@ import {
 import {
   BotcMessageConfig,
   BotcMessageImageAttachment,
-  BotcMessageType,
 } from './BotcMessage.types.js';
 
 import { Botc } from './Botc.js';
@@ -22,7 +21,6 @@ export {
   BotcMessage,
   BotcMessageConfig,
   BotcMessageImageAttachment,
-  BotcMessageType,
   BotcModules,
   CustomSystemPrompt,
   ReplyDecisionResponse,

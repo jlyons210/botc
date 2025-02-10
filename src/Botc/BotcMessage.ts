@@ -7,7 +7,6 @@ import {
 import {
   BotcMessageConfig,
   BotcMessageImageAttachment,
-  BotcMessageType,
 } from '../Botc/index.js';
 
 /**
@@ -22,7 +21,6 @@ export class BotcMessage {
   private _imageDescriptions: string[] = [];
   private _nameSanitized!: string;
   private _replyContext!: string | undefined;
-  private _typeAttributes: BotcMessageType[] = [];
   private _voiceMessageTranscription: string | undefined;
 
   /**
