@@ -87,7 +87,7 @@ export class Botc {
   private async handleIncomingDiscordMessage(data: EventMap['DiscordClient:IncomingMessage']): Promise<void> {
     const channelId = data.message.originalMessage.channelId;
     const channelHistory = await this.modules.clients.discord.getChannelHistory(channelId);
-    const lastMessage = (channelHistory.at(-1)) ? channelHistory.at(-1) : undefined;
+    const lastMessage = channelHistory.at(-1) as BotcMessage;
 
     if (lastMessage) {
       const botWillRespond = await this.willReplyToMessage(channelHistory);
