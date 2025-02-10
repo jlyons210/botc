@@ -4,6 +4,7 @@
 
 ## Pre-release
 
+- 0.13.x: [0.13.0](#0130-2024-02-09)
 - 0.12.x: [0.12.0](#0120-2024-02-07)
 - 0.11.x: [0.11.0](#0110-2024-02-07), [0.11.1](#0111-2024-02-07)
 - 0.10.x: [0.10.0](#0100-2024-02-07)
@@ -26,9 +27,16 @@
 - 0.1.x: [0.1.0](#010-2024-01-24)
 
 ---
-## 0.12.0 (2024-02-07)
+## 0.13.0 (2024-02-09)
+- Massive refactor of the codebase. I know a good spaghetti when I see one. Mmmmm. Fixed it.
+- Added `DISCORD_MAX_RETRIES` configuration setting.
+
+[:arrow_up: Back to top](#changelog)
+
+## 0.12.0 (2024-02-08)
 - Added voice response support using ElevenLabs text-to-speech API, as an MP3 attachment.
-  - I would like to create a native voice response using Ogg/Opus, but the Discord API requires a hacky solution, and I'm not sure that Discord.js supports it.
+  - I would like to create a native voice response using Ogg/Opus, but the Discord API requires a hacky solution today. I'm following a Discord.js [issue](https://github.com/discordjs/discord.js/issues/10298) with a linked [PR](https://github.com/discordjs/discord.js/pull/10462).
+- Re-released to resolve crashes with voice response.
 
 [:arrow_up: Back to top](#changelog)
 
@@ -95,7 +103,7 @@
 
 ## 0.6.0 (2024-02-03)
 - Added "Preferred name: (Discord display name)" to message metadata for more personalized responses.
-- Implemented a server-wide persona generation cache with TTL and automatic pruning.
+- Implemented a guild-wide persona generation cache with TTL and automatic pruning.
 
 [:arrow_up: Back to top](#changelog)
 
@@ -121,8 +129,8 @@
 
 ## 0.2.0 (2024-01-26)
 
-- Added server-wide user summary/persona for enhanced bot responses.
-  - When bot decides it will engage, it polls all server channels and performs an LLM summary of the user's server-wide behavior. This is used to enrich the system prompt for the channel reply.
+- Added guild-wide user summary/persona for enhanced bot responses.
+  - When bot decides it will engage, it polls all guild channels and performs an LLM summary of the user's guild-wide behavior. This is used to enrich the system prompt for the channel reply.
 
 [:arrow_up: Back to top](#changelog)
 
