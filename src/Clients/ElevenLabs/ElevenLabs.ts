@@ -33,7 +33,6 @@ export class ElevenLabs {
    * @returns {Promise<string>} Path to generated audio file
    */
   public async generateVoiceFile(text: string): Promise<string> {
-    // Generate voice from text using ElevenLabs API
     const response = await this.client.generate({
       model_id: this.config.modelId.value as string,
       text: text,
@@ -44,7 +43,6 @@ export class ElevenLabs {
       },
     });
 
-    // Save the audio file to a temporary directory
     const tempDir = mkdtempSync(join(tmpdir(), 'botc-'));
     const fullPath = join(tempDir, `botc-voice-response-${Date.now()}.mp3`);
     await fs.writeFile(fullPath, response, 'binary');
