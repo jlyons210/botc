@@ -135,6 +135,7 @@ export class Botc {
   private async createPromptPayload(messageHistory: BotcMessage[], customSystemPrompt?: CustomSystemPrompt): Promise<ChatCompletionMessageParam[]> {
     const configSystemPrompt = this.config.options.llms.openai.systemPrompt;
 
+    // Map message history to OpenAI prompt format
     const payload = messageHistory.map(message => ({
       content: message.promptContent,
       name: message.promptUsername,
