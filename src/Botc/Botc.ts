@@ -298,11 +298,7 @@ export class Botc {
         const voiceMessageUrl = message.voiceMessage?.url;
 
         if (voiceMessageUrl) {
-          if (cache.isCached(voiceMessageUrl)) {
-            message.voiceMessageTranscription = cache.getValue(voiceMessageUrl) as string;
-            return;
-          }
-          else {
+          if (!cache.isCached(voiceMessageUrl)) {
             const fetchedAudio = await fetch(voiceMessageUrl);
             const audioBuffer = await fetchedAudio.arrayBuffer();
             const audioFile = new File([audioBuffer], 'audio.ogg', {
@@ -315,9 +311,9 @@ export class Botc {
               key: voiceMessageUrl,
               value: transcription,
             });
-
-            message.voiceMessageTranscription = transcription;
           }
+
+          message.voiceMessageTranscription = cache.getValue(voiceMessageUrl) as string;
         }
       }),
     );
