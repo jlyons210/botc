@@ -212,23 +212,21 @@ export class Botc {
     const openai = this.modules.clients.openai;
     const nameSanitized = guildHistory[0].promptUsername;
 
-    if (cache.isCached(nameSanitized)) {
-      return cache.getValue(nameSanitized) as string;
+    if (!cache.isCached(nameSanitized)) {
+      const payload = await this.createPromptPayload(guildHistory, {
+        value: `Summarize the following messages to build a persona for the user ${nameSanitized}.`,
+        append: false,
+      });
+
+      const persona = await openai.createCompletion(payload);
+
+      cache.cache({
+        key: nameSanitized,
+        value: persona,
+      });
     }
 
-    const payload = await this.createPromptPayload(guildHistory, {
-      value: `Summarize the following messages to build a persona for the user ${nameSanitized}.`,
-      append: false,
-    });
-
-    const persona = await openai.createCompletion(payload);
-
-    cache.cache({
-      key: nameSanitized,
-      value: persona,
-    });
-
-    return persona;
+    return cache.getValue(nameSanitized) as string;
   }
 
   /**
