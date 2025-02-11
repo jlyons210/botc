@@ -85,7 +85,7 @@ export class Botc {
    */
   private async handleDiscordClientReady(data: EventMap['DiscordClient:Ready']): Promise<void> {
     console.log(data.message);
-    await this.prefetchImageDescriptions();
+    this.preprocessMultimedia();
   }
 
   /**
@@ -255,13 +255,22 @@ export class Botc {
 
   /**
    * Prefetch image descriptions for all guilds
+   * @param {BotcMessage[]} allGuildsHistory Message history
    */
-  private async prefetchImageDescriptions(): Promise<void> {
+  private async prefetchImageDescriptions(allGuildsHistory: BotcMessage[]): Promise<void> {
     console.log(`Prefetching image descriptions for all guilds...`);
-    const discord = this.modules.clients.discord;
-    const allGuildsHistory = await discord.getAllGuildsHistory();
     await this.describeImages(allGuildsHistory);
     console.log(`Image description prefetching complete.`);
+  }
+
+  /**
+   * Prefetch voice transcriptions for all guilds
+   * @param {BotcMessage[]} allGuildsHistory Message history
+   */
+  private async prefetchVoiceTranscriptions(allGuildsHistory: BotcMessage[]): Promise<void> {
+    console.log(`Prefetching voice transcriptions for all guilds...`);
+    await this.transcribeVoiceMessages(allGuildsHistory);
+    console.log(`Voice transcription prefetching complete.`);
   }
 
   /**
@@ -306,6 +315,18 @@ export class Botc {
     this.globalEvents.emit('DiscordClient:StartTyping', {
       channelId: channelId,
     });
+  }
+
+  /**
+   * Preprocess multimedia content types concurrently
+   */
+  private async preprocessMultimedia(): Promise<void> {
+    const discord = this.modules.clients.discord;
+    const allGuildsHistory = await discord.getAllGuildsHistory();
+    await Promise.all([
+      this.prefetchImageDescriptions(allGuildsHistory),
+      this.prefetchVoiceTranscriptions(allGuildsHistory),
+    ]);
   }
 
   /**
