@@ -62,22 +62,38 @@ export class Botc {
    * Register event handlers
    */
   private async registerHandlers(): Promise<void> {
-    this.globalEvents.on('DiscordClient:Ready', async (data) => {
-      console.log(data.message);
-      await this.prefetchImageDescriptions();
-    });
+    this.globalEvents.on('DiscordClient:Ready',
+      this.handleDiscordClientReady.bind(this),
+    );
 
     this.globalEvents.on('DiscordClient:IncomingMessage',
       this.handleIncomingDiscordMessage.bind(this),
     );
 
-    this.globalEvents.on('ElevenLabsClient:Ready', (data) => {
-      console.log(data.message);
-    });
+    this.globalEvents.on('ElevenLabsClient:Ready',
+      this.handleElevenLabsClientReady.bind(this),
+    );
 
-    this.globalEvents.on('OpenAIClient:Ready', (data) => {
-      console.log(data.message);
-    });
+    this.globalEvents.on('OpenAIClient:Ready',
+      this.handleOpenAIClientReady.bind(this),
+    );
+  }
+
+  /**
+   * Handle Discord client ready event
+   * @param {EventMap['DiscordClient:Ready']} data Discord client ready event data
+   */
+  private async handleDiscordClientReady(data: EventMap['DiscordClient:Ready']): Promise<void> {
+    console.log(data.message);
+    await this.prefetchImageDescriptions();
+  }
+
+  /**
+   * Handle ElevenLabs client ready event
+   * @param {EventMap['ElevenLabsClient:Ready']} data ElevenLabs client ready event data
+   */
+  private async handleElevenLabsClientReady(data: EventMap['ElevenLabsClient:Ready']): Promise<void> {
+    console.log(data.message);
   }
 
   /**
@@ -124,6 +140,14 @@ export class Botc {
       console.error('Botc.handleIncomingDiscordMessage: lastMessage is undefined');
       return;
     }
+  }
+
+  /**
+   * Handle OpenAI client ready event
+   * @param {EventMap['OpenAIClient:Ready']} data OpenAI client ready event data
+   */
+  private async handleOpenAIClientReady(data: EventMap['OpenAIClient:Ready']): Promise<void> {
+    console.log(data.message);
   }
 
   /**
