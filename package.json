@@ -29,7 +29,7 @@
   "homepage": "https://github.com/jlyons210/botc#readme",
   "type": "module",
   "dependencies": {
-    "discord.js": "^14.17.3",
+    "discord.js": "^14.18.0",
     "elevenlabs": "^1.50.5",
     "openai": "^4.83.0",
     "sharp": "^0.33.5"
@@ -38,7 +38,7 @@
     "@eslint/js": "^9.20.0",
     "@stylistic/eslint-plugin": "^3.1.0",
     "@types/node": "^22.13.1",
-    "@typescript-eslint/parser": "^8.23.0",
+    "@typescript-eslint/parser": "^8.24.0",
     "eslint": "^9.20.0",
     "eslint-plugin-jsdoc": "^50.6.3",
     "eslint-plugin-n": "^17.15.1",
@@ -47,6 +47,6 @@
     "rimraf": "^6.0.1",
     "ts-node": "^10.9.2",
     "typescript": "^5.7.3",
-    "typescript-eslint": "^8.23.0"
+    "typescript-eslint": "^8.24.0"
   }
 }
