@@ -292,7 +292,7 @@ export class BotcMessage {
    * @returns {string} Prompt role
    */
   public get promptRole(): string {
-    return (this.botUserId === this.message.author.id)
+    return (this.isOwnMessage)
       ? 'assistant'
       : 'user';
   }
