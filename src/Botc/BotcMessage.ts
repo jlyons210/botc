@@ -89,15 +89,13 @@ export class BotcMessage {
       ? `Voice message transcription:\n${this.voiceMessageTranscription}`
       : undefined;
 
-    const createTimestampLocal = new Date(this.createdTimestamp).toLocaleString('en-US', {
-      timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-    });
+    const createdTimestampLocal = new Date(this.createdTimestamp).toLocaleString('en-US');
 
     const promptContent = [
       resolvedContent,
       `<Message Metadata>`,
       `Preferred name: ${this.displayName}`,
-      `Message timestamp: ${createTimestampLocal}`,
+      `Message timestamp: ${createdTimestampLocal}`,
       imageDescriptions,
       voiceMessageTranscription,
       this.replyContext,
