@@ -390,7 +390,8 @@ export class Botc {
     // Otherwise, use decision prompt to determine response
     else {
       const openai = this.modules.clients.openai;
-      const replyDecisionPrompt = this.config.options.llms.openai.replyDecisionPrompt.value as string;
+      const config = this.config.options.llms.openai;
+      const replyDecisionPrompt = config.replyDecisionPrompt.value as string;
 
       const payload = await this.createPromptPayload(messageHistory, {
         value: replyDecisionPrompt,
