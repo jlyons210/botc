@@ -228,15 +228,21 @@ export class Botc {
 
   /**
    * Generate a persona for a user based on guild history
-   * @param {BotcMessage[]} guildHistory Guild message history
+   * @param {string} guildId Discord guild ID
+   * @param {string} authorId Discord author ID
    * @returns {Promise<string>} Persona
    */
-  private async generateUserPersona(guildHistory: BotcMessage[]): Promise<string> {
+  private async generateUserPersona(guildId: string, authorId: string): Promise<string> {
     const cache = this.modules.caches.personas;
+    const cacheKey = `${guildId}:${authorId}`;
+    const discord = this.modules.clients.discord;
     const openai = this.modules.clients.openai;
-    const nameSanitized = guildHistory[0].promptUsername;
 
-    if (!cache.isCached(nameSanitized)) {
+    if (!cache.isCached(cacheKey)) {
+      const guildHistory = await discord.getGuildHistory(guildId, authorId);
+      await this.describeImages(guildHistory);
+
+      const nameSanitized = guildHistory[0].promptUsername;
       const payload = await this.createPromptPayload(guildHistory, {
         value: `Summarize the following messages to build a persona for the user ${nameSanitized}.`,
         append: false,
@@ -245,12 +251,12 @@ export class Botc {
       const persona = await openai.createCompletion(payload);
 
       cache.cache({
-        key: nameSanitized,
+        key: cacheKey,
         value: persona,
       });
     }
 
-    return cache.getValue(nameSanitized) as string;
+    return cache.getValue(cacheKey) as string;
   }
 
   /**
@@ -280,20 +286,16 @@ export class Botc {
    * @returns {Promise<string>} Response message
    */
   private async prepareResponse(data: EventMap['DiscordClient:IncomingMessage'], channelHistory: BotcMessage[]): Promise<string> {
-    const guild = data.message.originalMessage.guild;
+    const guildId = data.message.originalMessage.guild?.id;
     const lastMessage = channelHistory.at(-1) as BotcMessage;
 
     await this.describeImages(channelHistory);
     await this.transcribeVoiceMessages(channelHistory);
 
     // Guild is not populated for direct messages
-    if (guild) {
+    if (guildId) {
       const authorId = data.message.originalMessage.author.id;
-      const discord = this.modules.clients.discord;
-
-      const guildHistory = await discord.getGuildHistory(guild, authorId);
-      await this.describeImages(guildHistory);
-      const persona = await this.generateUserPersona(guildHistory);
+      const persona = await this.generateUserPersona(guildId, authorId);
 
       return await this.generatePersonalizedResponse(channelHistory, persona);
     }
