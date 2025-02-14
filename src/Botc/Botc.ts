@@ -368,11 +368,11 @@ export class Botc {
 
   /**
    * Decides whether to reply based on conversation history
-   * @param {BotcMessage[]} messageHistory Message history
+   * @param {BotcMessage[]} channelHistory Channel message history
    * @returns {Promise<boolean>} boolean
    */
-  private async willReplyToMessage(messageHistory: BotcMessage[]): Promise<boolean> {
-    const lastMessage = messageHistory.at(-1) as BotcMessage;
+  private async willReplyToMessage(channelHistory: BotcMessage[]): Promise<boolean> {
+    const lastMessage = channelHistory.at(-1) as BotcMessage;
     const automaticYes = (
       lastMessage.isAtMention
       || lastMessage.isDirectMessage
@@ -393,7 +393,7 @@ export class Botc {
       const config = this.config.options.llms.openai;
       const replyDecisionPrompt = config.replyDecisionPrompt.value as string;
 
-      const payload = await this.createPromptPayload(messageHistory, {
+      const payload = await this.createPromptPayload(channelHistory, {
         value: replyDecisionPrompt,
         append: false,
       });
