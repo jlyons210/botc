@@ -183,7 +183,7 @@ export class DiscordClient {
     const guilds = this.discordClient.guilds.cache;
 
     const messages = await Promise.all(guilds.map(async (guild) => {
-      return await this.getGuildHistory(guild);
+      return await this.getGuildHistory(guild.id);
     }));
 
     return messages.flat();
@@ -232,12 +232,22 @@ export class DiscordClient {
   }
 
   /**
+   * Get guild
+   * @param {string} guildId Guild ID
+   * @returns {Promise<Guild>} Guild
+   */
+  public async getGuild(guildId: string): Promise<Guild> {
+    return await this.discordClient.guilds.fetch(guildId);
+  }
+
+  /**
    * Get guild history
-   * @param {string} guild Discord.js Guild object
+   * @param {string} guildId Guild ID
    * @param {string} userId Discord user ID for message filtering
    * @returns {Promise<BotcMessage[]>} User context
    */
-  public async getGuildHistory(guild: Guild, userId?: string): Promise<BotcMessage[]> {
+  public async getGuildHistory(guildId: string, userId?: string): Promise<BotcMessage[]> {
+    const guild = await this.getGuild(guildId);
     const channels = await guild.channels.fetch();
 
     if (channels) {
