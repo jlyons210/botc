@@ -232,7 +232,7 @@ export class DiscordClient {
   }
 
   /**
-   * Summarize user behavior
+   * Get guild history
    * @param {string} guild Discord.js Guild object
    * @param {string} userId Discord user ID for message filtering
    * @returns {Promise<BotcMessage[]>} User context
@@ -242,23 +242,15 @@ export class DiscordClient {
 
     if (channels) {
       const messages = await Promise.all(channels
-
-        // Retrieve Discord.js channel objects using channel IDs
         .map(channel => channels.get(channel?.id as string))
-
-        // Filter to text channels
         .filter(channel => channel?.isTextBased())
-
-        // Return user's message history for each channel
         .map(async (channel) => {
           return await this.getChannelHistory(channel?.id as string, userId);
         }));
 
-      // Return flattened array of messages
       return messages.flat();
     }
     else {
-      // Return empty array if user has no message history
       return [];
     }
   }
