@@ -189,6 +189,14 @@ export class BotcMessage {
   }
 
   /**
+   * Returns true if the message has any attachments
+   * @returns {boolean} boolean
+   */
+  public get hasAttachedImages(): boolean {
+    return this.attachedImages.length > 0;
+  }
+
+  /**
    * Returns true if the message has any audio attachments
    * @returns {boolean} boolean
    */
@@ -197,14 +205,6 @@ export class BotcMessage {
       attachment.contentType?.startsWith('audio/ogg')
       && attachment.waveform !== null,
     );
-  }
-
-  /**
-   * Returns true if the message has any attachments
-   * @returns {boolean} boolean
-   */
-  public get hasAttachedImages(): boolean {
-    return this.attachedImages.length > 0;
   }
 
   /**
