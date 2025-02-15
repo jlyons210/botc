@@ -10,9 +10,9 @@ import { ChatCompletionMessageParam } from 'openai/resources/index.mjs';
 import { Configuration } from './Configuration/index.js';
 import { DiscordClient } from '../Clients/Discord/index.js';
 import { ElevenLabs } from '../Clients/ElevenLabs/index.js';
-import { ObjectCache } from '../Clients/OpenAI/ObjectCache/index.js';
+import { ObjectCache } from './ObjectCache/index.js';
 import { OpenAIClient } from '../Clients/OpenAI/index.js';
-import { Resizer } from '../Clients/OpenAI/Resizer/index.js';
+import { Resizer } from './Resizer/index.js';
 
 /**
  * Botc core class

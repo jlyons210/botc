@@ -1,6 +1,6 @@
 import { DiscordClient } from '../Clients/Discord/index.js';
 import { ElevenLabs } from '../Clients/ElevenLabs/index.js';
-import { ObjectCache } from '../Clients/OpenAI/ObjectCache/index.js';
+import { ObjectCache } from './ObjectCache/index.js';
 import { OpenAIClient } from '../Clients/OpenAI/index.js';
 
 export type BotcModules = {
