@@ -153,21 +153,19 @@ export class Botc {
    * @returns {ChatCompletionMessageParam[]} Chat completion message
    */
   private async createPromptPayload(messageHistory: BotcMessage[], customSystemPrompt?: CustomSystemPrompt): Promise<ChatCompletionMessageParam[]> {
-    const configSystemPrompt = this.config.options.llms.openai.systemPrompt;
+    const config = this.config.options.llms.openai;
+    const configSystemPrompt = config.systemPrompt;
 
-    // Map message history to OpenAI prompt format
     const payload = messageHistory.map(message => ({
       content: message.promptContent,
       name: message.promptUsername,
       role: message.promptRole,
     } as ChatCompletionMessageParam));
 
-    // Construct system prompt
     const systemPrompt = (customSystemPrompt?.append)
       ? [configSystemPrompt.value, customSystemPrompt.value].join('\n')
       : customSystemPrompt?.value || configSystemPrompt.value;
 
-    // Prepend system prompt
     payload.unshift({
       content: systemPrompt,
       role: 'system',
