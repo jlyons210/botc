@@ -45,10 +45,6 @@ export class DiscordClient {
 
   /**
    * Register Discord client event handlers
-   * @todo
-   *   - 'OpenAIClient:StartTyping' should be a Discord event
-   *   - channel.sendTyping should be on an interval that aborts
-   *     when the associated message is sent
    */
   private async registerHandlers(): Promise<void> {
     this.discordClient.on(Events.ClientReady,
