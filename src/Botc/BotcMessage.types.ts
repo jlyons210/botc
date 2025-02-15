@@ -23,14 +23,3 @@ export type BotcMessageImageAttachment = {
   imageUrl: string;
   width: number;
 };
-
-/**
- * BotcMessage message type
- */
-export type BotcMessageType =
-  'AtMention'
-  | 'BotMessage'
-  | 'ChannelMessage'
-  | 'DirectMessage'
-  | 'OwnMessage'
-  | 'VoiceMessage';

@@ -45,10 +45,6 @@ export class DiscordClient {
 
   /**
    * Register Discord client event handlers
-   * @todo
-   *   - 'OpenAIClient:StartTyping' should be a Discord event
-   *   - channel.sendTyping should be on an interval that aborts
-   *     when the associated message is sent
    */
   private async registerHandlers(): Promise<void> {
     this.discordClient.on(Events.ClientReady,
@@ -183,7 +179,7 @@ export class DiscordClient {
     const guilds = this.discordClient.guilds.cache;
 
     const messages = await Promise.all(guilds.map(async (guild) => {
-      return await this.getGuildHistory(guild);
+      return await this.getGuildHistory(guild.id);
     }));
 
     return messages.flat();
@@ -215,7 +211,7 @@ export class DiscordClient {
 
         return (userId)
           // Filter messages to only those from userId, if provided
-          ? messages.filter(message => message.originalMessage.author.id === userId)
+          ? messages.filter(message => message.authorId === userId)
           : messages;
       }
       catch (error) {
@@ -232,33 +228,35 @@ export class DiscordClient {
   }
 
   /**
-   * Summarize user behavior
-   * @param {string} guild Discord.js Guild object
+   * Get guild
+   * @param {string} guildId Guild ID
+   * @returns {Promise<Guild>} Guild
+   */
+  public async getGuild(guildId: string): Promise<Guild> {
+    return await this.discordClient.guilds.fetch(guildId);
+  }
+
+  /**
+   * Get guild history
+   * @param {string} guildId Guild ID
    * @param {string} userId Discord user ID for message filtering
    * @returns {Promise<BotcMessage[]>} User context
    */
-  public async getGuildHistory(guild: Guild, userId?: string): Promise<BotcMessage[]> {
+  public async getGuildHistory(guildId: string, userId?: string): Promise<BotcMessage[]> {
+    const guild = await this.getGuild(guildId);
     const channels = await guild.channels.fetch();
 
     if (channels) {
       const messages = await Promise.all(channels
-
-        // Retrieve Discord.js channel objects using channel IDs
         .map(channel => channels.get(channel?.id as string))
-
-        // Filter to text channels
         .filter(channel => channel?.isTextBased())
-
-        // Return user's message history for each channel
         .map(async (channel) => {
           return await this.getChannelHistory(channel?.id as string, userId);
         }));
 
-      // Return flattened array of messages
       return messages.flat();
     }
     else {
-      // Return empty array if user has no message history
       return [];
     }
   }

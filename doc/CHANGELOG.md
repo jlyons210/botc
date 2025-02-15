@@ -4,7 +4,7 @@
 
 ## Pre-release
 
-- 0.13.x: [0.13.0](#0130-2024-02-09)
+- 0.13.x: [0.13.0](#0130-2024-02-09), [0.13.1](#0131-2024-02-14)
 - 0.12.x: [0.12.0](#0120-2024-02-07)
 - 0.11.x: [0.11.0](#0110-2024-02-07), [0.11.1](#0111-2024-02-07)
 - 0.10.x: [0.10.0](#0100-2024-02-07)
@@ -27,6 +27,13 @@
 - 0.1.x: [0.1.0](#010-2024-01-24)
 
 ---
+## 0.13.1 (2024-02-14)
+- Fixed a bug where the guild-wide user persona was shared across guilds. Instead of using the username as a cache key, it now uses `guildId:authorId`.
+- Moved image description and voice transcription early in the flow, as there were times that BotcMessage.promptContent came back with empty image descriptions.
+- Added other optimizations and code cleanup.
+
+[:arrow_up: Back to top](#changelog)
+
 ## 0.13.0 (2024-02-09)
 - Massive refactor of the codebase. I know a good spaghetti when I see one. Mmmmm. Fixed it.
 - Added `DISCORD_MAX_RETRIES` configuration setting.

@@ -7,19 +7,16 @@ import {
 import {
   BotcMessageConfig,
   BotcMessageImageAttachment,
-  BotcMessageType,
 } from '../Botc/index.js';
-
-import { EventBus } from './EventBus/index.js';
 
 /**
  * A wrapper for Discord.js Message objects that provides additional properties and methods for
  * interacting with the message.
  */
 export class BotcMessage {
-  private globalEvents = EventBus.attach();
   private readonly botUserId: string;
   private readonly message: Message;
+
   private _attachedImages: BotcMessageImageAttachment[] = [];
   private _imageDescriptions: string[] = [];
   private _nameSanitized!: string;
@@ -55,14 +52,12 @@ export class BotcMessage {
    * Add the context of the message that was replied to for prompt enrichment
    */
   private async addMessageReplyContext(): Promise<void> {
-    if (this.isReply && this.originalMessage.reference?.messageId) {
-      const replyMessageId = this.originalMessage.reference.messageId;
-      const replyMessage = await this.originalMessage.channel.messages.fetch(replyMessageId);
+    if (this.isReply && this.message.reference?.messageId) {
+      const replyMessageId = this.message.reference.messageId;
+      const replyMessage = await this.message.channel.messages.fetch(replyMessageId);
       const replyContent = replyMessage.content;
       const replyAuthor = replyMessage.author.displayName || replyMessage.author.username;
-      const replyTimestampLocal = new Date(replyMessage.createdTimestamp).toLocaleString('en-US', {
-        timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-      });
+      const replyTimestampLocal = new Date(replyMessage.createdTimestamp).toLocaleString('en-US');
 
       this._replyContext = [
         `---`,
@@ -92,15 +87,13 @@ export class BotcMessage {
       ? `Voice message transcription:\n${this.voiceMessageTranscription}`
       : undefined;
 
-    const createTimestampLocal = new Date(this.createdTimestamp).toLocaleString('en-US', {
-      timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-    });
+    const createdTimestampLocal = new Date(this.createdTimestamp).toLocaleString('en-US');
 
     const promptContent = [
       resolvedContent,
       `<Message Metadata>`,
       `Preferred name: ${this.displayName}`,
-      `Message timestamp: ${createTimestampLocal}`,
+      `Message timestamp: ${createdTimestampLocal}`,
       imageDescriptions,
       voiceMessageTranscription,
       this.replyContext,
@@ -115,13 +108,11 @@ export class BotcMessage {
    * @returns {string} Resolved content
    */
   private resolveTaggedUsers(): string {
-    const resolvedContent = this.content.replace(/<@!?(?<userId>\d+)>/g, (match, userId) => {
+    return this.content.replace(/<@!?(?<userId>\d+)>/g, (match, userId) => {
       const displayName = this.message.guild?.members.cache.get(userId)?.displayName;
       const username = this.message.client.users.cache.get(userId)?.username;
       return displayName || username || match;
     });
-
-    return resolvedContent;
   }
 
   /**
@@ -162,6 +153,14 @@ export class BotcMessage {
   }
 
   /**
+   * Message author ID
+   * @returns {string} Author ID
+   */
+  public get authorId(): string {
+    return this.message.author.id;
+  }
+
+  /**
    * Message channel ID
    * @returns {string} Channel ID
    */
@@ -194,14 +193,11 @@ export class BotcMessage {
   }
 
   /**
-   * Returns true if the message has any audio attachments
-   * @returns {boolean} boolean
+   * Message guild ID
+   * @returns {string | undefined} Guild ID
    */
-  public get hasVoiceMessage(): boolean {
-    return this.message.attachments.some(attachment =>
-      attachment.contentType?.startsWith('audio/ogg')
-      && attachment.waveform !== null,
-    );
+  public get guildId(): string | undefined {
+    return this.message.guild?.id;
   }
 
   /**
@@ -213,11 +209,62 @@ export class BotcMessage {
   }
 
   /**
+   * Returns true if the message has any audio attachments
+   * @returns {boolean} boolean
+   */
+  public get hasVoiceMessage(): boolean {
+    return this.message.attachments.some(attachment =>
+      attachment.contentType?.startsWith('audio/ogg')
+      && attachment.waveform !== null,
+    );
+  }
+
+  /**
    * Descriptions of images attached to the message
    * @returns {string[]} Image descriptions
    */
   public get imageDescriptions(): string[] {
     return this._imageDescriptions;
+  }
+
+  /**
+   * Message has a mention of the bot
+   * @returns {boolean} boolean
+   */
+  public get isAtMention(): boolean {
+    return this.message.mentions.has(this.botUserId);
+  }
+
+  /**
+   * Message author is a bot
+   * @returns {boolean} boolean
+   */
+  public get isBotMessage(): boolean {
+    return this.message.author.bot;
+  }
+
+  /**
+   * Message is a channel message
+   * @returns {boolean} boolean
+   */
+  public get isChannelMessage(): boolean {
+    return (this.message.channel.type === ChannelType.GuildText);
+  }
+
+  /**
+   * Message is a direct message
+   * @returns {boolean} boolean
+   */
+  public get isDirectMessage(): boolean {
+    return (this.message.channel.type === ChannelType.DM);
+  }
+
+  /**
+   * Message is from this bot
+   * @returns {boolean} boolean
+   */
+  public get isOwnMessage(): boolean {
+    return (this.message.author.id === this.botUserId);
   }
 
   /**
@@ -229,11 +276,11 @@ export class BotcMessage {
   }
 
   /**
-   * Original Discord message
-   * @returns {Message} Original Discord.js Message object
+   * Message is a voice message
+   * @returns {boolean} boolean
    */
-  public get originalMessage(): Message {
-    return this.message;
+  public get isVoiceMessage(): boolean {
+    return this.hasVoiceMessage;
   }
 
   /**
@@ -249,7 +296,7 @@ export class BotcMessage {
    * @returns {string} Prompt role
    */
   public get promptRole(): string {
-    return (this.botUserId === this.message.author.id)
+    return (this.isOwnMessage)
       ? 'assistant'
       : 'user';
   }
@@ -271,37 +318,6 @@ export class BotcMessage {
    */
   public get replyContext(): string | undefined {
     return this._replyContext;
-  }
-
-  private _typeAttributes: BotcMessageType[] = [];
-
-  /**
-   * Message type attributes
-   * @returns {BotcMessageType[]} Type attributes
-   */
-  public get typeAttributes(): BotcMessageType[] {
-    if (this._typeAttributes.length === 0) {
-      if (this.message.author.id === this.botUserId) {
-        this._typeAttributes.push('OwnMessage');
-      }
-      if (this.hasVoiceMessage) {
-        this._typeAttributes.push('VoiceMessage');
-      }
-      if (this.message.channel.type === ChannelType.DM) {
-        this._typeAttributes.push('DirectMessage');
-      }
-      if (this.message.author.bot) {
-        this._typeAttributes.push('BotMessage');
-      }
-      if (this.message.mentions.has(this.botUserId)) {
-        this._typeAttributes.push('AtMention');
-      }
-      if (this._typeAttributes.length === 0) {
-        this._typeAttributes.push('ChannelMessage');
-      }
-    }
-
-    return this._typeAttributes;
   }
 
   /**

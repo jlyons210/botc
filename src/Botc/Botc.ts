@@ -62,22 +62,38 @@ export class Botc {
    * Register event handlers
    */
   private async registerHandlers(): Promise<void> {
-    this.globalEvents.on('DiscordClient:Ready', async (data) => {
-      console.log(data.message);
-      await this.prefetchImageDescriptions();
-    });
+    this.globalEvents.on('DiscordClient:Ready',
+      this.handleDiscordClientReady.bind(this),
+    );
 
     this.globalEvents.on('DiscordClient:IncomingMessage',
       this.handleIncomingDiscordMessage.bind(this),
     );
 
-    this.globalEvents.on('ElevenLabsClient:Ready', (data) => {
-      console.log(data.message);
-    });
+    this.globalEvents.on('ElevenLabsClient:Ready',
+      this.handleElevenLabsClientReady.bind(this),
+    );
 
-    this.globalEvents.on('OpenAIClient:Ready', (data) => {
-      console.log(data.message);
-    });
+    this.globalEvents.on('OpenAIClient:Ready',
+      this.handleOpenAIClientReady.bind(this),
+    );
+  }
+
+  /**
+   * Handle Discord client ready event
+   * @param {EventMap['DiscordClient:Ready']} data Discord client ready event data
+   */
+  private async handleDiscordClientReady(data: EventMap['DiscordClient:Ready']): Promise<void> {
+    console.log(data.message);
+    this.preprocessMultimedia();
+  }
+
+  /**
+   * Handle ElevenLabs client ready event
+   * @param {EventMap['ElevenLabsClient:Ready']} data ElevenLabs client ready event data
+   */
+  private async handleElevenLabsClientReady(data: EventMap['ElevenLabsClient:Ready']): Promise<void> {
+    console.log(data.message);
   }
 
   /**
@@ -85,11 +101,14 @@ export class Botc {
    * @param {EventMap['DiscordClient:IncomingMessage']} data Incoming Discord message data
    */
   private async handleIncomingDiscordMessage(data: EventMap['DiscordClient:IncomingMessage']): Promise<void> {
-    const channelId = data.message.originalMessage.channelId;
-    const channelHistory = await this.modules.clients.discord.getChannelHistory(channelId);
-    const lastMessage = (channelHistory.at(-1)) ? channelHistory.at(-1) : undefined;
+    const discord = this.modules.clients.discord;
+    const lastMessage = data.message;
+    const channelId = lastMessage.channelId;
+    const channelHistory = await discord.getChannelHistory(channelId);
 
     if (lastMessage) {
+      await this.describeImages(channelHistory);
+      await this.transcribeVoiceMessages(channelHistory);
       const botWillRespond = await this.willReplyToMessage(channelHistory);
 
       if (botWillRespond) {
@@ -100,20 +119,20 @@ export class Botc {
           this.startTyping(lastMessage.channelId);
         }, 9000);
 
-        const isVoiceMessage = lastMessage.typeAttributes.includes('VoiceMessage');
-        const responseContent = await this.prepareResponse(data, channelHistory);
+        const responseContent = await this.prepareResponse(channelHistory);
 
         const attachments = [];
-        if (isVoiceMessage) {
+        if (lastMessage.isVoiceMessage) {
           const elevenlabs = this.modules.clients.elevenlabs;
           const voiceMessage = await elevenlabs.generateVoiceFile(responseContent);
           attachments.push(voiceMessage);
         }
 
-        const payload = (isVoiceMessage)
+        const payload = (lastMessage.isVoiceMessage)
           ? { channelId, content: '', filenames: attachments }
           : { channelId, content: responseContent, filenames: [] };
 
+        // Stop triggering typing indicator
         clearInterval(typingInterval);
 
         this.globalEvents.emit('Botc:ResponseComplete', payload);
@@ -127,6 +146,14 @@ export class Botc {
   }
 
   /**
+   * Handle OpenAI client ready event
+   * @param {EventMap['OpenAIClient:Ready']} data OpenAI client ready event data
+   */
+  private async handleOpenAIClientReady(data: EventMap['OpenAIClient:Ready']): Promise<void> {
+    console.log(data.message);
+  }
+
+  /**
    * Create prompt payload
    * @param {BotcMessage[]} messageHistory Channel message history
    * @param {CustomSystemPrompt} customSystemPrompt Custom system prompt
@@ -135,6 +162,7 @@ export class Botc {
   private async createPromptPayload(messageHistory: BotcMessage[], customSystemPrompt?: CustomSystemPrompt): Promise<ChatCompletionMessageParam[]> {
     const configSystemPrompt = this.config.options.llms.openai.systemPrompt;
 
+    // Map message history to OpenAI prompt format
     const payload = messageHistory.map(message => ({
       content: message.promptContent,
       name: message.promptUsername,
@@ -203,71 +231,75 @@ export class Botc {
 
   /**
    * Generate a persona for a user based on guild history
-   * @param {BotcMessage[]} guildHistory Guild message history
+   * @param {string} guildId Discord guild ID
+   * @param {string} authorId Discord author ID
    * @returns {Promise<string>} Persona
    */
-  private async generateUserPersona(guildHistory: BotcMessage[]): Promise<string> {
+  private async generateUserPersona(guildId: string, authorId: string): Promise<string> {
     const cache = this.modules.caches.personas;
+    const cacheKey = `${guildId}:${authorId}`;
+    const discord = this.modules.clients.discord;
     const openai = this.modules.clients.openai;
-    const nameSanitized = guildHistory[0].promptUsername;
 
-    if (cache.isCached(nameSanitized)) {
-      return cache.getValue(nameSanitized) as string;
+    if (!cache.isCached(cacheKey)) {
+      const guildHistory = await discord.getGuildHistory(guildId, authorId);
+      await this.describeImages(guildHistory);
+      await this.transcribeVoiceMessages(guildHistory);
+
+      const nameSanitized = guildHistory[0].promptUsername;
+      const payload = await this.createPromptPayload(guildHistory, {
+        value: `Summarize the following messages to build a persona for the user ${nameSanitized}.`,
+        append: false,
+      });
+
+      const persona = await openai.createCompletion(payload);
+
+      cache.cache({
+        key: cacheKey,
+        value: persona,
+      });
     }
 
-    const payload = await this.createPromptPayload(guildHistory, {
-      value: `Summarize the following messages to build a persona for the user ${nameSanitized}.`,
-      append: false,
-    });
-
-    const persona = await openai.createCompletion(payload);
-
-    cache.cache({
-      key: nameSanitized,
-      value: persona,
-    });
-
-    return persona;
+    return cache.getValue(cacheKey) as string;
   }
 
   /**
    * Prefetch image descriptions for all guilds
+   * @param {BotcMessage[]} allGuildsHistory Message history
    */
-  private async prefetchImageDescriptions(): Promise<void> {
+  private async prefetchImageDescriptions(allGuildsHistory: BotcMessage[]): Promise<void> {
     console.log(`Prefetching image descriptions for all guilds...`);
-    const discord = this.modules.clients.discord;
-    const allGuildsHistory = await discord.getAllGuildsHistory();
     await this.describeImages(allGuildsHistory);
     console.log(`Image description prefetching complete.`);
   }
 
   /**
+   * Prefetch voice transcriptions for all guilds
+   * @param {BotcMessage[]} allGuildsHistory Message history
+   */
+  private async prefetchVoiceTranscriptions(allGuildsHistory: BotcMessage[]): Promise<void> {
+    console.log(`Prefetching voice transcriptions for all guilds...`);
+    await this.transcribeVoiceMessages(allGuildsHistory);
+    console.log(`Voice transcription prefetching complete.`);
+  }
+
+  /**
    * Prepare Discord message response
-   * @param {EventMap['MessagePipeline:IncomingMessage']} data Incoming message
    * @param {BotcMessage[]} channelHistory Channel message history
    * @returns {Promise<string>} Response message
    */
-  private async prepareResponse(data: EventMap['DiscordClient:IncomingMessage'], channelHistory: BotcMessage[]): Promise<string> {
-    const guild = data.message.originalMessage.guild;
+  private async prepareResponse(channelHistory: BotcMessage[]): Promise<string> {
     const lastMessage = channelHistory.at(-1) as BotcMessage;
-    const isDirectMessage = lastMessage.typeAttributes.includes('DirectMessage');
-    const isVoiceMessage = lastMessage.typeAttributes.includes('VoiceMessage');
-
-    await this.describeImages(channelHistory);
-    await this.transcribeVoiceMessages(channelHistory);
+    const guildId = lastMessage.guildId;
 
     // Guild is not populated for direct messages
-    if (guild) {
-      const authorId = data.message.originalMessage.author.id;
-      const discord = this.modules.clients.discord;
-
-      const guildHistory = await discord.getGuildHistory(guild, authorId);
-      await this.describeImages(guildHistory);
-      const persona = await this.generateUserPersona(guildHistory);
+    if (guildId) {
+      const authorId = lastMessage.authorId;
+      const persona = await this.generateUserPersona(guildId, authorId);
 
       return await this.generatePersonalizedResponse(channelHistory, persona);
     }
-    else if (isDirectMessage || isVoiceMessage) {
+    else if (lastMessage.isDirectMessage || lastMessage.isVoiceMessage) {
       // Respond directly to direct messages
       return await this.generatePersonalizedResponse(channelHistory, '');
     }
@@ -288,6 +320,18 @@ export class Botc {
   }
 
   /**
+   * Preprocess multimedia content types concurrently
+   */
+  private async preprocessMultimedia(): Promise<void> {
+    const discord = this.modules.clients.discord;
+    const allGuildsHistory = await discord.getAllGuildsHistory();
+    await Promise.all([
+      this.prefetchImageDescriptions(allGuildsHistory),
+      this.prefetchVoiceTranscriptions(allGuildsHistory),
+    ]);
+  }
+
+  /**
    * Transcribe a voice message
    * @param {BotcMessage[]} messageHistory Message history
    */
@@ -301,11 +345,7 @@ export class Botc {
         const voiceMessageUrl = message.voiceMessage?.url;
 
         if (voiceMessageUrl) {
-          if (cache.isCached(voiceMessageUrl)) {
-            message.voiceMessageTranscription = cache.getValue(voiceMessageUrl) as string;
-            return;
-          }
-          else {
+          if (!cache.isCached(voiceMessageUrl)) {
             const fetchedAudio = await fetch(voiceMessageUrl);
             const audioBuffer = await fetchedAudio.arrayBuffer();
             const audioFile = new File([audioBuffer], 'audio.ogg', {
@@ -318,9 +358,9 @@ export class Botc {
               key: voiceMessageUrl,
               value: transcription,
             });
-
-            message.voiceMessageTranscription = transcription;
           }
+
+          message.voiceMessageTranscription = cache.getValue(voiceMessageUrl) as string;
         }
       }),
     );
@@ -328,29 +368,32 @@ export class Botc {
 
   /**
    * Decides whether to reply based on conversation history
-   * @param {BotcMessage[]} messageHistory Message history
+   * @param {BotcMessage[]} channelHistory Channel message history
    * @returns {Promise<boolean>} boolean
    */
-  private async willReplyToMessage(messageHistory: BotcMessage[]): Promise<boolean> {
-    const lastMessageTypeAttributes = messageHistory.at(-1)?.typeAttributes;
-    const isAtMentionOrReply = (lastMessageTypeAttributes?.includes('AtMention'));
-    const isDirectMessage = (lastMessageTypeAttributes?.includes('DirectMessage'));
-    const isOwnMessage = (lastMessageTypeAttributes?.includes('OwnMessage'));
-    const IsVoiceMessage = (lastMessageTypeAttributes?.includes('VoiceMessage'));
+  private async willReplyToMessage(channelHistory: BotcMessage[]): Promise<boolean> {
+    const lastMessage = channelHistory.at(-1) as BotcMessage;
+    const automaticYes = (
+      lastMessage.isAtMention
+      || lastMessage.isDirectMessage
+      || lastMessage.isVoiceMessage
+    );
 
-    // Automatic true or false based on message type
-    if (isOwnMessage) {
+    // Don't reply to own messages
+    if (lastMessage.isOwnMessage) {
       return false;
     }
-    else if (isAtMentionOrReply || isDirectMessage || IsVoiceMessage) {
+    // Do reply for automaticYes types
+    else if (automaticYes) {
       return true;
     }
     // Otherwise, use decision prompt to determine response
     else {
       const openai = this.modules.clients.openai;
-      const replyDecisionPrompt = this.config.options.llms.openai.replyDecisionPrompt.value as string;
+      const config = this.config.options.llms.openai;
+      const replyDecisionPrompt = config.replyDecisionPrompt.value as string;
 
-      const payload = await this.createPromptPayload(messageHistory, {
+      const payload = await this.createPromptPayload(channelHistory, {
         value: replyDecisionPrompt,
         append: false,
       });

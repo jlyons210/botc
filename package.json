@@ -1,6 +1,6 @@
 {
   "name": "botc",
-  "version": "0.13.0",
+  "version": "0.13.1",
   "description": "My most ambitious Discord bot yet.",
   "main": "src/app.ts",
   "scripts": {
@@ -29,24 +29,24 @@
   "homepage": "https://github.com/jlyons210/botc#readme",
   "type": "module",
   "dependencies": {
-    "discord.js": "^14.17.3",
-    "elevenlabs": "^1.50.5",
-    "openai": "^4.83.0",
+    "discord.js": "^14.18.0",
+    "elevenlabs": "^1.51.0",
+    "openai": "^4.85.1",
     "sharp": "^0.33.5"
   },
   "devDependencies": {
     "@eslint/js": "^9.20.0",
     "@stylistic/eslint-plugin": "^3.1.0",
-    "@types/node": "^22.13.1",
-    "@typescript-eslint/parser": "^8.23.0",
-    "eslint": "^9.20.0",
+    "@types/node": "^22.13.4",
+    "@typescript-eslint/parser": "^8.24.0",
+    "eslint": "^9.20.1",
     "eslint-plugin-jsdoc": "^50.6.3",
     "eslint-plugin-n": "^17.15.1",
-    "globals": "^15.14.0",
+    "globals": "^15.15.0",
     "nodemon": "^3.1.9",
     "rimraf": "^6.0.1",
     "ts-node": "^10.9.2",
     "typescript": "^5.7.3",
-    "typescript-eslint": "^8.23.0"
+    "typescript-eslint": "^8.24.0"
   }
 }
