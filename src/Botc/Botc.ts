@@ -244,6 +244,7 @@ export class Botc {
     if (!cache.isCached(cacheKey)) {
       const guildHistory = await discord.getGuildHistory(guildId, authorId);
       await this.describeImages(guildHistory);
+      await this.transcribeVoiceMessages(guildHistory);
 
       const nameSanitized = guildHistory[0].promptUsername;
       const payload = await this.createPromptPayload(guildHistory, {
