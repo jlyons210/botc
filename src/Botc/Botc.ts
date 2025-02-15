@@ -101,11 +101,14 @@ export class Botc {
    * @param {EventMap['DiscordClient:IncomingMessage']} data Incoming Discord message data
    */
   private async handleIncomingDiscordMessage(data: EventMap['DiscordClient:IncomingMessage']): Promise<void> {
-    const channelId = data.message.originalMessage.channelId;
-    const channelHistory = await this.modules.clients.discord.getChannelHistory(channelId);
-    const lastMessage = channelHistory.at(-1) as BotcMessage;
+    const discord = this.modules.clients.discord;
+    const lastMessage = data.message;
+    const channelId = lastMessage.channelId;
+    const channelHistory = await discord.getChannelHistory(channelId);
 
     if (lastMessage) {
+      await this.describeImages(channelHistory);
+      await this.transcribeVoiceMessages(channelHistory);
       const botWillRespond = await this.willReplyToMessage(channelHistory);
 
       if (botWillRespond) {
@@ -116,7 +119,7 @@ export class Botc {
           this.startTyping(lastMessage.channelId);
         }, 9000);
 
-        const responseContent = await this.prepareResponse(data, channelHistory);
+        const responseContent = await this.prepareResponse(channelHistory);
 
         const attachments = [];
         if (lastMessage.isVoiceMessage) {
@@ -281,20 +284,16 @@ export class Botc {
 
   /**
    * Prepare Discord message response
-   * @param {EventMap['MessagePipeline:IncomingMessage']} data Incoming message
    * @param {BotcMessage[]} channelHistory Channel message history
    * @returns {Promise<string>} Response message
    */
-  private async prepareResponse(data: EventMap['DiscordClient:IncomingMessage'], channelHistory: BotcMessage[]): Promise<string> {
-    const guildId = data.message.originalMessage.guild?.id;
+  private async prepareResponse(channelHistory: BotcMessage[]): Promise<string> {
     const lastMessage = channelHistory.at(-1) as BotcMessage;
-
-    await this.describeImages(channelHistory);
-    await this.transcribeVoiceMessages(channelHistory);
+    const guildId = lastMessage.originalMessage.guild?.id;
 
     // Guild is not populated for direct messages
     if (guildId) {
-      const authorId = data.message.originalMessage.author.id;
+      const authorId = lastMessage.originalMessage.author.id;
       const persona = await this.generateUserPersona(guildId, authorId);
 
       return await this.generatePersonalizedResponse(channelHistory, persona);
