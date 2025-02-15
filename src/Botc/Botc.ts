@@ -131,11 +131,6 @@ export class Botc {
         this.globalEvents.emit('Botc:ResponseComplete', payload);
       }
     }
-    else {
-      // This should never happen
-      console.error('Botc.handleIncomingDiscordMessage: lastMessage is undefined');
-      return;
-    }
   }
 
   /**
