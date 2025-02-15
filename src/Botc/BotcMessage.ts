@@ -52,14 +52,12 @@ export class BotcMessage {
    * Add the context of the message that was replied to for prompt enrichment
    */
   private async addMessageReplyContext(): Promise<void> {
-    if (this.isReply && this.originalMessage.reference?.messageId) {
-      const replyMessageId = this.originalMessage.reference.messageId;
-      const replyMessage = await this.originalMessage.channel.messages.fetch(replyMessageId);
+    if (this.isReply && this.message.reference?.messageId) {
+      const replyMessageId = this.message.reference.messageId;
+      const replyMessage = await this.message.channel.messages.fetch(replyMessageId);
       const replyContent = replyMessage.content;
       const replyAuthor = replyMessage.author.displayName || replyMessage.author.username;
-      const replyTimestampLocal = new Date(replyMessage.createdTimestamp).toLocaleString('en-US', {
-        timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-      });
+      const replyTimestampLocal = new Date(replyMessage.createdTimestamp).toLocaleString('en-US');
 
       this._replyContext = [
         `---`,
@@ -155,6 +153,14 @@ export class BotcMessage {
   }
 
   /**
+   * Message author ID
+   * @returns {string} Author ID
+   */
+  public get authorId(): string {
+    return this.message.author.id;
+  }
+
+  /**
    * Message channel ID
    * @returns {string} Channel ID
    */
@@ -184,6 +190,14 @@ export class BotcMessage {
    */
   public get displayName(): string {
     return this.message.member?.displayName || this.username;
+  }
+
+  /**
+   * Message guild ID
+   * @returns {string | undefined} Guild ID
+   */
+  public get guildId(): string | undefined {
+    return this.message.guild?.id;
   }
 
   /**
@@ -267,14 +281,6 @@ export class BotcMessage {
    */
   public get isVoiceMessage(): boolean {
     return this.hasVoiceMessage;
-  }
-
-  /**
-   * Original Discord message
-   * @returns {Message} Original Discord.js Message object
-   */
-  public get originalMessage(): Message {
-    return this.message;
   }
 
   /**

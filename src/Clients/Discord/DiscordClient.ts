@@ -211,7 +211,7 @@ export class DiscordClient {
 
         return (userId)
           // Filter messages to only those from userId, if provided
-          ? messages.filter(message => message.originalMessage.author.id === userId)
+          ? messages.filter(message => message.authorId === userId)
           : messages;
       }
       catch (error) {

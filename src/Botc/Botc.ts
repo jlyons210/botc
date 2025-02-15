@@ -290,11 +290,11 @@ export class Botc {
    */
   private async prepareResponse(channelHistory: BotcMessage[]): Promise<string> {
     const lastMessage = channelHistory.at(-1) as BotcMessage;
-    const guildId = lastMessage.originalMessage.guild?.id;
+    const guildId = lastMessage.guildId;
 
     // Guild is not populated for direct messages
     if (guildId) {
-      const authorId = lastMessage.originalMessage.author.id;
+      const authorId = lastMessage.authorId;
       const persona = await this.generateUserPersona(guildId, authorId);
 
       return await this.generatePersonalizedResponse(channelHistory, persona);
