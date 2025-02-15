@@ -26,14 +26,7 @@ export class Botc {
    * New Botc
    */
   constructor() {
-    this.initialize();
-  }
-
-  /**
-   * Initialize Botc
-   */
-  private async initialize(): Promise<void> {
-    await this.registerHandlers();
+    this.registerHandlers();
 
     this.modules = {
       caches: {
@@ -61,7 +54,7 @@ export class Botc {
   /**
    * Register event handlers
    */
-  private async registerHandlers(): Promise<void> {
+  private registerHandlers(): void {
     this.globalEvents.on('DiscordClient:Ready',
       this.handleDiscordClientReady.bind(this),
     );
