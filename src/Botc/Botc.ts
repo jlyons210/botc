@@ -109,7 +109,7 @@ export class Botc {
         this.startTyping(channelId);
         // ...and keep it going until the response is ready - it times out after 10 seconds
         const typingInterval = setInterval(() => {
-          this.startTyping(lastMessage.channelId);
+          this.startTyping(channelId);
         }, 9000);
 
         const responseContent = await this.prepareResponse(channelHistory);
