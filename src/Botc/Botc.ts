@@ -20,7 +20,7 @@ import { Resizer } from './Resizer/index.js';
 export class Botc {
   private config = new Configuration();
   private globalEvents = EventBus.attach();
-  private modules!: BotcModules;
+  private modules: BotcModules;
 
   /**
    * New Botc
