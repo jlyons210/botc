@@ -4,9 +4,6 @@ import { BotcMessage } from '../index.js';
  * EventMap is a map of event names to their payload types
  */
 export interface EventMap {
-
-  // Client ready events
-
   'DiscordClient:Ready': {
     message: string,
   };
@@ -18,8 +15,6 @@ export interface EventMap {
   'OpenAIClient:Ready': {
     message: string,
   };
-
-  // Application events
 
   'Botc:ResponseComplete': {
     channelId: string,
