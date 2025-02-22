@@ -10,9 +10,9 @@ import { ChatCompletionMessageParam } from 'openai/resources/index.mjs';
 import { Configuration } from './Configuration/index.js';
 import { DiscordClient } from '../Clients/Discord/index.js';
 import { ElevenLabs } from '../Clients/ElevenLabs/index.js';
-import { ObjectCache } from '../Clients/OpenAI/ObjectCache/index.js';
+import { ObjectCache } from './ObjectCache/index.js';
 import { OpenAIClient } from '../Clients/OpenAI/index.js';
-import { Resizer } from '../Clients/OpenAI/Resizer/index.js';
+import { Resizer } from './Resizer/index.js';
 
 /**
  * Botc core class
@@ -20,20 +20,13 @@ import { Resizer } from '../Clients/OpenAI/Resizer/index.js';
 export class Botc {
   private config = new Configuration();
   private globalEvents = EventBus.attach();
-  private modules!: BotcModules;
+  private modules: BotcModules;
 
   /**
    * New Botc
    */
   constructor() {
-    this.initialize();
-  }
-
-  /**
-   * Initialize Botc
-   */
-  private async initialize(): Promise<void> {
-    await this.registerHandlers();
+    this.registerHandlers();
 
     this.modules = {
       caches: {
@@ -61,8 +54,8 @@ export class Botc {
   /**
    * Register event handlers
    */
-  private async registerHandlers(): Promise<void> {
-    this.globalEvents.on('DiscordClient:Ready',
+  private registerHandlers(): void {
+    this.globalEvents.once('DiscordClient:Ready',
       this.handleDiscordClientReady.bind(this),
     );
 
@@ -70,11 +63,11 @@ export class Botc {
       this.handleIncomingDiscordMessage.bind(this),
     );
 
-    this.globalEvents.on('ElevenLabsClient:Ready',
+    this.globalEvents.once('ElevenLabsClient:Ready',
       this.handleElevenLabsClientReady.bind(this),
     );
 
-    this.globalEvents.on('OpenAIClient:Ready',
+    this.globalEvents.once('OpenAIClient:Ready',
       this.handleOpenAIClientReady.bind(this),
     );
   }
@@ -116,7 +109,7 @@ export class Botc {
         this.startTyping(channelId);
         // ...and keep it going until the response is ready - it times out after 10 seconds
         const typingInterval = setInterval(() => {
-          this.startTyping(lastMessage.channelId);
+          this.startTyping(channelId);
         }, 9000);
 
         const responseContent = await this.prepareResponse(channelHistory);
@@ -138,11 +131,6 @@ export class Botc {
         this.globalEvents.emit('Botc:ResponseComplete', payload);
       }
     }
-    else {
-      // This should never happen
-      console.error('Botc.handleIncomingDiscordMessage: lastMessage is undefined');
-      return;
-    }
   }
 
   /**
@@ -160,21 +148,19 @@ export class Botc {
    * @returns {ChatCompletionMessageParam[]} Chat completion message
    */
   private async createPromptPayload(messageHistory: BotcMessage[], customSystemPrompt?: CustomSystemPrompt): Promise<ChatCompletionMessageParam[]> {
-    const configSystemPrompt = this.config.options.llms.openai.systemPrompt;
+    const config = this.config.options.llms.openai;
+    const configSystemPrompt = config.systemPrompt;
 
-    // Map message history to OpenAI prompt format
     const payload = messageHistory.map(message => ({
       content: message.promptContent,
       name: message.promptUsername,
       role: message.promptRole,
     } as ChatCompletionMessageParam));
 
-    // Construct system prompt
     const systemPrompt = (customSystemPrompt?.append)
       ? [configSystemPrompt.value, customSystemPrompt.value].join('\n')
       : customSystemPrompt?.value || configSystemPrompt.value;
 
-    // Prepend system prompt
     payload.unshift({
       content: systemPrompt,
       role: 'system',

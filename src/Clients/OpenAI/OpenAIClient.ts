@@ -8,8 +8,8 @@ import { OpenAISettings } from '../../Botc/Configuration/index.js';
  * @todo Enhance API error handling. Returning '' will break Discord message sending.
  */
 export class OpenAIClient {
-  private client: OpenAI;
-  private globalEvents = EventBus.attach();
+  private readonly client: OpenAI;
+  private readonly globalEvents = EventBus.attach();
   private readonly model: string;
 
   /**
@@ -37,28 +37,23 @@ export class OpenAIClient {
    */
   public async createCompletion(payload: ChatCompletionMessageParam[]): Promise<string> {
     try {
-      // Create chat completion
       const completion = await this.client.chat.completions.create({
         model: this.model,
         messages: payload,
       });
 
-      // Return completion message content
       return completion.choices[0].message.content as string;
     }
     catch (error) {
       if (error instanceof OpenAI.APIError) {
-        // Log OpenAI API error
         console.error(`OpenAIClient.createCompletion: OpenAI API error.`);
         console.error(`OpenAIClient.createCompletion: error: ${error.message}`);
       }
       else {
-        // Log generic error
         console.error(`OpenAIClient.createCompletion: ${error}`);
         console.debug(`OpenAIClient.createCompletion: payload: ${JSON.stringify(payload)}`);
       }
 
-      // Return empty string on error
       return '';
     }
   }

@@ -18,15 +18,15 @@ import { BotcMessage } from '../../Botc/index.js';
 import { DiscordClientSettings } from '../../Botc/Configuration/index.js';
 
 /**
- * Utility functions for DiscordBot
+ * Discord client wrapper
  */
 export class DiscordClient {
   private discordClient!: Client;
-  private globalEvents = EventBus.attach();
+  private readonly globalEvents = EventBus.attach();
   private botUserId!: string;
 
   /**
-   * New DiscordBot
+   * New Discord client
    * @param {DiscordClientSettings} discordConfig Discord client
    */
   constructor(private discordConfig: DiscordClientSettings) {
@@ -34,7 +34,7 @@ export class DiscordClient {
   }
 
   /**
-   * Async function to initialize Discord client
+   * Async initialize outside of constructor
    */
   private async initialize(): Promise<void> {
     this.discordClient = await this.createDiscordClient();
@@ -47,11 +47,10 @@ export class DiscordClient {
    * Register Discord client event handlers
    */
   private async registerHandlers(): Promise<void> {
-    this.discordClient.on(Events.ClientReady,
+    this.discordClient.once(Events.ClientReady,
       this.handleClientReady.bind(this),
     );
 
-    // This event kicks off everything in the bot message handling flow
     this.discordClient.on(Events.MessageCreate,
       this.handleMessageCreate.bind(this),
     );
@@ -85,7 +84,6 @@ export class DiscordClient {
       discordMessage: discordMessage,
     });
 
-    // Emit incoming message event
     this.globalEvents.emit('DiscordClient:IncomingMessage', {
       message: botcMessage,
     });
@@ -126,7 +124,7 @@ export class DiscordClient {
   }
 
   /**
-   * Start typing in Discord channel
+   * Start typing indicator in Discord channel
    * @param {EventMap['DiscordClient:StartTyping']} data StartTyping event data
    */
   private async handleStartTyping(data: EventMap['DiscordClient:StartTyping']): Promise<void> {
@@ -138,7 +136,8 @@ export class DiscordClient {
 
   /**
    * Authenticate Discord client
-   * This is a separate function to allow event handlers to be registered before authenticating.
+   *   This occurs outside of createDiscordClient() to allow handlers to be registered before the
+   *   client is authenticated.
    */
   private async authenticateDiscordClient(): Promise<void> {
     try {
