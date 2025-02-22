@@ -10,11 +10,11 @@ import { tmpdir } from 'node:os';
  * ElevenLabs client wrapper
  */
 export class ElevenLabs {
-  private client: ElevenLabsClient;
-  private globalEvents = EventBus.attach();
+  private readonly client: ElevenLabsClient;
+  private readonly globalEvents = EventBus.attach();
 
   /**
-   * New ElevenLabsClient
+   * New ElevenLabs client
    * @param {ElevenLabsSettings} config ElevenLabs configuration
    */
   constructor(private config: ElevenLabsSettings) {
