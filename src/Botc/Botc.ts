@@ -55,7 +55,7 @@ export class Botc {
    * Register event handlers
    */
   private registerHandlers(): void {
-    this.globalEvents.on('DiscordClient:Ready',
+    this.globalEvents.once('DiscordClient:Ready',
       this.handleDiscordClientReady.bind(this),
     );
 
@@ -63,11 +63,11 @@ export class Botc {
       this.handleIncomingDiscordMessage.bind(this),
     );
 
-    this.globalEvents.on('ElevenLabsClient:Ready',
+    this.globalEvents.once('ElevenLabsClient:Ready',
       this.handleElevenLabsClientReady.bind(this),
     );
 
-    this.globalEvents.on('OpenAIClient:Ready',
+    this.globalEvents.once('OpenAIClient:Ready',
       this.handleOpenAIClientReady.bind(this),
     );
   }

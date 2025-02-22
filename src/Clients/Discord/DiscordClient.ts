@@ -47,7 +47,7 @@ export class DiscordClient {
    * Register Discord client event handlers
    */
   private async registerHandlers(): Promise<void> {
-    this.discordClient.on(Events.ClientReady,
+    this.discordClient.once(Events.ClientReady,
       this.handleClientReady.bind(this),
     );
 

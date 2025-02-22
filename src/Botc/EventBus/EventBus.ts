@@ -41,6 +41,17 @@ class EventBus<T extends EventMap> {
   on<K extends keyof T>(eventName: K, handler: (data: T[K]) => void): void {
     this.emitter.on(eventName as string, handler);
   }
+
+  /**
+   * Register an event handler on the EventBus that will only be called once
+   * @template T EventMap
+   * @template K EventMap key
+   * @param {K} eventName Event name
+   * @param {(data: T[K]) => void} handler Event handler
+   */
+  once<K extends keyof T>(eventName: K, handler: (data: T[K]) => void): void {
+    this.emitter.once(eventName as string, handler);
+  }
 }
 
 export default EventBus;
