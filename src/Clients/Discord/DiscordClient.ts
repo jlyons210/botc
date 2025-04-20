@@ -16,6 +16,7 @@ import {
 import { EventBus, EventMap } from '../../Botc/EventBus/index.js';
 import { BotcMessage } from '../../Botc/index.js';
 import { DiscordClientSettings } from '../../Botc/Configuration/index.js';
+import { Logger } from '../../Botc/Logger/Logger.js';
 
 /**
  * Discord client wrapper
@@ -24,6 +25,7 @@ export class DiscordClient {
   private discordClient!: Client;
   private readonly globalEvents = EventBus.attach();
   private botUserId!: string;
+  private logger = new Logger();
 
   /**
    * New Discord client
@@ -116,7 +118,7 @@ export class DiscordClient {
           return;
         }
         catch (error) {
-          console.error(`Error sending message to channel ${channelId}: ${error}`);
+          this.logger.log(`Error sending message to channel ${channelId}: ${error}`, 'ERROR');
           await new Promise(resolve => setTimeout(resolve, 1000 * errorCount++));
         }
       }
@@ -215,7 +217,7 @@ export class DiscordClient {
       }
       catch (error) {
         if (error instanceof DiscordAPIError) {
-          console.error(`Error '${error.code}' (${error.message}) fetching channel history for ${channel.id}.`);
+          this.logger.log(`Error '${error.code}' (${error.message}) fetching channel history for ${channel.id}.`, 'ERROR');
         }
 
         return [];
@@ -265,7 +267,7 @@ export class DiscordClient {
    */
   private async logReadyBanner(): Promise<void> {
     const guilds = this.discordClient.guilds.cache;
-    console.log(`Connected to ${guilds.size} guild${(guilds.size > 1) ? 's' : ''}:`);
+    this.logger.log(`Connected to ${guilds.size} guild${(guilds.size > 1) ? 's' : ''}:`, 'INFO');
 
     for (const guild of guilds.values()) {
       guild.channels.fetch();
@@ -275,7 +277,7 @@ export class DiscordClient {
       }).size;
 
       guild.members.fetch();
-      console.log(`- ${guild.name} (${guild.memberCount} members, ${textChannelCount} text channels)`);
+      this.logger.log(`- ${guild.name} (${guild.memberCount} members, ${textChannelCount} text channels)`, 'INFO');
     }
   }
 }

@@ -1,5 +1,6 @@
 import { ChatCompletionMessageParam } from 'openai/resources/index.mjs';
 import { EventBus } from '../../Botc/EventBus/index.js';
+import { Logger } from '../../Botc/Logger/Logger.js';
 import OpenAI from 'openai';
 import { OpenAISettings } from '../../Botc/Configuration/index.js';
 
@@ -10,6 +11,7 @@ import { OpenAISettings } from '../../Botc/Configuration/index.js';
 export class OpenAIClient {
   private readonly client: OpenAI;
   private readonly globalEvents = EventBus.attach();
+  private readonly logger = new Logger();
   private readonly model: string;
 
   /**
@@ -46,12 +48,12 @@ export class OpenAIClient {
     }
     catch (error) {
       if (error instanceof OpenAI.APIError) {
-        console.error(`OpenAIClient.createCompletion: OpenAI API error.`);
-        console.error(`OpenAIClient.createCompletion: error: ${error.message}`);
+        this.logger.log(`OpenAIClient.createCompletion: OpenAI API error.`, 'ERROR');
+        this.logger.log(`OpenAIClient.createCompletion: error: ${error.message}`, 'ERROR');
       }
       else {
-        console.error(`OpenAIClient.createCompletion: ${error}`);
-        console.debug(`OpenAIClient.createCompletion: payload: ${JSON.stringify(payload)}`);
+        this.logger.log(`OpenAIClient.createCompletion: ${error}`, 'ERROR');
+        this.logger.log(`OpenAIClient.createCompletion: payload: ${JSON.stringify(payload)}`, 'DEBUG');
       }
 
       return '';

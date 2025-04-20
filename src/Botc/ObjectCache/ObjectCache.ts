@@ -1,11 +1,13 @@
 import { CacheConfig, CacheEntry } from './index.js';
 import { ConfigurationSettings, OpenAICacheLoggingSettings } from '../Configuration/index.js';
+import { Logger } from '../Logger/Logger.js';
 
 /**
  * Multi-purpose key-value cache
  */
 export class ObjectCache {
   private cached: CacheEntry = {};
+  private logger = new Logger();
 
   /**
    * New object cache
@@ -27,7 +29,7 @@ export class ObjectCache {
     };
 
     if (this.logConfig.logCacheEntries.value.toString() === 'true') {
-      console.log(`ObjectCache.cache: Cached ${entry.key}`);
+      this.logger.log(`ObjectCache.cache: Cached ${entry.key}`, 'INFO');
     }
   }
 
@@ -40,7 +42,7 @@ export class ObjectCache {
         delete this.cached[key];
 
         if (this.logConfig.logCachePurges.value.toString() === 'true') {
-          console.log(`ObjectCache.clearExpired: Removing expired entry ${key}`);
+          this.logger.log(`ObjectCache.clearExpired: Removing expired entry ${key}`, 'INFO');
         }
       }
     }
@@ -56,14 +58,14 @@ export class ObjectCache {
 
     if (entry) {
       if (this.logConfig.logCacheHits.value.toString() === 'true') {
-        console.log(`ObjectCache.getValue: Cache hit for ${key}`);
+        this.logger.log(`ObjectCache.getValue: Cache hit for ${key}`, 'INFO');
       }
 
       return entry.value;
     }
     else {
       if (this.logConfig.logCacheMisses.value.toString() === 'true') {
-        console.log(`ObjectCache.getValue: Cache miss for ${key}`);
+        this.logger.log(`ObjectCache.getValue: Cache miss for ${key}`, 'INFO');
       }
 
       return undefined;

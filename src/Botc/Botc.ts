@@ -10,6 +10,7 @@ import { ChatCompletionMessageParam } from 'openai/resources/index.mjs';
 import { Configuration } from './Configuration/index.js';
 import { DiscordClient } from '../Clients/Discord/index.js';
 import { ElevenLabs } from '../Clients/ElevenLabs/index.js';
+import { Logger } from './Logger/index.js';
 import { ObjectCache } from './ObjectCache/index.js';
 import { OpenAIClient } from '../Clients/OpenAI/index.js';
 import { Resizer } from './Resizer/index.js';
@@ -20,6 +21,7 @@ import { Resizer } from './Resizer/index.js';
 export class Botc {
   private config = new Configuration();
   private globalEvents = EventBus.attach();
+  private logger = new Logger();
   private modules: BotcModules;
 
   /**
@@ -77,7 +79,7 @@ export class Botc {
    * @param {EventMap['DiscordClient:Ready']} data Discord client ready event data
    */
   private async handleDiscordClientReady(data: EventMap['DiscordClient:Ready']): Promise<void> {
-    console.log(data.message);
+    this.logger.log(data.message, 'INFO');
     this.preprocessMultimedia();
   }
 
@@ -86,7 +88,7 @@ export class Botc {
    * @param {EventMap['ElevenLabsClient:Ready']} data ElevenLabs client ready event data
    */
   private async handleElevenLabsClientReady(data: EventMap['ElevenLabsClient:Ready']): Promise<void> {
-    console.log(data.message);
+    this.logger.log(data.message, 'INFO');
   }
 
   /**
@@ -138,7 +140,7 @@ export class Botc {
    * @param {EventMap['OpenAIClient:Ready']} data OpenAI client ready event data
    */
   private async handleOpenAIClientReady(data: EventMap['OpenAIClient:Ready']): Promise<void> {
-    console.log(data.message);
+    this.logger.log(data.message, 'INFO');
   }
 
   /**
@@ -254,9 +256,9 @@ export class Botc {
    * @param {BotcMessage[]} allGuildsHistory Message history
    */
   private async prefetchImageDescriptions(allGuildsHistory: BotcMessage[]): Promise<void> {
-    console.log(`Prefetching image descriptions for all guilds...`);
+    this.logger.log(`Prefetching image descriptions for all guilds...`, 'INFO');
     await this.describeImages(allGuildsHistory);
-    console.log(`Image description prefetching complete.`);
+    this.logger.log(`Image description prefetching complete.`, 'INFO');
   }
 
   /**
@@ -264,9 +266,9 @@ export class Botc {
    * @param {BotcMessage[]} allGuildsHistory Message history
    */
   private async prefetchVoiceTranscriptions(allGuildsHistory: BotcMessage[]): Promise<void> {
-    console.log(`Prefetching voice transcriptions for all guilds...`);
+    this.logger.log(`Prefetching voice transcriptions for all guilds...`, 'INFO');
     await this.transcribeVoiceMessages(allGuildsHistory);
-    console.log(`Voice transcription prefetching complete.`);
+    this.logger.log(`Voice transcription prefetching complete.`, 'INFO');
   }
 
   /**
@@ -393,7 +395,7 @@ export class Botc {
       }
       catch (error) {
         // Log error parsing JSON response - sometimes the API returns malformed JSON
-        console.error(`OpenAIClient.willReplyToMessage: Error ${error} parsing JSON: ${responseMessage}`);
+        this.logger.log(`OpenAIClient.willReplyToMessage: Error ${error} parsing JSON: ${responseMessage}`, 'ERROR');
 
         // Fail-safe: check for "yes" in malformed JSON response
         return responseMessage.toLowerCase().includes('"yes"');

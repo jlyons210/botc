@@ -11,12 +11,15 @@ import {
   BotcMessageImageAttachment,
 } from '../Botc/index.js';
 
+import { Logger } from './Logger/Logger.js';
+
 /**
  * A wrapper for Discord.js Message objects that provides additional properties and methods for
  * interacting with the message.
  */
 export class BotcMessage {
   private readonly botUserId: string;
+  private readonly logger = new Logger();
   private readonly message: Message;
 
   private _attachedImages: BotcMessageImageAttachment[] = [];
@@ -76,11 +79,11 @@ export class BotcMessage {
 
         if (error instanceof DiscordAPIError) {
           if (error.code === RESTJSONErrorCodes.UnknownMessage) {
-            console.error(`Message is a reply to another deleted message: Reference: ${messageUrl}`);
+            this.logger.log(`Message is a reply to another deleted message: Reference: ${messageUrl}`, 'ERROR');
           }
         }
         else {
-          console.error(`Failed to fetch reply message: ${error}`);
+          this.logger.log(`Failed to fetch reply message: ${error}`, 'ERROR');
         }
 
         this._replyContext = [

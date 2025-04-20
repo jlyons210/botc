@@ -1,3 +1,4 @@
+import { Logger } from '../Logger/Logger.js';
 import sharp, { Sharp } from 'sharp';
 import { ResizeImageConfig } from './index.js';
 
@@ -5,6 +6,8 @@ import { ResizeImageConfig } from './index.js';
  * Resizes images to fit within Vision API size limits
  */
 export class Resizer {
+  private readonly logger = new Logger();
+
   /**
    * Fetch image
    * @param {string} imageUrl Image URL
@@ -16,7 +19,7 @@ export class Resizer {
       .then(buffer => Buffer.from(buffer))
       .then(buffer => sharp(buffer))
       .catch((error) => {
-        console.error(`Resizer.fetchImage: Error fetching image: ${error}`);
+        this.logger.log(`Resizer.fetchImage: Error fetching image: ${error}`, 'ERROR');
         return null;
       });
   }

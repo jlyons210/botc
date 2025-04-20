@@ -4,13 +4,16 @@ import {
   ConfigurationSettings,
 } from './index.js';
 
+import { Logger } from '../Logger/index.js';
+
 /** Configuration */
 export class Configuration {
   private _options: ConfigurationOptions;
+  private logger = new Logger();
 
   /** Load Configuration */
   constructor() {
-    console.log('Configuration:');
+    this.logger.log('Configuration:', 'INFO');
     this._options = ConfigurationDefaults;
     this.setUserConfiguration(this._options);
   }
@@ -69,10 +72,11 @@ export class Configuration {
             : `(default)`;
 
           // Log configuration setting, masking secret values
-          console.log(
+          this.logger.log(
             (settings.secret)
               ? `- ${path.concat(key).join('.')} = ${'*'.repeat(12)} ${userOrDefault}`
               : `- ${path.concat(key).join('.')} = ${settings.value} ${userOrDefault}`,
+            'INFO',
           );
         }
         else {
