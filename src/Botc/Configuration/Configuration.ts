@@ -16,6 +16,24 @@ export class Configuration {
   }
 
   /**
+   * Converts a string value to its appropriate type
+   * @param {string} value Value to convert
+   * @returns {string | number | boolean} Converted value
+   */
+  private convertValueType(value: string): string | number | boolean {
+    if (!isNaN(Number(value))) {
+      return Number(value);
+    }
+    else if (value.toLowerCase() === 'true') {
+      return true;
+    }
+    else if (value.toLowerCase() === 'false') {
+      return false;
+    }
+    return value;
+  }
+
+  /**
    * Recursively set options by overriding defaults with environment variables
    * @param {any} node Working node
    * @param {string[]} path Path to node
@@ -42,13 +60,19 @@ export class Configuration {
           }
 
           // Prefer user-defined setting, otherwise use default
-          settings.value = userSetting || settings.value;
+          settings.value = (userSetting !== undefined)
+            ? this.convertValueType(userSetting)
+            : settings.value;
+
+          const userOrDefault = (userSetting !== undefined)
+            ? `(user)`
+            : `(default)`;
 
           // Log configuration setting, masking secret values
           console.log(
             (settings.secret)
-              ? `- ${path.concat(key).join('.')} = ${'*'.repeat(12)}`
-              : `- ${path.concat(key).join('.')} = ${settings.value}`,
+              ? `- ${path.concat(key).join('.')} = ${'*'.repeat(12)} ${userOrDefault}`
+              : `- ${path.concat(key).join('.')} = ${settings.value} ${userOrDefault}`,
           );
         }
         else {
