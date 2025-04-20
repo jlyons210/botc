@@ -1,5 +1,5 @@
-import { Logger } from '../Logger/Logger.js';
 import sharp, { Sharp } from 'sharp';
+import { Logger } from '../Logger/Logger.js';
 import { ResizeImageConfig } from './index.js';
 
 /**
