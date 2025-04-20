@@ -1,7 +1,9 @@
 import {
   Attachment,
   ChannelType,
+  DiscordAPIError,
   Message,
+  RESTJSONErrorCodes,
 } from 'discord.js';
 
 import {
@@ -9,12 +11,15 @@ import {
   BotcMessageImageAttachment,
 } from '../Botc/index.js';
 
+import { Logger } from './Logger/Logger.js';
+
 /**
  * A wrapper for Discord.js Message objects that provides additional properties and methods for
  * interacting with the message.
  */
 export class BotcMessage {
   private readonly botUserId: string;
+  private readonly logger = new Logger();
   private readonly message: Message;
 
   private _attachedImages: BotcMessageImageAttachment[] = [];
@@ -53,20 +58,40 @@ export class BotcMessage {
    */
   private async addMessageReplyContext(): Promise<void> {
     if (this.isReply && this.message.reference?.messageId) {
-      const replyMessageId = this.message.reference.messageId;
-      const replyMessage = await this.message.channel.messages.fetch(replyMessageId);
-      const replyContent = replyMessage.content;
-      const replyAuthor = replyMessage.author.displayName || replyMessage.author.username;
-      const replyTimestampLocal = new Date(replyMessage.createdTimestamp).toLocaleString('en-US');
+      try {
+        const replyMessageId = this.message.reference.messageId;
+        const replyMessage = await this.message.channel.messages.fetch(replyMessageId);
+        const replyContent = replyMessage.content;
+        const replyAuthor = replyMessage.author.displayName || replyMessage.author.username;
+        const replyTimestampLocal = new Date(replyMessage.createdTimestamp).toLocaleString('en-US');
+  
+        this._replyContext = [
+          `---`,
+          `Focus your response on this message that was replied to:`,
+          `- Message author: ${replyAuthor}`,
+          `- Message timestamp: ${replyTimestampLocal}`,
+          `- Message content: ${replyContent}`,
+          `---`,
+        ].join('\n');
+      }
+      catch (error) {
+        const messageUrl = this.message.url;
 
-      this._replyContext = [
-        `---`,
-        `Focus your response on this message that was replied to:`,
-        `- Message author: ${replyAuthor}`,
-        `- Message timestamp: ${replyTimestampLocal}`,
-        `- Message content: ${replyContent}`,
-        `---`,
-      ].join('\n');
+        if (error instanceof DiscordAPIError) {
+          if (error.code === RESTJSONErrorCodes.UnknownMessage) {
+            this.logger.log(`Message is a reply to another deleted message: Reference: ${messageUrl}`, 'ERROR');
+          }
+        }
+        else {
+          this.logger.log(`Failed to fetch reply message: ${error}`, 'ERROR');
+        }
+
+        this._replyContext = [
+          `---`,
+          'The message that was replied to was deleted.',
+          `---`,
+        ].join('\n');
+      }
     }
   }
 

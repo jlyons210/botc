@@ -4,15 +4,36 @@ import {
   ConfigurationSettings,
 } from './index.js';
 
+import { Logger } from '../Logger/index.js';
+
 /** Configuration */
 export class Configuration {
   private _options: ConfigurationOptions;
+  private logger = new Logger();
 
   /** Load Configuration */
   constructor() {
-    console.log('Configuration:');
+    this.logger.log('Configuration:', 'INFO');
     this._options = ConfigurationDefaults;
     this.setUserConfiguration(this._options);
+  }
+
+  /**
+   * Converts a string value to its appropriate type
+   * @param {string} value Value to convert
+   * @returns {string | number | boolean} Converted value
+   */
+  private convertValueType(value: string): string | number | boolean {
+    if (!isNaN(Number(value))) {
+      return Number(value);
+    }
+    else if (value.toLowerCase() === 'true') {
+      return true;
+    }
+    else if (value.toLowerCase() === 'false') {
+      return false;
+    }
+    return value;
   }
 
   /**
@@ -42,13 +63,20 @@ export class Configuration {
           }
 
           // Prefer user-defined setting, otherwise use default
-          settings.value = userSetting || settings.value;
+          settings.value = (userSetting !== undefined)
+            ? this.convertValueType(userSetting)
+            : settings.value;
+
+          const userOrDefault = (userSetting !== undefined)
+            ? `(user)`
+            : `(default)`;
 
           // Log configuration setting, masking secret values
-          console.log(
+          this.logger.log(
             (settings.secret)
-              ? `- ${path.concat(key).join('.')} = ${'*'.repeat(12)}`
-              : `- ${path.concat(key).join('.')} = ${settings.value}`,
+              ? `- ${path.concat(key).join('.')} = ${'*'.repeat(12)} ${userOrDefault}`
+              : `- ${path.concat(key).join('.')} = ${settings.value} ${userOrDefault}`,
+            'INFO',
           );
         }
         else {
