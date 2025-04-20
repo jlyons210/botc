@@ -30,6 +30,8 @@
 ## 0.13.420 (2024-04-20)
 - Fix: Configuration now correctly converts `string` environment variables to correct types when loading.
 - Fix: Processing messages that are a reply to a deleted message no longer crashes botc.
+- Added `Logger` logging utility.
+- Updated dependencies.
 
 [:arrow_up: Back to top](#changelog)
 
