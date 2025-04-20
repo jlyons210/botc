@@ -64,7 +64,7 @@ export class BotcMessage {
         const replyContent = replyMessage.content;
         const replyAuthor = replyMessage.author.displayName || replyMessage.author.username;
         const replyTimestampLocal = new Date(replyMessage.createdTimestamp).toLocaleString('en-US');
-  
+
         this._replyContext = [
           `---`,
           `Focus your response on this message that was replied to:`,
