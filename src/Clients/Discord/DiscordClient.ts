@@ -16,7 +16,7 @@ import {
 import { EventBus, EventMap } from '../../Botc/EventBus/index.js';
 import { BotcMessage } from '../../Botc/index.js';
 import { DiscordClientSettings } from '../../Botc/Configuration/index.js';
-import { Logger } from '../../Botc/Logger/Logger.js';
+import { Logger } from '../../Botc/Logger/index.js';
 
 /**
  * Discord client wrapper

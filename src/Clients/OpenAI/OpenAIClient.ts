@@ -1,6 +1,6 @@
 import { ChatCompletionMessageParam } from 'openai/resources/index.mjs';
 import { EventBus } from '../../Botc/EventBus/index.js';
-import { Logger } from '../../Botc/Logger/Logger.js';
+import { Logger } from '../../Botc/Logger/index.js';
 import OpenAI from 'openai';
 import { OpenAISettings } from '../../Botc/Configuration/index.js';
 

@@ -11,7 +11,7 @@ import {
   BotcMessageImageAttachment,
 } from '../Botc/index.js';
 
-import { Logger } from './Logger/Logger.js';
+import { Logger } from './Logger/index.js';
 
 /**
  * A wrapper for Discord.js Message objects that provides additional properties and methods for

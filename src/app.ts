@@ -1,5 +1,5 @@
 import { Botc } from './Botc/index.js';
-import { Logger } from './Botc/Logger/Logger.js';
+import { Logger } from './Botc/Logger/index.js';
 
 try {
   new Botc();
