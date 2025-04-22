@@ -5,6 +5,7 @@ import {
 } from './index.js';
 
 import { Logger } from '../Logger/index.js';
+import packageJson from '../../../package.json' with { type: 'json' };
 
 /** Configuration */
 export class Configuration {
@@ -93,8 +94,8 @@ export class Configuration {
    */
   private async augmentSystemPrompt(): Promise<void> {
     this.options.llms.openai.systemPrompt.value = (this.options.llms.openai.systemPrompt.value as string)
-      .replace('{{botName}}', process.env.npm_package_name as string)
-      .replace('{{botVersion}}', process.env.npm_package_version as string)
+      .replace('{{botName}}', packageJson.name)
+      .replace('{{botVersion}}', packageJson.version)
       .replace('{{openAIModel}}', this.options.llms.openai.model.value as string)
       .replace('{{promptBotBehavior}}', this.options.llms.openai.promptBotBehavior.value as string);
 
