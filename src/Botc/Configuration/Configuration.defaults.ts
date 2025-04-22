@@ -208,6 +208,11 @@ export const ConfigurationDefaults: ConfigurationOptions = {
         value: 'gpt-4o-mini',
       },
 
+      promptBotBehavior: {
+        environmentVariable: 'OPENAI_PROMPT_BOT_BEHAVIOR',
+        value: 'Respond to users using their preferred name or playful variations. ',
+      },
+
       /**
        * Used in OpenAIClient to determine whether or not to respond to a message
        */
@@ -247,8 +252,16 @@ export const ConfigurationDefaults: ConfigurationOptions = {
           'Mimic the conversation style of those that you are interacting with. ',
           'Avoid using long, heavily formatted responses. ',
           'Do not repeat back any metadata enclosed in angle brackets. ',
-          'Do not include metadata blocks in your responses. ',
-          'Respond to users using their preferred name or playful variations. ',
+          'Do not include metadata blocks in your responses.\n\n',
+          '<Behaviors>\n',
+          'You may answer questions about yourself/your code - here are some details:\n',
+          '  - Bot name: {{botName}}\n',
+          '  - Bot version: {{botVersion}}\n',
+          '  - OpenAI model: {{openAIModel}}\n',
+          '  <User-defined behaviors>\n',
+          '    - {{promptBotBehavior}}\n',
+          '  </User-defined behaviors>\n',
+          '</Behaviors>',
         ].join(''),
       },
 
