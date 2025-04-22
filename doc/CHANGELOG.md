@@ -4,6 +4,7 @@
 
 ## Pre-release
 
+- 0.14.x: [0.14.0](#0140-2024-04-22)
 - 0.13.x: [0.13.0](#0130-2024-02-09), [0.13.1](#0131-2024-02-14), [0.13.2](#0132-2024-02-22), [0.13.420](#013420-2024-04-20)
 - 0.12.x: [0.12.0](#0120-2024-02-07)
 - 0.11.x: [0.11.0](#0110-2024-02-07), [0.11.1](#0111-2024-02-07)
@@ -27,6 +28,12 @@
 - 0.1.x: [0.1.0](#010-2024-01-24)
 
 ---
+## 0.14.0 (2024-04-22)
+- Added ability to augment the system prompt with additional metadata. Includes fields such as bot name, version, configured LLM, and the new `OPENAI_PROMPT_BOT_BEHAVIOR` environment variable for customizing bot behavior without rewriting the whole system prompt.
+- Updated dependencies.
+
+[:arrow_up: Back to top](#changelog)
+
 ## 0.13.420 (2024-04-20)
 - Fix: Configuration now correctly converts `string` environment variables to correct types when loading.
 - Fix: Processing messages that are a reply to a deleted message no longer crashes botc.
