@@ -1,6 +1,6 @@
 import { CacheConfig, CacheEntry } from './index.js';
 import { ConfigurationSettings, OpenAICacheLoggingSettings } from '../Configuration/index.js';
-import { Logger } from '../Logger/Logger.js';
+import { Logger } from '../Logger/index.js';
 
 /**
  * Multi-purpose key-value cache

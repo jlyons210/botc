@@ -97,6 +97,7 @@ export interface OpenAISettings {
   describeImagePrompt: ConfigurationSettings;
   maxRetries: ConfigurationSettings;
   model: ConfigurationSettings;
+  promptBotBehavior: ConfigurationSettings;
   replyDecisionPrompt: ConfigurationSettings;
   systemPrompt: ConfigurationSettings;
   timeout: ConfigurationSettings;

@@ -16,6 +16,7 @@ export class Configuration {
     this.logger.log('Configuration:', 'INFO');
     this._options = ConfigurationDefaults;
     this.setUserConfiguration(this._options);
+    this.augmentSystemPrompt();
   }
 
   /**
@@ -85,6 +86,28 @@ export class Configuration {
         }
       }
     }
+  }
+
+  /**
+   * Augment system prompt with optional configuration settings
+   */
+  private async augmentSystemPrompt(): Promise<void> {
+    this.options.llms.openai.systemPrompt.value = (this.options.llms.openai.systemPrompt.value as string)
+      .replace('{{botName}}', process.env.npm_package_name as string)
+      .replace('{{botVersion}}', process.env.npm_package_version as string)
+      .replace('{{openAIModel}}', this.options.llms.openai.model.value as string)
+      .replace('{{promptBotBehavior}}', this.options.llms.openai.promptBotBehavior.value as string);
+
+    this.logger.log(
+      [
+        '\n',
+        `${'='.repeat(80)}\n`,
+        `System prompt after injection:\n`,
+        `${this.options.llms.openai.systemPrompt.value}\n`,
+        `${'='.repeat(80)}`,
+      ].join(''),
+      'INFO',
+    );
   }
 
   /**
