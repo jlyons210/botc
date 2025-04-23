@@ -31,7 +31,7 @@
   "dependencies": {
     "discord.js": "^14.18.0",
     "elevenlabs": "^1.57.0",
-    "openai": "^4.95.1",
+    "openai": "^4.96.0",
     "sharp": "^0.34.1"
   },
   "devDependencies": {
@@ -40,10 +40,10 @@
     "@types/node": "^22.14.1",
     "@typescript-eslint/parser": "^8.31.0",
     "eslint": "^9.25.1",
-    "eslint-plugin-jsdoc": "^50.6.9",
+    "eslint-plugin-jsdoc": "^50.6.10",
     "eslint-plugin-n": "^17.17.0",
     "globals": "^16.0.0",
-    "nodemon": "^3.1.9",
+    "nodemon": "^3.1.10",
     "rimraf": "^6.0.1",
     "ts-node": "^10.9.2",
     "typescript": "^5.8.3",

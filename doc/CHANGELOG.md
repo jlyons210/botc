@@ -31,6 +31,8 @@
 ## 0.14.1 (2025-04-23)
 - Added `DEBUG_LOGGING_ENABLED` configuration setting to enable extra logging.
 - Reworked how configuration is passed between components.
+- Added channel name to message metadata - this should be revisited as it doesn't seem to have the desired effect of informing `botc` where messages originated from.
+- Updated dependencies.
 
 [:arrow_up: Back to top](#changelog)
 
