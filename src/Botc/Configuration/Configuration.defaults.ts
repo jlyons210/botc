@@ -53,6 +53,14 @@ export const ConfigurationDefaults: ConfigurationOptions = {
   },
 
   /**
+   * Debug logging configuration
+   */
+  debugLoggingEnabled: {
+    environmentVariable: 'DEBUG_LOGGING_ENABLED',
+    value: false,
+  },
+
+  /**
    * LLMS configuration
    */
   llms: {

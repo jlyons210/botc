@@ -13,9 +13,9 @@ import {
   TextChannel,
 } from 'discord.js';
 
+import { ConfigurationOptions, DiscordClientSettings } from '../../Botc/Configuration/index.js';
 import { EventBus, EventMap } from '../../Botc/EventBus/index.js';
 import { BotcMessage } from '../../Botc/index.js';
-import { DiscordClientSettings } from '../../Botc/Configuration/index.js';
 import { Logger } from '../../Botc/Logger/index.js';
 
 /**
@@ -23,15 +23,16 @@ import { Logger } from '../../Botc/Logger/index.js';
  */
 export class DiscordClient {
   private discordClient!: Client;
+  private discordConfig!: DiscordClientSettings;
   private readonly globalEvents = EventBus.attach();
   private botUserId!: string;
-  private logger = new Logger();
+  private logger!: Logger;
 
   /**
    * New Discord client
-   * @param {DiscordClientSettings} discordConfig Discord client
+   * @param {ConfigurationOptions} config Botc configuration
    */
-  constructor(private discordConfig: DiscordClientSettings) {
+  constructor(private config: ConfigurationOptions) {
     this.initialize();
   }
 
@@ -39,6 +40,8 @@ export class DiscordClient {
    * Async initialize outside of constructor
    */
   private async initialize(): Promise<void> {
+    this.discordConfig = this.config.clients.discord;
+    this.logger = new Logger(this.config.debugLoggingEnabled.value as boolean);
     this.discordClient = await this.createDiscordClient();
     await this.registerHandlers();
     await this.authenticateDiscordClient();
