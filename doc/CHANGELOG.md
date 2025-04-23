@@ -28,6 +28,12 @@
 - 0.1.x: [0.1.0](#010-2025-01-24)
 
 ---
+## 0.14.1 (2025-04-23)
+- Added `DEBUG_LOGGING_ENABLED` configuration setting to enable extra logging.
+- Reworked how configuration is passed between components.
+
+[:arrow_up: Back to top](#changelog)
+
 ## 0.14.0 (2025-04-22)
 - Added ability to augment the system prompt with additional metadata. Includes fields such as bot name, version, configured LLM, and the new `OPENAI_PROMPT_BOT_BEHAVIOR` environment variable for customizing bot behavior without rewriting the whole system prompt.
 - Updated dependencies.

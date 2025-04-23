@@ -46,9 +46,9 @@ export class Botc {
         ),
       },
       clients: {
-        discord: new DiscordClient(this.config.options.clients.discord),
-        elevenlabs: new ElevenLabs(this.config.options.llms.elevenlabs),
-        openai: new OpenAIClient(this.config.options.llms.openai),
+        discord: new DiscordClient(this.config.options),
+        elevenlabs: new ElevenLabs(this.config.options),
+        openai: new OpenAIClient(this.config.options),
       },
     };
   }

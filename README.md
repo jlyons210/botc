@@ -33,7 +33,6 @@ My intent is for **Botc** to engage with chat users in a more human-like fashion
 
 ## Roadmap
 
-- Separate bot persona configuration that is injected into the main system prompt (`OPENAI_SYSTEM_PROMPT`). Will allow easier bot behavior configuration than requiring modification to a pretty detailed prompt.
 - Follow hyperlinks and summarize pages into conversation context.
 - Image generation using DALL-E 3.
 - Timer for responding if no other users are active in chat.

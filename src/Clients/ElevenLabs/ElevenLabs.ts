@@ -1,5 +1,5 @@
+import { ConfigurationOptions, ElevenLabsSettings } from '../../Botc/Configuration/index.js';
 import { ElevenLabsClient } from 'elevenlabs';
-import { ElevenLabsSettings } from '../../Botc/Configuration/index.js';
 import EventBus from '../../Botc/EventBus/EventBus.js';
 import fs from 'node:fs/promises';
 import { join } from 'node:path';
@@ -11,15 +11,18 @@ import { tmpdir } from 'node:os';
  */
 export class ElevenLabs {
   private readonly client: ElevenLabsClient;
+  private elevenlabsConfig!: ElevenLabsSettings;
   private readonly globalEvents = EventBus.attach();
 
   /**
    * New ElevenLabs client
-   * @param {ElevenLabsSettings} config ElevenLabs configuration
+   * @param {ConfigurationOptions} config Botc configuration
    */
-  constructor(private config: ElevenLabsSettings) {
+  constructor(private config: ConfigurationOptions) {
+    this.elevenlabsConfig = this.config.llms.elevenlabs;
+
     this.client = new ElevenLabsClient({
-      apiKey: config.apikey.value as string,
+      apiKey: this.elevenlabsConfig.apikey.value as string,
     });
 
     this.globalEvents.emit('ElevenLabsClient:Ready', {
@@ -34,9 +37,9 @@ export class ElevenLabs {
    */
   public async generateVoiceFile(text: string): Promise<string> {
     const response = await this.client.generate({
-      model_id: this.config.modelId.value as string,
+      model_id: this.elevenlabsConfig.modelId.value as string,
       text: text,
-      voice: this.config.voiceId.value as string,
+      voice: this.elevenlabsConfig.voiceId.value as string,
       voice_settings: {
         similarity_boost: 0.5,
         stability: 0.5,

@@ -5,6 +5,7 @@
  */
 export interface ConfigurationOptions {
   clients: ClientsSettings;
+  debugLoggingEnabled: ConfigurationSettings;
   llms: LlmsSettings;
 };
 

@@ -25,6 +25,7 @@ Configuration is achieved through environment variables, which are easily config
 
 | Environment | Default | Description |
 | --- | --- | --- |
+| `DEBUG_LOGGING_ENABLED` | `false` | Used to enable debug logging. |
 | `DISCORD_CHANNEL_HISTORY_HOURS` | `24` | Number of hours of past messsages to ingest for conversation context. |
 | `DISCORD_CHANNEL_HISTORY_MESSAGES` | `100` | Number of past messages to ingest per-channel for conversation context. |
 | `DISCORD_MAX_RETRIES` | `5` | Number of times to retry Discord APIs. Retry interval is `1 second * retry count`. |

@@ -1,8 +1,8 @@
+import { ConfigurationOptions, OpenAISettings } from '../../Botc/Configuration/index.js';
 import { ChatCompletionMessageParam } from 'openai/resources/index.mjs';
 import { EventBus } from '../../Botc/EventBus/index.js';
 import { Logger } from '../../Botc/Logger/index.js';
 import OpenAI from 'openai';
-import { OpenAISettings } from '../../Botc/Configuration/index.js';
 
 /**
  * OpenAI client wrapper
@@ -12,20 +12,23 @@ export class OpenAIClient {
   private readonly client: OpenAI;
   private readonly globalEvents = EventBus.attach();
   private readonly logger = new Logger();
+  private openAIConfig!: OpenAISettings;
   private readonly model: string;
 
   /**
    * New OpenAIClient
-   * @param {OpenAISettings} config OpenAI client configuration
+   * @param {ConfigurationOptions} config OpenAI client configuration
    */
-  constructor(private config: OpenAISettings) {
+  constructor(private config: ConfigurationOptions) {
+    this.openAIConfig = this.config.llms.openai;
+
     this.client = new OpenAI({
-      apiKey: config.apikey.value as string,
-      maxRetries: config.maxRetries.value as number,
-      timeout: config.timeout.value as number,
+      apiKey: this.openAIConfig.apikey.value as string,
+      maxRetries: this.openAIConfig.maxRetries.value as number,
+      timeout: this.openAIConfig.timeout.value as number,
     });
 
-    this.model = config.model.value as string;
+    this.model = this.openAIConfig.model.value as string;
 
     this.globalEvents.emit('OpenAIClient:Ready', {
       message: 'OpenAI client is ready.',
@@ -79,7 +82,7 @@ export class OpenAIClient {
    * @returns {Promise<string>} Image description
    */
   public async generateImageDescription(imageUrl: string): Promise<string> {
-    const describeImagePrompt = this.config.describeImagePrompt.value as string;
+    const describeImagePrompt = this.openAIConfig.describeImagePrompt.value as string;
     const payload = [{
       role: 'user',
       content: [
