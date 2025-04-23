@@ -21,13 +21,14 @@ import { Resizer } from './Resizer/index.js';
 export class Botc {
   private config = new Configuration();
   private globalEvents = EventBus.attach();
-  private logger = new Logger();
+  private readonly logger!: Logger;
   private modules: BotcModules;
 
   /**
    * New Botc
    */
   constructor() {
+    this.logger = new Logger(this.config.options.debugLoggingEnabled.value as boolean);
     this.registerHandlers();
 
     this.modules = {
