@@ -4,6 +4,7 @@ import {
   DiscordAPIError,
   Message,
   RESTJSONErrorCodes,
+  TextChannel,
 } from 'discord.js';
 
 import {
@@ -118,6 +119,7 @@ export class BotcMessage {
       resolvedContent,
       `<Message Metadata>`,
       `Preferred name: ${this.displayName}`,
+      `Message channel: ${this.channelName}`,
       `Message timestamp: ${createdTimestampLocal}`,
       imageDescriptions,
       voiceMessageTranscription,
@@ -191,6 +193,24 @@ export class BotcMessage {
    */
   public get channelId(): string {
     return this.message.channel.id;
+  }
+
+  /**
+   * Message channel name
+   * @returns {string} Channel name
+   */
+  public get channelName(): string {
+    switch (true) {
+      case this.message.channel.isDMBased():
+        this.logger.log('Message is a DM', 'DEBUG');
+        return 'Direct Message';
+      case this.message.channel.isTextBased() && this.message.channel instanceof TextChannel:
+        this.logger.log('Message is a text channel', 'DEBUG');
+        return this.message.channel.name;
+      default:
+        this.logger.log('Message is not a text channel', 'DEBUG');
+        return '';
+    }
   }
 
   /**
