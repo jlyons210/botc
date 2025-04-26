@@ -351,13 +351,10 @@ export class Botc {
    */
   private async prepareTextResponse(channelHistory: BotcMessage[]): Promise<string> {
     const lastMessage = channelHistory.at(-1) as BotcMessage;
-    const guildId = lastMessage.guildId;
 
-    // Guild is not populated for direct messages
-    if (guildId) {
-      const authorId = lastMessage.authorId;
-      const persona = await this.generateUserPersona(guildId, authorId);
-
+    if (lastMessage.guildId) {
+      // Respond to channel messages
+      const persona = await this.generateUserPersona(lastMessage.guildId, lastMessage.authorId);
       return await this.generatePersonalizedResponse(channelHistory, persona);
     }
     else if (lastMessage.isDirectMessage || lastMessage.isVoiceMessage) {
