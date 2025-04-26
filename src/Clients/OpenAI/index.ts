@@ -1,2 +1,7 @@
 import { OpenAIClient } from './OpenAIClient.js';
-export { OpenAIClient };
+import { OpenAINotAllowedError } from './OpenAIClient.errors.js';
+
+export {
+  OpenAIClient,
+  OpenAINotAllowedError,
+};
