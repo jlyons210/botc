@@ -4,6 +4,7 @@
 
 ## Pre-release
 
+- 0.15.x: [0.15.0](#0150-2025-04-25)
 - 0.14.x: [0.14.0](#0140-2025-04-22)
 - 0.13.x: [0.13.0](#0130-2025-02-09), [0.13.1](#0131-2025-02-14), [0.13.2](#0132-2025-02-22), [0.13.420](#013420-2025-04-20)
 - 0.12.x: [0.12.0](#0120-2025-02-07)
@@ -28,6 +29,13 @@
 - 0.1.x: [0.1.0](#010-2025-01-24)
 
 ---
+## 0.15.0 (2025-04-25)
+- Implemented image generation and edit capabilities using the `gpt-image-1` model. The code is still messy; I'll clean it up later. Just excited to have this right now.
+- Changed default `OPENAI_API_TIMEOUT` value to 600 seconds. Image generation and edits can take a while.
+- Updated dependencies
+
+[:arrow_up: Back to top](#changelog)
+
 ## 0.14.1 (2025-04-23)
 - Added `DEBUG_LOGGING_ENABLED` configuration setting to enable extra logging.
 - Reworked how configuration is passed between components.
