@@ -332,22 +332,16 @@ export class Botc {
    */
   private async prepareImageResponse(message: BotcMessage): Promise<AttachmentBuilder> {
     const openai = this.modules.clients.openai;
+    const imageUrls = message.attachedImages.map(image => image.imageUrl);
 
-    if (message.hasAttachedImages) {
-      const imageUrls = message.attachedImages.map(image => image.imageUrl);
-      const responseImage = await openai.editImage(message.promptContent, imageUrls);
-      const imageBuffer = Buffer.from(responseImage, 'base64');
-      return new AttachmentBuilder(imageBuffer, {
-        name: `openai-image-${Date.now()}.png`,
-      });
-    }
-    else {
-      const responseImage = await openai.createImage(message.promptContent);
-      const imageBuffer = Buffer.from(responseImage, 'base64');
-      return new AttachmentBuilder(imageBuffer, {
-        name: `openai-image-${Date.now()}.png`,
-      });
-    }
+    const responseImage = (message.hasAttachedImages)
+      ? await openai.editImage(message.promptContent, imageUrls)
+      : await openai.createImage(message.promptContent);
+    const imageBuffer = Buffer.from(responseImage, 'base64');
+
+    return new AttachmentBuilder(imageBuffer, {
+      name: `openai-image-${Date.now()}.png`,
+    });
   }
 
   /**
