@@ -278,7 +278,7 @@ export const ConfigurationDefaults: ConfigurationOptions = {
        */
       timeout: {
         environmentVariable: 'OPENAI_TIMEOUT',
-        value: 30000,
+        value: 600000,
       },
 
     },
