@@ -1,3 +1,4 @@
+import { AttachmentBuilder } from 'discord.js';
 import { BotcMessage } from '../index.js';
 
 /**
@@ -19,7 +20,7 @@ export interface EventMap {
   'Botc:ResponseComplete': {
     channelId: string,
     content: string,
-    filenames: string[],
+    attachments: AttachmentBuilder[],
   };
 
   'DiscordClient:IncomingMessage': {

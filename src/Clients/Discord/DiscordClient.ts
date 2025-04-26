@@ -1,5 +1,4 @@
 import {
-  AttachmentBuilder,
   ChannelType,
   Client,
   DiscordAPIError,
@@ -99,12 +98,8 @@ export class DiscordClient {
    * @param {EventMap['OpenAIClient:ResponseComplete']} payload Response payload
    */
   public async handleResponseComplete(payload: EventMap['Botc:ResponseComplete']): Promise<void> {
-    const { channelId, content, filenames } = payload;
+    const { channelId, content, attachments } = payload;
     const maxRetries = this.discordConfig.maxDiscordRetries.value as number;
-
-    const attachments = (filenames?.length)
-      ? filenames.map(filename => new AttachmentBuilder(filename))
-      : [];
 
     const channel = await this.discordClient.channels.fetch(channelId);
 

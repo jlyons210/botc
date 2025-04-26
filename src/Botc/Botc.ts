@@ -6,6 +6,7 @@ import {
 } from './index.js';
 
 import { EventBus, EventMap } from './EventBus/index.js';
+import { AttachmentBuilder } from 'discord.js';
 import { ChatCompletionMessageParam } from 'openai/resources/index.mjs';
 import { Configuration } from './Configuration/index.js';
 import { DiscordClient } from '../Clients/Discord/index.js';
@@ -106,6 +107,10 @@ export class Botc {
       await this.describeImages(channelHistory);
       await this.transcribeVoiceMessages(channelHistory);
       const botWillRespond = await this.willReplyToMessage(channelHistory);
+      const isImageGenerationPrompt = await this.isImageGenerationPrompt(lastMessage);
+      this.logger.log(`Message is image generation prompt: ${isImageGenerationPrompt}`, 'DEBUG');
+      const isImageEditPrompt = await this.isImageEditPrompt(lastMessage);
+      this.logger.log(`Message is image edit prompt: ${isImageEditPrompt}`, 'DEBUG');
 
       if (botWillRespond) {
         // Start typing indicator
@@ -115,18 +120,35 @@ export class Botc {
           this.startTyping(channelId);
         }, 9000);
 
-        const responseContent = await this.prepareResponse(channelHistory);
+        const payload: EventMap['Botc:ResponseComplete'] = {
+          channelId: channelId,
+          content: '',
+          attachments: [],
+        };
 
-        const attachments = [];
-        if (lastMessage.isVoiceMessage) {
-          const elevenlabs = this.modules.clients.elevenlabs;
-          const voiceMessage = await elevenlabs.generateVoiceFile(responseContent);
-          attachments.push(voiceMessage);
+        try {
+          if (lastMessage.isVoiceMessage) {
+            this.logger.log(`Voice message detected.`, 'DEBUG');
+            const textResponse = await this.prepareTextResponse(channelHistory);
+            payload.attachments.push(await this.prepareVoiceResponse(textResponse));
+          }
+          else if (isImageEditPrompt) {
+            this.logger.log(`Image edit prompt detected.`, 'DEBUG');
+            payload.attachments.push(await this.prepareImageResponse(lastMessage));
+          }
+          else if (isImageGenerationPrompt) {
+            this.logger.log(`Image generation prompt detected.`, 'DEBUG');
+            payload.attachments.push(await this.prepareImageResponse(lastMessage));
+          }
+          else {
+            this.logger.log(`Text message detected.`, 'DEBUG');
+            payload.content = await this.prepareTextResponse(channelHistory);
+          }
         }
-
-        const payload = (lastMessage.isVoiceMessage)
-          ? { channelId, content: '', filenames: attachments }
-          : { channelId, content: responseContent, filenames: [] };
+        catch (error) {
+          this.logger.log(`Error preparing response: ${error}`, 'ERROR');
+          payload.content = 'There was an error preparing the response.';
+        }
 
         // Stop triggering typing indicator
         clearInterval(typingInterval);
@@ -253,6 +275,37 @@ export class Botc {
   }
 
   /**
+   * Check if the message is an image edit prompt
+   * @param {BotcMessage} message Message to check
+   * @returns {Promise<boolean>} true if the message is an image edit prompt
+   */
+  private async isImageEditPrompt(message: BotcMessage): Promise<boolean> {
+    const openai = this.modules.clients.openai;
+    const payload = await this.createPromptPayload([message], {
+      value: 'Is this message an image edit prompt? Respond with "yes" or "no".',
+      append: false,
+    });
+    const response = await openai.createCompletion(payload);
+    return (response.toLowerCase() === 'yes');
+  }
+
+  /**
+   * Check if the message is an image generation prompt
+   * @param {BotcMessage} message Message to check
+   * @returns {Promise<boolean>} true if the message is an image generation prompt
+   */
+  private async isImageGenerationPrompt(message: BotcMessage): Promise<boolean> {
+    const openai = this.modules.clients.openai;
+    const payload = await this.createPromptPayload([message], {
+      value: 'Is this message an image generation prompt? Respond with "yes" or "no".',
+      append: false,
+    });
+    const response = await openai.createCompletion(payload);
+
+    return (response.toLowerCase() === 'yes');
+  }
+
+  /**
    * Prefetch image descriptions for all guilds
    * @param {BotcMessage[]} allGuildsHistory Message history
    */
@@ -273,11 +326,45 @@ export class Botc {
   }
 
   /**
+   * Prepare image response
+   * @param {BotcMessage} message Message to prepare
+   * @returns {Promise<AttachmentBuilder>} Prepared image attachment
+   */
+  private async prepareImageResponse(message: BotcMessage): Promise<AttachmentBuilder> {
+    const openai = this.modules.clients.openai;
+
+    if (message.hasAttachedImages) {
+      this.logger.log(`Editing image...`, 'DEBUG');
+      const imageUrls = message.attachedImages.map(image => image.imageUrl);
+      const image = await openai.editImage(message.promptContent, imageUrls);
+      this.logger.log(`Image edited. Creating attachment...`, 'DEBUG');
+      const imageBuffer = Buffer.from(image, 'base64');
+      const attachment = new AttachmentBuilder(imageBuffer, {
+        name: `openai-image-${Date.now()}.png`,
+      });
+
+      this.logger.log(`Attachment created.`, 'DEBUG');
+      return attachment;
+    }
+    else {
+      this.logger.log(`Generating new image...`, 'DEBUG');
+      const image = await openai.createImage(message.promptContent);
+      this.logger.log(`Image generated. Creating attachment...`, 'DEBUG');
+      const imageBuffer = Buffer.from(image, 'base64');
+      const attachment = new AttachmentBuilder(imageBuffer, {
+        name: `openai-image-${Date.now()}.png`,
+      });
+      this.logger.log(`Attachment created.`, 'DEBUG');
+      return attachment;
+    }
+  }
+
+  /**
    * Prepare Discord message response
    * @param {BotcMessage[]} channelHistory Channel message history
    * @returns {Promise<string>} Response message
    */
-  private async prepareResponse(channelHistory: BotcMessage[]): Promise<string> {
+  private async prepareTextResponse(channelHistory: BotcMessage[]): Promise<string> {
     const lastMessage = channelHistory.at(-1) as BotcMessage;
     const guildId = lastMessage.guildId;
 
@@ -296,6 +383,17 @@ export class Botc {
       // This should never happen
       throw new Error('OpenAIClient.prepareResponse: Guild not found');
     }
+  }
+
+  /**
+   * Prepare voice response
+   * @param {string} responseText Response text
+   * @returns {Promise<AttachmentBuilder>} Prepared voice attachment
+   */
+  private async prepareVoiceResponse(responseText: string): Promise<AttachmentBuilder> {
+    const elevenlabs = this.modules.clients.elevenlabs;
+    const voiceMessage = await elevenlabs.generateVoiceFile(responseText);
+    return new AttachmentBuilder(voiceMessage);
   }
 
   /**

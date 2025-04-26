@@ -37,7 +37,7 @@ Configuration is achieved through environment variables, which are easily config
 | `OPENAI_PROMPT_BOT_BEHAVIOR` | `String` | Optional field for further customizing the bot behavior without re-writing the full system prompt. |
 | `OPENAI_REPLY_DECISION_PROMPT` | [Source](https://github.com/jlyons210/botc/blob/main/src/Botc/Configuration/Configuration.defaults.ts) | Prompt used to reason whether or not the bot should engage in conversation. |
 | `OPENAI_SYSTEM_PROMPT` | [Source](https://github.com/jlyons210/botc/blob/main/src/Botc/Configuration/Configuration.defaults.ts) | Behavioral prompt to set the overall bot behavior. |
-| `OPENAI_TIMEOUT` | `30000` | Milliseconds to wait for OpenAI API response. |
+| `OPENAI_TIMEOUT` | `600000` | Milliseconds to wait for OpenAI API response. |
 
 [:arrow_up: Back to top](#configuration)
 
