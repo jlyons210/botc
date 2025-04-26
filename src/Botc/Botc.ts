@@ -334,28 +334,19 @@ export class Botc {
     const openai = this.modules.clients.openai;
 
     if (message.hasAttachedImages) {
-      this.logger.log(`Editing image...`, 'DEBUG');
       const imageUrls = message.attachedImages.map(image => image.imageUrl);
-      const image = await openai.editImage(message.promptContent, imageUrls);
-      this.logger.log(`Image edited. Creating attachment...`, 'DEBUG');
-      const imageBuffer = Buffer.from(image, 'base64');
-      const attachment = new AttachmentBuilder(imageBuffer, {
+      const responseImage = await openai.editImage(message.promptContent, imageUrls);
+      const imageBuffer = Buffer.from(responseImage, 'base64');
+      return new AttachmentBuilder(imageBuffer, {
         name: `openai-image-${Date.now()}.png`,
       });
-
-      this.logger.log(`Attachment created.`, 'DEBUG');
-      return attachment;
     }
     else {
-      this.logger.log(`Generating new image...`, 'DEBUG');
-      const image = await openai.createImage(message.promptContent);
-      this.logger.log(`Image generated. Creating attachment...`, 'DEBUG');
-      const imageBuffer = Buffer.from(image, 'base64');
-      const attachment = new AttachmentBuilder(imageBuffer, {
+      const responseImage = await openai.createImage(message.promptContent);
+      const imageBuffer = Buffer.from(responseImage, 'base64');
+      return new AttachmentBuilder(imageBuffer, {
         name: `openai-image-${Date.now()}.png`,
       });
-      this.logger.log(`Attachment created.`, 'DEBUG');
-      return attachment;
     }
   }
 
