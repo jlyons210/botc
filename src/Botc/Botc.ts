@@ -310,8 +310,8 @@ export class Botc {
     const imageUrls = message.attachedImages.map(image => image.imageUrl);
 
     const responseImage = (message.hasAttachedImages)
-      ? await openai.editImage(message.promptContent, imageUrls)
-      : await openai.createImage(message.promptContent);
+      ? await openai.editImage(message.content, imageUrls)
+      : await openai.createImage(message.content);
     const imageBuffer = Buffer.from(responseImage, 'base64');
 
     return new AttachmentBuilder(imageBuffer, {
