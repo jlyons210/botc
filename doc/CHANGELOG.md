@@ -4,6 +4,7 @@
 
 ## Pre-release
 
+- 0.16.x: [0.16.0](#0160-2025-04-27)
 - 0.15.x: [0.15.0](#0150-2025-04-25), [0.15.1](#0151-2025-04-27)
 - 0.14.x: [0.14.0](#0140-2025-04-22)
 - 0.13.x: [0.13.0](#0130-2025-02-09), [0.13.1](#0131-2025-02-14), [0.13.2](#0132-2025-02-22), [0.13.420](#013420-2025-04-20)
@@ -21,6 +22,11 @@
 - 0.1.x: [0.1.0](#010-2025-01-24)
 
 ---
+## 0.16.0 (2025-04-27)
+- Added the ability to reply to a message that has an attached image and prompt for image edits.
+
+[:arrow_up: Back to top](#changelog)
+
 ## 0.15.1 (2025-04-27)
 - Performance-optimized code path when handling incoming messages.
 - Fixed a "bug" where message metadata was included in image edit prompts, resulting in things like usernames randomly appearing in generated images.
