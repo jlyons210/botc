@@ -101,18 +101,13 @@ export class Botc {
     const discord = this.modules.clients.discord;
     const lastMessage = data.message;
     const channelId = lastMessage.channelId;
-    const channelHistory = await discord.getChannelHistory(channelId);
 
     if (lastMessage) {
+      const channelHistory = await discord.getChannelHistory(channelId);
       await this.describeImages(channelHistory);
       await this.transcribeVoiceMessages(channelHistory);
-      const botWillRespond = await this.willReplyToMessage(channelHistory);
-      const isImageGenerationPrompt = await this.isImageGenerationPrompt(lastMessage);
-      this.logger.log(`Message is image generation prompt: ${isImageGenerationPrompt}`, 'DEBUG');
-      const isImageEditPrompt = await this.isImageEditPrompt(lastMessage);
-      this.logger.log(`Message is image edit prompt: ${isImageEditPrompt}`, 'DEBUG');
 
-      if (botWillRespond) {
+      if (await this.willReplyToMessage(channelHistory)) {
         // Start typing indicator
         this.startTyping(channelId);
         // ...and keep it going until the response is ready - it times out after 10 seconds
@@ -127,21 +122,16 @@ export class Botc {
         };
 
         try {
+          const isImageGenerationPrompt = await this.isImageGenerationPrompt(lastMessage);
+
           if (lastMessage.isVoiceMessage) {
-            this.logger.log(`Voice message detected.`, 'DEBUG');
             const textResponse = await this.prepareTextResponse(channelHistory);
             payload.attachments.push(await this.prepareVoiceResponse(textResponse));
           }
-          else if (isImageEditPrompt) {
-            this.logger.log(`Image edit prompt detected.`, 'DEBUG');
-            payload.attachments.push(await this.prepareImageResponse(lastMessage));
-          }
           else if (isImageGenerationPrompt) {
-            this.logger.log(`Image generation prompt detected.`, 'DEBUG');
             payload.attachments.push(await this.prepareImageResponse(lastMessage));
           }
           else {
-            this.logger.log(`Text message detected.`, 'DEBUG');
             payload.content = await this.prepareTextResponse(channelHistory);
           }
         }
@@ -275,21 +265,6 @@ export class Botc {
   }
 
   /**
-   * Check if the message is an image edit prompt
-   * @param {BotcMessage} message Message to check
-   * @returns {Promise<boolean>} true if the message is an image edit prompt
-   */
-  private async isImageEditPrompt(message: BotcMessage): Promise<boolean> {
-    const openai = this.modules.clients.openai;
-    const payload = await this.createPromptPayload([message], {
-      value: 'Is this message an image edit prompt? Respond with "yes" or "no".',
-      append: false,
-    });
-    const response = await openai.createCompletion(payload);
-    return (response.toLowerCase() === 'yes');
-  }
-
-  /**
    * Check if the message is an image generation prompt
    * @param {BotcMessage} message Message to check
    * @returns {Promise<boolean>} true if the message is an image generation prompt
@@ -297,7 +272,7 @@ export class Botc {
   private async isImageGenerationPrompt(message: BotcMessage): Promise<boolean> {
     const openai = this.modules.clients.openai;
     const payload = await this.createPromptPayload([message], {
-      value: 'Is this message an image generation prompt? Respond with "yes" or "no".',
+      value: 'Is this message an image generation or image edit prompt? Respond with "yes" or "no".',
       append: false,
     });
     const response = await openai.createCompletion(payload);
