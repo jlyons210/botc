@@ -4,35 +4,35 @@
 
 ## Pre-release
 
-- 0.15.x: [0.15.0](#0150-2025-04-25)
+- 0.15.x: [0.15.0](#0150-2025-04-25), [0.15.1](#0151-2025-04-27)
 - 0.14.x: [0.14.0](#0140-2025-04-22)
 - 0.13.x: [0.13.0](#0130-2025-02-09), [0.13.1](#0131-2025-02-14), [0.13.2](#0132-2025-02-22), [0.13.420](#013420-2025-04-20)
 - 0.12.x: [0.12.0](#0120-2025-02-07)
 - 0.11.x: [0.11.0](#0110-2025-02-07), [0.11.1](#0111-2025-02-07)
 - 0.10.x: [0.10.0](#0100-2025-02-07)
 - 0.9.x: [0.9.0](#090-2025-02-06)
-- 0.8.x:
-    [0.8.0](#080-2025-02-04),
-    [0.8.1](#081-2025-02-05),
-    [0.8.2](#082-2025-02-05),
-    [0.8.3](#083-2025-02-06),
-    [0.8.4](#084-2025-02-06),
-    [0.8.5](#085-2025-02-06)
+- 0.8.x: [0.8.0](#080-2025-02-04), [0.8.1](#081-2025-02-05), [0.8.2](#082-2025-02-05), [0.8.3](#083-2025-02-06), [0.8.4](#084-2025-02-06), [0.8.5](#085-2025-02-06)
 - 0.7.x: [0.7.0](#070-2025-02-04)
 - 0.6.x: [0.6.0](#060-2025-02-03)
 - 0.5.x: [0.5.0](#050-2025-02-03)
 - 0.4.x: [0.4.0](#040-2025-02-02)
-- 0.3.x:
-    [0.3.0](#030-2025-02-01),
-    [0.3.1](#031-2025-02-02)
+- 0.3.x: [0.3.0](#030-2025-02-01), [0.3.1](#031-2025-02-02)
 - 0.2.x: [0.2.0](#020-2025-01-26)
 - 0.1.x: [0.1.0](#010-2025-01-24)
 
 ---
+## 0.15.1 (2025-04-27)
+- Performance-optimized code path when handling incoming messages.
+- Fixed a "bug" where message metadata was included in image edit prompts, resulting in things like usernames randomly appearing in generated images.
+- Other light refactoring.
+- Updated dependencies.
+
+[:arrow_up: Back to top](#changelog)
+
 ## 0.15.0 (2025-04-25)
 - Implemented image generation and edit capabilities using the `gpt-image-1` model. The code is still messy; I'll clean it up later. Just excited to have this right now.
 - Changed default `OPENAI_API_TIMEOUT` value to 600 seconds. Image generation and edits can take a while.
-- Updated dependencies
+- Updated dependencies.
 
 [:arrow_up: Back to top](#changelog)
 
