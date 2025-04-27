@@ -57,12 +57,10 @@ export class BotcMessage {
    * @returns {Promise<string | undefined>} Context of the message that was replied to
    */
   private async getMessageReplyContext(): Promise<string | undefined> {
-    if (this.isReply && this.message.reference?.messageId) {
+    if (this.isReply && this.replyToMessage) {
       try {
-        const replyMessageId = this.message.reference.messageId;
-        const replyMessage = await this.message.channel.messages.fetch(replyMessageId);
-        const replyContent = replyMessage.content;
-        const replyAuthor = replyMessage.author.displayName || replyMessage.author.username;
+        const replyMessage = this.replyToMessage;
+        const replyAuthor = replyMessage.message.author.displayName || replyMessage.message.author.username;
         const replyTimestampLocal = new Date(replyMessage.createdTimestamp).toLocaleString('en-US');
 
         return [
@@ -70,7 +68,7 @@ export class BotcMessage {
           `Focus your response on this message that was replied to:`,
           `- Message author: ${replyAuthor}`,
           `- Message timestamp: ${replyTimestampLocal}`,
-          `- Message content: ${replyContent}`,
+          `- Message content: ${replyMessage.content}`,
           `---`,
         ].join('\n');
       }
@@ -356,6 +354,26 @@ export class BotcMessage {
       this._nameSanitized = this.message.author.username.replace(/[^a-zA-Z0-9_-]/g, '-');
     }
     return this._nameSanitized;
+  }
+
+  /**
+   * Message that this message is replying to
+   * @returns {BotcMessage | undefined} BotcMessage object, undefined if not a reply
+   */
+  public get replyToMessage(): BotcMessage | undefined {
+    if (this.isReply && this.message.reference?.messageId) {
+      const replyMessageId = this.message.reference.messageId;
+      const replyMessage = this.message.channel.messages.cache.get(replyMessageId);
+
+      if (replyMessage) {
+        return new BotcMessage({
+          botUserId: this.botUserId,
+          discordMessage: replyMessage,
+        });
+      }
+    }
+
+    return undefined;
   }
 
   /**
