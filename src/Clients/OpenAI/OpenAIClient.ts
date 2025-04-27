@@ -61,7 +61,7 @@ export class OpenAIClient {
         this.logger.log(`OpenAIClient.createCompletion: payload: ${JSON.stringify(payload)}`, 'DEBUG');
       }
 
-      return '';
+      throw new OpenAINotAllowedError('OpenAI API rejected the request.');
     }
   }
 
@@ -94,7 +94,7 @@ export class OpenAIClient {
         this.logger.log(`OpenAIClient.createImage: prompt: ${JSON.stringify(prompt)}`, 'DEBUG');
       }
 
-      return '';
+      throw new OpenAINotAllowedError('OpenAI API rejected the request.');
     }
   }
 
