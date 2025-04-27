@@ -9,8 +9,8 @@ import packageJson from '../../../package.json' with { type: 'json' };
 
 /** Configuration */
 export class Configuration {
-  private _options: ConfigurationOptions;
-  private logger = new Logger();
+  private readonly _options: ConfigurationOptions;
+  private readonly logger = new Logger();
 
   /** Load Configuration */
   constructor() {
