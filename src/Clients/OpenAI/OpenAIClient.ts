@@ -66,47 +66,12 @@ export class OpenAIClient {
   }
 
   /**
-   * Create image
-   * @param {string} prompt Image creation prompt
+   * Generate or edit an image
+   * @param {string} prompt Image creation or editing prompt
+   * @param {string[]} imageUrls Image URLs
    * @returns {Promise<string>} Image base64 string
    */
-  public async createImage(prompt: string): Promise<string> {
-    try {
-      const image = await this.client.images.generate({
-        prompt: prompt,
-        model: 'gpt-image-1',
-        n: 1,
-        moderation: 'low',
-        output_format: 'png',
-      });
-
-      return (image.data && image.data.length > 0)
-        ? image.data[0].b64_json as string
-        : '';
-    }
-    catch (error) {
-      if (error instanceof OpenAI.APIError) {
-        this.logger.log(`OpenAIClient.createImage: OpenAI API error.`, 'ERROR');
-        this.logger.log(`OpenAIClient.createImage: error: ${error.message}`, 'ERROR');
-      }
-      else {
-        this.logger.log(`OpenAIClient.createImage: ${error}`, 'ERROR');
-        this.logger.log(`OpenAIClient.createImage: prompt: ${JSON.stringify(prompt)}`, 'DEBUG');
-      }
-
-      throw new OpenAINotAllowedError('OpenAI API rejected the request.');
-    }
-  }
-
-  /**
-   * Edit image
-   * @param {string} prompt Image editing prompt
-   * @param {string[]} imageUrls Image URLs
-   * @returns {Promise<string>} Edited image base64 string
-   */
-  public async editImage(prompt: string, imageUrls: string[]): Promise<string> {
-    this.logger.log(`OpenAIClient.editImage: imageUrls: ${JSON.stringify(imageUrls)}`, 'DEBUG');
-
+  public async createImage(prompt: string, imageUrls: string[] = []): Promise<string> {
     const imageFiles = await Promise.all(imageUrls.map(async (url) => {
       const response = await fetch(url);
       const blob = await response.blob();
@@ -116,25 +81,36 @@ export class OpenAIClient {
     }));
 
     try {
-      const image = await this.client.images.edit({
-        prompt: prompt,
-        model: 'gpt-image-1',
-        n: 1,
-        image: imageFiles,
-      });
+      const response = (imageFiles.length > 0)
+        ? await await this.client.images.edit({
+          prompt: prompt,
+          model: 'gpt-image-1',
+          n: 1,
+          image: imageFiles,
+        })
+        : await this.client.images.generate({
+          prompt: prompt,
+          model: 'gpt-image-1',
+          n: 1,
+          moderation: 'low',
+          output_format: 'png',
+        });
 
-      return (image.data && image.data.length > 0)
-        ? image.data[0].b64_json as string
-        : '';
+      if (response.data && response.data.length > 0) {
+        return response.data[0].b64_json as string;
+      }
+      else {
+        throw new OpenAINotAllowedError('OpenAI API rejected the request.');
+      }
     }
     catch (error) {
       if (error instanceof OpenAI.APIError) {
-        this.logger.log(`OpenAIClient.editImage: OpenAI API error.`, 'ERROR');
-        this.logger.log(`OpenAIClient.editImage: error: ${error.message}`, 'ERROR');
+        this.logger.log(`OpenAIClient.generateImage: OpenAI API error.`, 'ERROR');
+        this.logger.log(`OpenAIClient.generateImage: error: ${error.message}`, 'ERROR');
       }
       else {
-        this.logger.log(`OpenAIClient.editImage: ${error}`, 'ERROR');
-        this.logger.log(`OpenAIClient.editImage: prompt: ${JSON.stringify(prompt)}`, 'DEBUG');
+        this.logger.log(`OpenAIClient.generateImage: ${error}`, 'ERROR');
+        this.logger.log(`OpenAIClient.generateImage: prompt: ${JSON.stringify(prompt)}`, 'DEBUG');
       }
 
       throw new OpenAINotAllowedError('OpenAI API rejected the request.');
