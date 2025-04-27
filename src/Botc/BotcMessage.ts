@@ -26,7 +26,6 @@ export class BotcMessage {
   private _attachedImages: BotcMessageImageAttachment[] = [];
   private _imageDescriptions: string[] = [];
   private _nameSanitized!: string;
-  private _replyContext!: string | undefined;
   private _voiceMessageTranscription: string | undefined;
 
   /**
@@ -43,7 +42,6 @@ export class BotcMessage {
    * Initialize the BotcMessage object
    */
   private async initialize(): Promise<void> {
-    await this.addMessageReplyContext();
   }
 
   /**
@@ -56,22 +54,21 @@ export class BotcMessage {
 
   /**
    * Add the context of the message that was replied to for prompt enrichment
+   * @returns {Promise<string | undefined>} Context of the message that was replied to
    */
-  private async addMessageReplyContext(): Promise<void> {
-    if (this.isReply && this.message.reference?.messageId) {
+  private async getMessageReplyContext(): Promise<string | undefined> {
+    if (this.isReply && this.replyToMessage) {
       try {
-        const replyMessageId = this.message.reference.messageId;
-        const replyMessage = await this.message.channel.messages.fetch(replyMessageId);
-        const replyContent = replyMessage.content;
-        const replyAuthor = replyMessage.author.displayName || replyMessage.author.username;
+        const replyMessage = this.replyToMessage;
+        const replyAuthor = replyMessage.message.author.displayName || replyMessage.message.author.username;
         const replyTimestampLocal = new Date(replyMessage.createdTimestamp).toLocaleString('en-US');
 
-        this._replyContext = [
+        return [
           `---`,
           `Focus your response on this message that was replied to:`,
           `- Message author: ${replyAuthor}`,
           `- Message timestamp: ${replyTimestampLocal}`,
-          `- Message content: ${replyContent}`,
+          `- Message content: ${replyMessage.content}`,
           `---`,
         ].join('\n');
       }
@@ -87,7 +84,7 @@ export class BotcMessage {
           this.logger.log(`Failed to fetch reply message: ${error}`, 'ERROR');
         }
 
-        this._replyContext = [
+        return [
           `---`,
           'The message that was replied to was deleted.',
           `---`,
@@ -101,19 +98,21 @@ export class BotcMessage {
    * @returns {string} Prompt content
    */
   private getPromptContent(): string {
-    const resolvedContent = (this.content === '' && this.voiceMessageTranscription)
-      ? this.voiceMessageTranscription
-      : this.resolveTaggedUsers();
+    const createdTimestampLocal = new Date(this.createdTimestamp).toLocaleString('en-US');
 
     const imageDescriptions = (this.hasAttachedImages)
       ? `Image descriptions:\n${this.imageDescriptions.join('\n---\n')}`
       : undefined;
 
+    const replyContext = this.getMessageReplyContext();
+
+    const resolvedContent = (this.content === '' && this.voiceMessageTranscription)
+      ? this.voiceMessageTranscription
+      : this.resolveTaggedUsers();
+
     const voiceMessageTranscription = (this.voiceMessageTranscription)
       ? `Voice message transcription:\n${this.voiceMessageTranscription}`
       : undefined;
-
-    const createdTimestampLocal = new Date(this.createdTimestamp).toLocaleString('en-US');
 
     const promptContent = [
       resolvedContent,
@@ -123,7 +122,7 @@ export class BotcMessage {
       `Message timestamp: ${createdTimestampLocal}`,
       imageDescriptions,
       voiceMessageTranscription,
-      this.replyContext,
+      replyContext,
       `</Message Metadata>`,
     ].join('\n');
 
@@ -358,11 +357,23 @@ export class BotcMessage {
   }
 
   /**
-   * Context of the message that was replied to for the OpenAI prompt
-   * @returns {string | undefined} Prompt context
+   * Message that this message is replying to
+   * @returns {BotcMessage | undefined} BotcMessage object, undefined if not a reply
    */
-  public get replyContext(): string | undefined {
-    return this._replyContext;
+  public get replyToMessage(): BotcMessage | undefined {
+    if (this.isReply && this.message.reference?.messageId) {
+      const replyMessageId = this.message.reference.messageId;
+      const replyMessage = this.message.channel.messages.cache.get(replyMessageId);
+
+      if (replyMessage) {
+        return new BotcMessage({
+          botUserId: this.botUserId,
+          discordMessage: replyMessage,
+        });
+      }
+    }
+
+    return undefined;
   }
 
   /**

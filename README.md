@@ -27,7 +27,7 @@ My intent is for **Botc** to engage with chat users in a more human-like fashion
 - Bot builds a guild-wide persona of users being engaged to enhance responses. Personas are cached to limit API polling.
 - Examine and comprehend user image attachments and voice messages. Image descriptions and transcriptions are cached to limit API polling.
 - Responds to voice messages using voice - generated using text-to-speech from ElevenLabs.
-- Produce and edit images using the OpenAI `gpt-image-1` model.
+- Produce and edit images using the OpenAI `gpt-image-1` model. Edit images posted by others by replying to an image and prompting.
 - System/developer prompts and individual messages have a metadata section that enables richer bot responses.
 
 [View Changelog](doc/CHANGELOG.md)
