@@ -26,7 +26,6 @@ export class BotcMessage {
   private _attachedImages: BotcMessageImageAttachment[] = [];
   private _imageDescriptions: string[] = [];
   private _nameSanitized!: string;
-  private _replyContext!: string | undefined;
   private _voiceMessageTranscription: string | undefined;
 
   /**
@@ -43,7 +42,6 @@ export class BotcMessage {
    * Initialize the BotcMessage object
    */
   private async initialize(): Promise<void> {
-    await this.addMessageReplyContext();
   }
 
   /**
@@ -56,8 +54,9 @@ export class BotcMessage {
 
   /**
    * Add the context of the message that was replied to for prompt enrichment
+   * @returns {Promise<string | undefined>} Context of the message that was replied to
    */
-  private async addMessageReplyContext(): Promise<void> {
+  private async getMessageReplyContext(): Promise<string | undefined> {
     if (this.isReply && this.message.reference?.messageId) {
       try {
         const replyMessageId = this.message.reference.messageId;
@@ -66,7 +65,7 @@ export class BotcMessage {
         const replyAuthor = replyMessage.author.displayName || replyMessage.author.username;
         const replyTimestampLocal = new Date(replyMessage.createdTimestamp).toLocaleString('en-US');
 
-        this._replyContext = [
+        return [
           `---`,
           `Focus your response on this message that was replied to:`,
           `- Message author: ${replyAuthor}`,
@@ -87,7 +86,7 @@ export class BotcMessage {
           this.logger.log(`Failed to fetch reply message: ${error}`, 'ERROR');
         }
 
-        this._replyContext = [
+        return [
           `---`,
           'The message that was replied to was deleted.',
           `---`,
@@ -101,19 +100,21 @@ export class BotcMessage {
    * @returns {string} Prompt content
    */
   private getPromptContent(): string {
-    const resolvedContent = (this.content === '' && this.voiceMessageTranscription)
-      ? this.voiceMessageTranscription
-      : this.resolveTaggedUsers();
+    const createdTimestampLocal = new Date(this.createdTimestamp).toLocaleString('en-US');
 
     const imageDescriptions = (this.hasAttachedImages)
       ? `Image descriptions:\n${this.imageDescriptions.join('\n---\n')}`
       : undefined;
 
+    const replyContext = this.getMessageReplyContext();
+
+    const resolvedContent = (this.content === '' && this.voiceMessageTranscription)
+      ? this.voiceMessageTranscription
+      : this.resolveTaggedUsers();
+
     const voiceMessageTranscription = (this.voiceMessageTranscription)
       ? `Voice message transcription:\n${this.voiceMessageTranscription}`
       : undefined;
-
-    const createdTimestampLocal = new Date(this.createdTimestamp).toLocaleString('en-US');
 
     const promptContent = [
       resolvedContent,
@@ -123,7 +124,7 @@ export class BotcMessage {
       `Message timestamp: ${createdTimestampLocal}`,
       imageDescriptions,
       voiceMessageTranscription,
-      this.replyContext,
+      replyContext,
       `</Message Metadata>`,
     ].join('\n');
 
@@ -355,14 +356,6 @@ export class BotcMessage {
       this._nameSanitized = this.message.author.username.replace(/[^a-zA-Z0-9_-]/g, '-');
     }
     return this._nameSanitized;
-  }
-
-  /**
-   * Context of the message that was replied to for the OpenAI prompt
-   * @returns {string | undefined} Prompt context
-   */
-  public get replyContext(): string | undefined {
-    return this._replyContext;
   }
 
   /**
