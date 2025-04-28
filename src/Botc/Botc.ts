@@ -312,7 +312,7 @@ export class Botc {
       ...(message.replyToMessage?.attachedImages.map(image => image.imageUrl) || []),
     ];
 
-    const responseImage = await openai.createImage(message.promptContent, imageUrls);
+    const responseImage = await openai.createImage(message.content, imageUrls);
     const imageBuffer = Buffer.from(responseImage, 'base64');
 
     return new AttachmentBuilder(imageBuffer, {
