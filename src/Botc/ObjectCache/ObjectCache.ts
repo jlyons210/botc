@@ -6,8 +6,8 @@ import { Logger } from '../Logger/index.js';
  * Multi-purpose key-value cache
  */
 export class ObjectCache {
-  private cached: CacheEntry = {};
-  private logger = new Logger();
+  private readonly cached: CacheEntry = {};
+  private readonly logger = new Logger();
 
   /**
    * New object cache

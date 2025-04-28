@@ -11,7 +11,7 @@ import { tmpdir } from 'node:os';
  */
 export class ElevenLabs {
   private readonly client: ElevenLabsClient;
-  private elevenlabsConfig!: ElevenLabsSettings;
+  private readonly elevenlabsConfig: ElevenLabsSettings;
   private readonly globalEvents = EventBus.attach();
 
   /**

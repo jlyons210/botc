@@ -20,10 +20,10 @@ import { Resizer } from './Resizer/index.js';
  * Botc core class
  */
 export class Botc {
-  private config = new Configuration();
-  private globalEvents = EventBus.attach();
-  private readonly logger!: Logger;
-  private modules: BotcModules;
+  private readonly config = new Configuration();
+  private readonly globalEvents = EventBus.attach();
+  private readonly logger: Logger;
+  private readonly modules: BotcModules;
 
   /**
    * New Botc
@@ -312,7 +312,7 @@ export class Botc {
       ...(message.replyToMessage?.attachedImages.map(image => image.imageUrl) || []),
     ];
 
-    const responseImage = await openai.createImage(message.promptContent, imageUrls);
+    const responseImage = await openai.createImage(message.content, imageUrls);
     const imageBuffer = Buffer.from(responseImage, 'base64');
 
     return new AttachmentBuilder(imageBuffer, {
