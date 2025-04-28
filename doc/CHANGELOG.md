@@ -22,6 +22,11 @@
 - 0.1.x: [0.1.0](#010-2025-01-24)
 
 ---
+## 0.16.1 (2025-04-27)
+- Fixed a regression that reintroduced the "metadata in image prompt" bug fixed in [0.15.1](#0151-2025-04-27).
+
+[:arrow_up: Back to top](#changelog)
+
 ## 0.16.0 (2025-04-27)
 - Added the ability to reply to a message that has an attached image and prompt for image edits.
 
