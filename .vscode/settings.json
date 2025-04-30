@@ -2,5 +2,7 @@
   "editor.fontSize": 12,
   "editor.lineHeight": 1.75,
   "editor.tabSize": 2,
+  "git.branchProtection": ["main"],
+  "git.branchProtectionPrompt": "alwaysPrompt",
   "typescript.tsdk": "node_modules/typescript/lib",
 }
