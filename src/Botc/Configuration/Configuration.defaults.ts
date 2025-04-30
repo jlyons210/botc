@@ -254,7 +254,7 @@ export const ConfigurationDefaults: ConfigurationOptions = {
       systemPrompt: {
         environmentVariable: 'OPENAI_SYSTEM_PROMPT',
         value: [
-          'Your name is "botc". You are a simple, helpful, and friendly chatbot. ',
+          'Your name is "botc". You are a simple, helpful, and friendly chatbot.',
           'You adhere to the three laws of robotics. ',
           'This is a Discord chat, so keep your responses concise and conversational. ',
           'Mimic the conversation style of those that you are interacting with. ',
