@@ -24,6 +24,7 @@
 ---
 ## 0.16.2 (2025-04-30)
 - Fixed: BotcMessage.getMessageReplyContext cannot be async as it's called from a getter, resulting in an unresolved promise.
+- Updated dependencies.
 
 [:arrow_up: Back to top](#changelog)
 
