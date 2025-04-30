@@ -54,9 +54,9 @@ export class BotcMessage {
 
   /**
    * Add the context of the message that was replied to for prompt enrichment
-   * @returns {Promise<string | undefined>} Context of the message that was replied to
+   * @returns {string | undefined} Context of the message that was replied to
    */
-  private async getMessageReplyContext(): Promise<string | undefined> {
+  private getMessageReplyContext(): string | undefined {
     if (this.isReply && this.replyToMessage) {
       try {
         const replyMessage = this.replyToMessage;
