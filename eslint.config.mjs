@@ -12,7 +12,7 @@ export default [
   eslintJsdoc.configs['flat/recommended'],
   eslintNode.configs['flat/recommended'],
   ...eslintTs.configs['recommended'],
-  stylisticJs.configs['recommended-flat'],
+  stylisticJs.configs['recommended'],
   {
     files: [
       '**/*.{js,mjs,cjs,ts}',
@@ -48,6 +48,7 @@ export default [
   },
   {
     rules: {
+      '@stylistic/indent': ['warn'], // current behavior is broken, revisit after update
       '@stylistic/member-delimiter-style': 'off',
       '@stylistic/semi': ['error', 'always'],
       '@typescript-eslint/explicit-function-return-type': 'warn',
