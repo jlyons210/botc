@@ -1,6 +1,6 @@
 {
   "name": "botc",
-  "version": "0.16.2",
+  "version": "0.16.3",
   "description": "My most ambitious Discord bot yet.",
   "main": "src/app.ts",
   "scripts": {
@@ -29,24 +29,24 @@
   "homepage": "https://github.com/jlyons210/botc#readme",
   "type": "module",
   "dependencies": {
-    "discord.js": "^14.19.2",
-    "elevenlabs": "^1.57.0",
-    "openai": "^4.96.2",
-    "sharp": "^0.34.1"
+    "discord.js": "14.21.0",
+    "elevenlabs": "1.59.0",
+    "openai": "5.11.0",
+    "sharp": "0.34.3"
   },
   "devDependencies": {
-    "@eslint/js": "^9.25.1",
-    "@stylistic/eslint-plugin": "^4.2.0",
-    "@types/node": "^22.15.3",
-    "@typescript-eslint/parser": "^8.31.1",
-    "eslint": "^9.25.1",
-    "eslint-plugin-jsdoc": "^50.6.11",
-    "eslint-plugin-n": "^17.17.0",
-    "globals": "^16.0.0",
-    "nodemon": "^3.1.10",
-    "rimraf": "^6.0.1",
-    "ts-node": "^10.9.2",
-    "typescript": "^5.8.3",
-    "typescript-eslint": "^8.31.1"
+    "@eslint/js": "9.32.0",
+    "@stylistic/eslint-plugin": "5.2.2",
+    "@types/node": "24.1.0",
+    "@typescript-eslint/parser": "8.38.0",
+    "eslint": "9.32.0",
+    "eslint-plugin-jsdoc": "52.0.2",
+    "eslint-plugin-n": "17.21.3",
+    "globals": "16.3.0",
+    "nodemon": "3.1.10",
+    "rimraf": "6.0.1",
+    "ts-node": "10.9.2",
+    "typescript": "5.8.3",
+    "typescript-eslint": "8.38.0"
   }
 }
