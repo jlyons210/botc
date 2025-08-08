@@ -48,7 +48,6 @@ export default [
   },
   {
     rules: {
-      '@stylistic/indent': ['warn'], // current behavior is broken, revisit after update
       '@stylistic/member-delimiter-style': 'off',
       '@stylistic/semi': ['error', 'always'],
       '@typescript-eslint/explicit-function-return-type': 'warn',
