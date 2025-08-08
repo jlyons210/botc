@@ -83,18 +83,18 @@ export class OpenAIClient {
     try {
       const response = (imageFiles.length > 0)
         ? await await this.client.images.edit({
-          prompt: prompt,
-          model: 'gpt-image-1',
-          n: 1,
-          image: imageFiles,
-        })
+            prompt: prompt,
+            model: 'gpt-image-1',
+            n: 1,
+            image: imageFiles,
+          })
         : await this.client.images.generate({
-          prompt: prompt,
-          model: 'gpt-image-1',
-          n: 1,
-          moderation: 'low',
-          output_format: 'png',
-        });
+            prompt: prompt,
+            model: 'gpt-image-1',
+            n: 1,
+            moderation: 'low',
+            output_format: 'png',
+          });
 
       if (response.data && response.data.length > 0) {
         return response.data[0].b64_json as string;
