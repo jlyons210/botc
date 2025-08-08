@@ -212,6 +212,10 @@ export const ConfigurationDefaults: ConfigurationOptions = {
         options: [
           'gpt-4o',
           'gpt-4o-mini',
+          'gpt-5',
+          'gpt-5-chat',
+          'gpt-5-mini',
+          'gpt-5-nano',
         ],
         value: 'gpt-4o-mini',
       },
