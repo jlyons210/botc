@@ -97,13 +97,13 @@ export class Configuration {
     const openaiOptions = this.options.llms.openai;
 
     openaiOptions.systemPrompt.value = (openaiOptions.systemPrompt.value as string)
-      .replace('{{botName}}', discordOptions.botName.value as string)
-      .replace('{{botVersion}}', packageJson.version)
-      .replace('{{openAIModel}}', openaiOptions.model.value as string)
-      .replace('{{promptBotBehavior}}', openaiOptions.promptBotBehavior.value as string);
+      .replaceAll('{{botName}}', discordOptions.botName.value as string)
+      .replaceAll('{{botVersion}}', packageJson.version)
+      .replaceAll('{{openAIModel}}', openaiOptions.model.value as string)
+      .replaceAll('{{promptBotBehavior}}', openaiOptions.promptBotBehavior.value as string);
 
     openaiOptions.replyDecisionPrompt.value = (openaiOptions.replyDecisionPrompt.value as string)
-      .replace('{{botName}}', discordOptions.botName.value as string);
+      .replaceAll('{{botName}}', discordOptions.botName.value as string);
 
     this.logger.log(
       [
