@@ -256,7 +256,7 @@ export const ConfigurationDefaults: ConfigurationOptions = {
           'follow-up questions. If you have nothing to add, you should not reply.\n\n',
           'Are you going to respond to this message?\n',
           'Respond in JSON format: `{ "respondToUser": "[yes|no]", "reason": "[justification]", ',
-          '"conversationTarget": "[conversationTarget]", "botcIsAddressed": "true|false" }`.\n',
+          '"conversationTarget": "[conversationTarget]", "botIsAddressed": "true|false" }`.\n',
           'AGAIN, DO NOT CONVERSE. DO NOT USE MARKDOWN FORMATTING.',
         ].join(''),
       },

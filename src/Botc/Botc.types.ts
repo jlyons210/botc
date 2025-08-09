@@ -29,5 +29,5 @@ export interface ReplyDecisionResponse {
   respondToUser: string,
   reason: string,
   conversationTarget: string,
-  botcIsAddressed: string,
+  botIsAddressed: string,
 }
