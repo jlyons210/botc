@@ -93,18 +93,21 @@ export class Configuration {
    * Augment system prompt with optional configuration settings
    */
   private async augmentSystemPrompt(): Promise<void> {
-    this.options.llms.openai.systemPrompt.value = (this.options.llms.openai.systemPrompt.value as string)
-      .replace('{{botName}}', packageJson.name)
+    const discordOptions = this.options.clients.discord;
+    const openaiOptions = this.options.llms.openai;
+
+    openaiOptions.systemPrompt.value = (openaiOptions.systemPrompt.value as string)
+      .replace('{{botName}}', discordOptions.botName.value as string)
       .replace('{{botVersion}}', packageJson.version)
-      .replace('{{openAIModel}}', this.options.llms.openai.model.value as string)
-      .replace('{{promptBotBehavior}}', this.options.llms.openai.promptBotBehavior.value as string);
+      .replace('{{openAIModel}}', openaiOptions.model.value as string)
+      .replace('{{promptBotBehavior}}', openaiOptions.promptBotBehavior.value as string);
 
     this.logger.log(
       [
         '\n',
         `${'='.repeat(80)}\n`,
         `System prompt after injection:\n`,
-        `${this.options.llms.openai.systemPrompt.value}\n`,
+        `${openaiOptions.systemPrompt.value}\n`,
         `${'='.repeat(80)}`,
       ].join(''),
       'INFO',
