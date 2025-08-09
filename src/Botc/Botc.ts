@@ -424,8 +424,8 @@ export class Botc {
       || lastMessage.isVoiceMessage
     );
 
-    // Don't reply to own messages
-    if (lastMessage.isOwnMessage) {
+    // Don't reply to own messages or other bots' messages
+    if (lastMessage.isOwnMessage || lastMessage.isBotMessage) {
       return false;
     }
     // Do reply for automaticYes types
