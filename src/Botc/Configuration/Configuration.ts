@@ -17,7 +17,7 @@ export class Configuration {
     this.logger.log('Configuration:', 'INFO');
     this._options = ConfigurationDefaults;
     this.setUserConfiguration(this._options);
-    this.augmentSystemPrompt();
+    this.augmentInternalPrompts();
   }
 
   /**
@@ -92,7 +92,7 @@ export class Configuration {
   /**
    * Augment system prompt with optional configuration settings
    */
-  private async augmentSystemPrompt(): Promise<void> {
+  private async augmentInternalPrompts(): Promise<void> {
     const discordOptions = this.options.clients.discord;
     const openaiOptions = this.options.llms.openai;
 
@@ -102,14 +102,20 @@ export class Configuration {
       .replace('{{openAIModel}}', openaiOptions.model.value as string)
       .replace('{{promptBotBehavior}}', openaiOptions.promptBotBehavior.value as string);
 
+    openaiOptions.replyDecisionPrompt.value = (openaiOptions.replyDecisionPrompt.value as string)
+      .replace('{{botName}}', discordOptions.botName.value as string);
+
     this.logger.log(
       [
-        '\n',
-        `${'='.repeat(80)}\n`,
-        `System prompt after injection:\n`,
-        `${openaiOptions.systemPrompt.value}\n`,
+        '',
         `${'='.repeat(80)}`,
-      ].join(''),
+        `System prompt after injection:`,
+        `${openaiOptions.systemPrompt.value}`,
+        `${'='.repeat(80)}`,
+        `Reply decision prompt after injection:`,
+        `${openaiOptions.replyDecisionPrompt.value}`,
+        `${'='.repeat(80)}`,
+      ].join('\n'),
       'INFO',
     );
   }
