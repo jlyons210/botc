@@ -23,6 +23,11 @@
 - 0.1.x: [0.1.0](#010-2025-01-24)
 
 ---
+## 0.17.2 (2025-08-09)
+- Added `DISCORD_BOT_NAME` configuration setting to make bot name configurable. Used for prompt augmentation.
+
+[:arrow_up: Back to top](#changelog)
+
 ## 0.17.1 (2025-08-09)
 - Disabled bot replies to other bots to mitigate bot chat storms in channels with multiple bots. This is temporary, and will move toward better handling of other bot responses.
 - Updated dependencies.

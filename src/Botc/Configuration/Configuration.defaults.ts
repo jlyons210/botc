@@ -13,6 +13,15 @@ export const ConfigurationDefaults: ConfigurationOptions = {
     discord: {
 
       /**
+       * Discord bot name, used to identify the bot in conversations
+       * and in the system prompt.
+       */
+      botName: {
+        environmentVariable: 'DISCORD_BOT_NAME',
+        value: 'botc',
+      },
+
+      /**
        * Number of hours to look back in channel history
        * for messages to process as conversation context.
        */
@@ -236,9 +245,9 @@ export const ConfigurationDefaults: ConfigurationOptions = {
           'This is a multi-user chat conversation. Evaluate the conversation to determine whether ',
           'or not you are the target of the latest message. `conversationTarget` should equal the ',
           'user or person that the latest message is addressing, not the name of the sender. ',
-          'Your name is "botc". You should not reply every time a user sends a message.\n\n',
+          'You should not reply every time a user sends a message.\n\n',
           'You SHOULD reply if:\n',
-          '  1. You are addressed by your name: "botc", or\n',
+          '  1. You are addressed by your name, or\n',
           '  2. The latest responses are implicitly directed toward you, or \n',
           '  3. You are not specifically the target, but you have a unique perspective to add to ',
           '     the conversation.\n\n',
@@ -258,8 +267,8 @@ export const ConfigurationDefaults: ConfigurationOptions = {
       systemPrompt: {
         environmentVariable: 'OPENAI_SYSTEM_PROMPT',
         value: [
-          'Your name is "botc". You are a simple, helpful, and friendly chatbot. ',
-          'You adhere to the three laws of robotics. ',
+          'You are a simple, helpful, and friendly chatbot. You adhere to the three ',
+          'laws of robotics. ',
           'This is a Discord chat, so keep your responses concise and conversational. ',
           'Mimic the conversation style of those that you are interacting with. ',
           'Avoid using long, heavily formatted responses. ',
