@@ -25,6 +25,7 @@ export interface ClientsSettings {
  * @property {ConfigurationSettings} token Discord bot token
  */
 export interface DiscordClientSettings {
+  botName: ConfigurationSettings;
   channelHistoryHours: ConfigurationSettings;
   channelHistoryMessages: ConfigurationSettings;
   maxDiscordRetries: ConfigurationSettings;
