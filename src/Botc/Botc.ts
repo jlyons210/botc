@@ -459,7 +459,7 @@ export class Botc {
 
       try {
         // Parse JSON response for decision to respond
-        const responseJson: ReplyDecisionResponse = JSON.parse(responseMessage);
+        const responseJson = JSON.parse(responseMessage) as ReplyDecisionResponse;
         return responseJson.respondToUser.toLowerCase() === 'yes';
       }
       catch (error) {
