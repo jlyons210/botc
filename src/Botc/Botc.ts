@@ -443,7 +443,19 @@ export class Botc {
         append: false,
       });
 
+      // Log payload for debugging
+      this.logger.log(
+        `OpenAIClient.willReplyToMessage: Payload for reply decision: ${JSON.stringify(payload)}`,
+        'DEBUG',
+      );
+
       const responseMessage = await openai.createCompletion(payload);
+
+      // Log response for debugging
+      this.logger.log(
+        `OpenAIClient.willReplyToMessage: Response from OpenAI: ${responseMessage}`,
+        'DEBUG',
+      );
 
       try {
         // Parse JSON response for decision to respond
