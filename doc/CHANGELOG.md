@@ -4,7 +4,7 @@
 
 ## Pre-release
 
-- 0.17.x: [0.17.0](#0170-2025-08-08)
+- 0.17.x: [0.17.0](#0170-2025-08-08), [0.17.1](#0171-2025-08-09)
 - 0.16.x: [0.16.0](#0160-2025-04-27), [0.16.1](#0161-2025-04-27), [0.16.2](#0162-2025-04-30), [0.16.3](#0163-2025-08-02)
 - 0.15.x: [0.15.0](#0150-2025-04-25), [0.15.1](#0151-2025-04-27)
 - 0.14.x: [0.14.0](#0140-2025-04-22)
@@ -23,6 +23,12 @@
 - 0.1.x: [0.1.0](#010-2025-01-24)
 
 ---
+## 0.17.1 (2025-08-09)
+- Disabled bot replies to other bots to mitigate bot chat storms in channels with multiple bots. This is temporary, and will move toward better handling of other bot responses.
+- Updated dependencies.
+
+[:arrow_up: Back to top](#changelog)
+
 ## 0.17.0 (2025-08-08)
 - Added GPT-5 model support; default is unchanged from `gpt-4o-mini` due to higher cost of GPT-5 models.
 - Updated dependencies.
