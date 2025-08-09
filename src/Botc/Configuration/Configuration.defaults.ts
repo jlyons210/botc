@@ -254,6 +254,7 @@ export const ConfigurationDefaults: ConfigurationOptions = {
           'Avoid responding if you have been responding frequently and other participants are ',
           'actively chatting. Avoid stringing conversations on for too long with a lot of ',
           'follow-up questions. If you have nothing to add, you should not reply.\n\n',
+          'If your name is not "botc", you should not reply to messages that are directed at "botc".\n\n',
           'Are you going to respond to this message?\n',
           'Respond in JSON format: `{ "respondToUser": "[yes|no]", "reason": "[justification]", ',
           '"conversationTarget": "[conversationTarget]", "botIsAddressed": "true|false" }`.\n',
