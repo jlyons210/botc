@@ -1,8 +1,32 @@
-.dockerignore
+# Git and version control
 .git
 .gitignore
+
+# IDE and editor files
 .vscode
+.idea
+*.swp
+*.swo
+
+# Build outputs and caches
 dist
-Dockerfile
 node_modules
 npm-debug.log
+*.tgz
+
+# Docker files
+.dockerignore
+Dockerfile*
+docker-compose*.yml
+
+# Documentation and config files (optional)
+README.md
+*.md
+.env*
+.DS_Store
+
+# Test files (if you have them)
+*.test.*
+test/
+tests/
+coverage/
