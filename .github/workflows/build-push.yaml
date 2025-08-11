@@ -63,10 +63,10 @@ jobs:
         with:
           images: ${{ env.REGISTRY }}/${{ github.repository }}
           tags: |
-            type=ref,event=branch
-            type=semver,pattern={{version}},value=${{ needs.build.outputs.version }}
+            type=semver,pattern={{version}},value=${{ needs.build.outputs.version }},enable=${{ github.ref_name == 'main' }}
             type=raw,value=latest,enable=${{ github.ref_name == 'main' }}
             type=raw,value={{branch}}-${{ needs.build.outputs.version }},enable=${{ github.ref_name != 'main' }}
+            type=raw,value={{branch}}-latest,enable=${{ github.ref_name != 'main' }}
 
       - name: Setup QEMU
         uses: docker/setup-qemu-action@v3

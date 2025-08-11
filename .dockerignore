@@ -13,6 +13,9 @@ dist
 node_modules
 npm-debug.log
 *.tgz
+.npm
+*.map
+*.tsbuildinfo
 
 # Docker files
 .dockerignore
