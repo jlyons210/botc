@@ -1,5 +1,5 @@
 import { ConfigurationOptions, ElevenLabsSettings } from '../../Botc/Configuration/index.js';
-import { ElevenLabsClient } from 'elevenlabs';
+import { ElevenLabsClient } from '@elevenlabs/elevenlabs-js';
 import EventBus from '../../Botc/EventBus/EventBus.js';
 import fs from 'node:fs/promises';
 import { join } from 'node:path';
@@ -36,15 +36,15 @@ export class ElevenLabs {
    * @returns {Promise<string>} Path to generated audio file
    */
   public async generateVoiceFile(text: string): Promise<string> {
-    const response = await this.client.generate({
-      model_id: this.elevenlabsConfig.modelId.value as string,
-      text: text,
-      voice: this.elevenlabsConfig.voiceId.value as string,
-      voice_settings: {
-        similarity_boost: 0.5,
-        stability: 0.5,
-      },
-    });
+    const response = await this.client.textToSpeech.convert(
+      this.elevenlabsConfig.voiceId.value as string, {
+        modelId: this.elevenlabsConfig.modelId.value as string,
+        text: text,
+        voiceSettings: {
+          similarityBoost: 0.5,
+          stability: 0.5,
+        },
+      });
 
     const tempDir = mkdtempSync(join(tmpdir(), 'botc-'));
     const fullPath = join(tempDir, `botc-voice-response-${Date.now()}.mp3`);
