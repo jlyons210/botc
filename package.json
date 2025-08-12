@@ -29,8 +29,8 @@
   "homepage": "https://github.com/jlyons210/botc#readme",
   "type": "module",
   "dependencies": {
+    "@elevenlabs/elevenlabs-js": "2.9.0",
     "discord.js": "14.21.0",
-    "elevenlabs-js": "1.2.6",
     "openai": "5.12.2",
     "sharp": "0.34.3"
   },

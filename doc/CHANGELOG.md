@@ -25,7 +25,7 @@
 ---
 ## 0.17.7 (2025-08-11)
 - Updated dependencies
-  - Changed `elevenlabs` to `elevenlabs-js` per deprecation warning in container build.
+  - Changed `elevenlabs` to `@elevenlabs/elevenlabs-js` per deprecation warning in container build.
 
 [:arrow_up: Back to top](#changelog)
 
