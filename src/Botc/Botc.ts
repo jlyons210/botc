@@ -199,18 +199,18 @@ export class Botc {
       );
 
     await Promise.all(images.map(async ({ message, image }) => {
-      if (!cache.isCached(image.imageUrl)) {
+      if (!cache.contains(image.imageUrl)) {
         const resize = new Resizer();
         const imageUrl = await resize.getUrl(image.imageUrl);
         const description = await openai.generateImageDescription(imageUrl);
 
-        cache.cache({
+        cache.put({
           key: image.imageUrl,
           value: description,
         });
       }
 
-      message.addImageDescription(cache.getValue(image.imageUrl) as string);
+      message.addImageDescription(cache.get(image.imageUrl) as string);
     }));
   }
 
@@ -242,7 +242,7 @@ export class Botc {
     const discord = this.modules.clients.discord;
     const openai = this.modules.clients.openai;
 
-    if (!cache.isCached(cacheKey)) {
+    if (!cache.contains(cacheKey)) {
       const guildHistory = await discord.getGuildHistory(guildId, authorId);
       await this.describeImages(guildHistory);
       await this.transcribeVoiceMessages(guildHistory);
@@ -255,13 +255,13 @@ export class Botc {
 
       const persona = await openai.createCompletion(payload);
 
-      cache.cache({
+      cache.put({
         key: cacheKey,
         value: persona,
       });
     }
 
-    return cache.getValue(cacheKey) as string;
+    return cache.get(cacheKey) as string;
   }
 
   /**
@@ -390,7 +390,7 @@ export class Botc {
         const voiceMessageUrl = message.voiceMessage?.url;
 
         if (voiceMessageUrl) {
-          if (!cache.isCached(voiceMessageUrl)) {
+          if (!cache.contains(voiceMessageUrl)) {
             const fetchedAudio = await fetch(voiceMessageUrl);
             const audioBuffer = await fetchedAudio.arrayBuffer();
             const audioFile = new File([audioBuffer], 'audio.ogg', {
@@ -399,13 +399,13 @@ export class Botc {
 
             const transcription = await openai.generateAudioTranscription(audioFile);
 
-            cache.cache({
+            cache.put({
               key: voiceMessageUrl,
               value: transcription,
             });
           }
 
-          message.voiceMessageTranscription = cache.getValue(voiceMessageUrl) as string;
+          message.voiceMessageTranscription = cache.get(voiceMessageUrl) as string;
         }
       }),
     );
