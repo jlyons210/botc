@@ -46,7 +46,7 @@ Configuration is achieved through environment variables, which are easily config
 
 **Botc** supercedes my prior Discord bots:
 
-### [discord-bot-ol-bootsie](https://github.com/jlyons210/discord-bot-ol-bootsie) (dbob)
+### [discord-bot-ol-bootsie](https://github.com/jlyons210/discord-bot-ol-bootsie) ("dbob", archived)
 
 Dbob was developed in early 2023 as I was learning both TypeScript and how to interface with LLMs. It was actively developed for about 18 months, and is now in maintenance mode.
 
