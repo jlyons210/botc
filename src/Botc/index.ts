@@ -3,6 +3,7 @@ import {
   BotcClientModules,
   BotcModules,
   CustomSystemPrompt,
+  GroundDecisionResponse,
   ReplyDecisionResponse,
 } from './Botc.types.js';
 
@@ -23,5 +24,6 @@ export {
   BotcMessageImageAttachment,
   BotcModules,
   CustomSystemPrompt,
+  GroundDecisionResponse,
   ReplyDecisionResponse,
 };

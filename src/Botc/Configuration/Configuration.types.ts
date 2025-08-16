@@ -18,6 +18,14 @@ export interface ClientsSettings {
 }
 
 /**
+ * Brave client configuration object
+ * @property {ConfigurationSettings} apikey Brave API key
+ */
+export interface BraveSettings {
+  apikey: ConfigurationSettings;
+}
+
+/**
  * Discord client configuration object
  * @property {ConfigurationSettings} channelHistoryHours Channel history hours
  * @property {ConfigurationSettings} channelHistoryMessages Channel history messages
@@ -50,6 +58,7 @@ export interface ElevenLabsSettings {
  * @property {OpenAISettings} openai OpenAI settings
  */
 export interface LlmsSettings {
+  brave: BraveSettings;
   elevenlabs: ElevenLabsSettings;
   openai: OpenAISettings;
 }
@@ -97,6 +106,7 @@ export interface OpenAISettings {
   apikey: ConfigurationSettings;
   caching: OpenAICacheSettings;
   describeImagePrompt: ConfigurationSettings;
+  groundDecisionPrompt: ConfigurationSettings;
   maxRetries: ConfigurationSettings;
   model: ConfigurationSettings;
   promptBotBehavior: ConfigurationSettings;

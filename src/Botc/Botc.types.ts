@@ -1,3 +1,4 @@
+import { Brave } from '../Clients/Brave/index.js';
 import { DiscordClient } from '../Clients/Discord/index.js';
 import { ElevenLabs } from '../Clients/ElevenLabs/index.js';
 import { ObjectCache } from './ObjectCache/index.js';
@@ -15,6 +16,7 @@ export type BotcCacheModules = {
 };
 
 export type BotcClientModules = {
+  brave: Brave;
   discord: DiscordClient;
   elevenlabs: ElevenLabs;
   openai: OpenAIClient;
@@ -23,6 +25,10 @@ export type BotcClientModules = {
 export interface CustomSystemPrompt {
   value: string,
   append: boolean,
+}
+
+export interface GroundDecisionResponse {
+  willGround: boolean,
 }
 
 export interface ReplyDecisionResponse {
