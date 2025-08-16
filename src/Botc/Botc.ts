@@ -486,6 +486,8 @@ export class Botc {
     try {
       // Parse JSON response for decision to ground
       const responseJson = JSON.parse(responseMessage) as GroundDecisionResponse;
+
+      this.logger.log(`Botc.willGroundResponse: Return value: ${responseJson.willGround === true}`, 'DEBUG');
       return responseJson.willGround === true;
     }
     catch (error) {
