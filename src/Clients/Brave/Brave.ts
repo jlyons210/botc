@@ -51,6 +51,9 @@ export class Brave {
         model: 'brave',
       });
 
+      this.logger.log(`Brave.createCompletion: Brave API response received.`, 'DEBUG');
+      this.logger.log(`Brave.createCompletion: Brave API response: ${JSON.stringify(completion)}`, 'DEBUG');
+
       return completion.choices[0].message.content as string;
     }
     catch (error) {
