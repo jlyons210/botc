@@ -7,7 +7,6 @@ import { OpenAINotAllowedError } from './OpenAIClient.errors.js';
 
 /**
  * OpenAI client wrapper
- * @todo Enhance API error handling. Returning '' will break Discord message sending.
  */
 export class OpenAIClient {
   private readonly client: OpenAI;
