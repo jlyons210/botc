@@ -1,6 +1,12 @@
 import { BraveSettings, ConfigurationOptions } from '../../Botc/Configuration/index.js';
+
+import {
+  ChatCompletion,
+  ChatCompletionCreateParams,
+  ChatCompletionMessageParam,
+} from 'openai/resources';
+
 import { BraveNotAllowedError } from './Brave.errors.js';
-import { ChatCompletionMessageParam } from 'openai/resources';
 import { EventBus } from '../../Botc/EventBus/index.js';
 import { Logger } from '../../Botc/Logger/index.js';
 import OpenAI from 'openai';
@@ -42,14 +48,20 @@ export class Brave {
   public async createGroundingResponse(query: string): Promise<string> {
     try {
       const payload = [{
-        role: 'user',
         content: query,
+        role: 'user',
       }] as ChatCompletionMessageParam[];
 
       const completion = await this.brave.chat.completions.create({
         messages: payload,
         model: 'brave',
-      });
+        stream: false,
+        extra_body: {
+          country: 'us',
+          enable_research: false,
+          language: 'en',
+        },
+      } as ChatCompletionCreateParams) as ChatCompletion;
 
       this.logger.log(`Brave.createCompletion: Brave API response received.`, 'DEBUG');
       this.logger.log(`Brave.createCompletion: Brave API response: ${JSON.stringify(completion)}`, 'DEBUG');
