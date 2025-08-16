@@ -62,6 +62,10 @@ export class Botc {
    * Register event handlers
    */
   private registerHandlers(): void {
+    this.globalEvents.once('Brave:Ready',
+      this.handleBraveClientReady.bind(this),
+    );
+
     this.globalEvents.once('DiscordClient:Ready',
       this.handleDiscordClientReady.bind(this),
     );
@@ -77,6 +81,14 @@ export class Botc {
     this.globalEvents.once('OpenAIClient:Ready',
       this.handleOpenAIClientReady.bind(this),
     );
+  }
+
+  /**
+   * Handle Brave client ready event
+   * @param {EventMap['Brave:Ready']} data Brave client ready event data
+   */
+  private async handleBraveClientReady(data: EventMap['Brave:Ready']): Promise<void> {
+    this.logger.log(data.message, 'INFO');
   }
 
   /**
