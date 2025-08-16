@@ -75,6 +75,22 @@ export const ConfigurationDefaults: ConfigurationOptions = {
   llms: {
 
     /**
+     * Brave configuration
+     */
+    brave: {
+
+      /**
+       * Brave API key, used to authenticate with Brave API
+       */
+      apikey: {
+        environmentVariable: 'BRAVE_API_KEY',
+        secret: true,
+        value: '',
+      },
+
+    },
+
+    /**
      * ElevenLabs configuration
      */
     elevenlabs: {
@@ -202,6 +218,22 @@ export const ConfigurationDefaults: ConfigurationOptions = {
         value: [
           'Describe this image in reasonable detail. Do not use line breaks. If the image is ',
           'unclear, do your best. You are not being asked to identify individuals.',
+        ].join(''),
+      },
+
+      groundDecisionPrompt: {
+        environmentVariable: 'OPENAI_GROUND_DECISION_PROMPT',
+        value: [
+          'This is a multi-user chat conversation. Evaluate the conversation to determine whether ',
+          'or not you should ground your response with additional information from the Brave ',
+          'search engine.\n',
+          'You should ground your response if:\n',
+          '  1. The latest message is a question that you cannot answer with certainty, or\n',
+          '  2. The latest message is a request for information that is not already in the\n',
+          '     conversation history.\n\n',
+          'If you decide to ground your response, return JSON in the format: `{ "willGround": "true" }`. ',
+          'If you decide not to ground your response, return `{ "willGround": "false" }`.\n',
+          'AGAIN, DO NOT CONVERSE. DO NOT USE MARKDOWN FORMATTING.',
         ].join(''),
       },
 

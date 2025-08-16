@@ -5,6 +5,10 @@ import { BotcMessage } from '../index.js';
  * EventMap is a map of event names to their payload types
  */
 export interface EventMap {
+  'Brave:Ready': {
+    message: string,
+  };
+
   'DiscordClient:Ready': {
     message: string,
   };

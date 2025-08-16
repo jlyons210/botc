@@ -2,11 +2,13 @@ import {
   BotcMessage,
   BotcModules,
   CustomSystemPrompt,
+  GroundDecisionResponse,
   ReplyDecisionResponse,
 } from './index.js';
 
 import { EventBus, EventMap } from './EventBus/index.js';
 import { AttachmentBuilder } from 'discord.js';
+import { Brave } from '../Clients/Brave/index.js';
 import { ChatCompletionMessageParam } from 'openai/resources/index.mjs';
 import { Configuration } from './Configuration/index.js';
 import { DiscordClient } from '../Clients/Discord/index.js';
@@ -48,6 +50,7 @@ export class Botc {
         ),
       },
       clients: {
+        brave: new Brave(this.config.options),
         discord: new DiscordClient(this.config.options),
         elevenlabs: new ElevenLabs(this.config.options),
         openai: new OpenAIClient(this.config.options),
@@ -215,18 +218,53 @@ export class Botc {
   }
 
   /**
+   * Generate grounding context from message history
+   * @param {BotcMessage[]} messageHistory Message history
+   * @returns {Promise<string>} Grounding context
+   */
+  private async generateGroundingContext(messageHistory: BotcMessage[]): Promise<string> {
+    this.logger.log('Botc.generateGroundingContext: Will ground response with RAG', 'DEBUG');
+
+    const conversationPayload = await this.createPromptPayload(messageHistory, {
+      value: [
+        'Summarize the following conversation. The summary should pose a question that will be ',
+        'answered by Brave Grounded AI. The summary will be used to provide grounding context ',
+        'to generate a well-informed response to the same conversation.',
+      ].join(''),
+      append: false,
+    });
+
+    const openai = this.modules.clients.openai;
+    const groundingQuery = await openai.createCompletion(conversationPayload);
+
+    this.logger.log(`Botc.generateGroundingContext: Grounding query: ${groundingQuery}`, 'DEBUG');
+    this.logger.log('Botc.generateGroundingContext: Using Brave to ground response', 'DEBUG');
+
+    const brave = this.modules.clients.brave;
+    const groundingResponse = await brave.createGroundingResponse(groundingQuery);
+
+    this.logger.log(`Botc.generateGroundingContext: Brave response: ${groundingResponse}`, 'DEBUG');
+
+    return groundingResponse;
+  }
+
+  /**
    * Generate response message
    * @param {BotcMessage[]} messageHistory Channel message history
    * @param {string} persona Summarized user persona
    * @returns {Promise<string>} Response message
    */
   private async generatePersonalizedResponse(messageHistory: BotcMessage[], persona: string): Promise<string> {
-    const openai = this.modules.clients.openai;
+    const groundingContext = await this.generateGroundingContext(messageHistory);
     const payload = await this.createPromptPayload(messageHistory, {
-      value: [`<Sender Persona>`, persona, `</Sender Persona>`].join('\n'),
+      value: [
+        `<Sender Persona>${persona}</Sender Persona>`,
+        `<Grounding Context>${groundingContext}</Grounding Context>`,
+      ].join('\n'),
       append: true,
     });
 
+    const openai = this.modules.clients.openai;
     return await openai.createCompletion(payload);
   }
 
@@ -409,6 +447,48 @@ export class Botc {
         }
       }),
     );
+  }
+
+  /**
+   * Decides whether to ground the response with Brave Grounded AI RAG enhancement
+   * @param {BotcMessage[]} messageHistory Message history
+   * @returns {Promise<boolean>} true if the response should be grounded
+   */
+  private async willGroundResponse(messageHistory: BotcMessage[]): Promise<boolean> {
+    const config = this.config.options.llms.openai;
+    const groundResponsePrompt = config.groundDecisionPrompt.value as string;
+    const payload = await this.createPromptPayload(messageHistory, {
+      value: groundResponsePrompt,
+      append: false,
+    });
+
+    // Log payload for debugging
+    this.logger.log(
+      `Botc.willGroundResponse: Payload for grounding decision: ${JSON.stringify(payload)}`,
+      'DEBUG',
+    );
+
+    const openai = this.modules.clients.openai;
+    const responseMessage = await openai.createCompletion(payload);
+
+    // Log response for debugging
+    this.logger.log(
+      `Botc.willGroundResponse: Response from OpenAI: ${responseMessage}`,
+      'DEBUG',
+    );
+
+    try {
+      // Parse JSON response for decision to ground
+      const responseJson = JSON.parse(responseMessage) as GroundDecisionResponse;
+      return responseJson.willGround === true;
+    }
+    catch (error) {
+      // Log error parsing JSON response - sometimes the API returns malformed JSON
+      this.logger.log(`Botc.willGroundResponse: Error ${error} parsing JSON: ${responseMessage}`, 'ERROR');
+
+      // Fail-safe: check for "true" in malformed JSON response
+      return responseMessage.toLowerCase().includes('"true"');
+    }
   }
 
   /**
