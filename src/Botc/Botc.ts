@@ -223,7 +223,13 @@ export class Botc {
    * @returns {Promise<string>} Grounding context
    */
   private async generateGroundingContext(messageHistory: BotcMessage[]): Promise<string> {
-    this.logger.log('Botc.generateGroundingContext: Will ground response with RAG', 'DEBUG');
+    if (await this.willGroundResponse(messageHistory)) {
+      this.logger.log('Botc.generateGroundingContext: Will ground response with RAG', 'DEBUG');
+    }
+    else {
+      this.logger.log('Botc.generateGroundingContext: Will not ground response', 'DEBUG');
+      return '';
+    }
 
     const conversationPayload = await this.createPromptPayload(messageHistory, {
       value: [
