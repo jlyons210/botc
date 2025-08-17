@@ -1,13 +1,10 @@
 /**
- * Configuration object
- * @property {ClientsSettings} clients Clients settings
- * @property {LlmsSettings} llms Llms settings
+ * Brave client configuration object
+ * @property {ConfigurationSettings} apikey Brave API key
  */
-export interface ConfigurationOptions {
-  clients: ClientsSettings;
-  debugLoggingEnabled: ConfigurationSettings;
-  llms: LlmsSettings;
-};
+export interface BraveSettings {
+  apikey: ConfigurationSettings;
+}
 
 /**
  * Clients configuration object
@@ -16,6 +13,31 @@ export interface ConfigurationOptions {
 export interface ClientsSettings {
   discord: DiscordClientSettings;
 }
+
+/**
+ * Configuration object
+ * @property {ClientsSettings} clients Clients settings
+ * @property {LlmsSettings} llms Llms settings
+ */
+export interface ConfigurationOptions {
+  clients: ClientsSettings;
+  featureGates: FeatureGateSettings;
+  llms: LlmsSettings;
+};
+
+/**
+ * Generic configuration settings object
+ * @property {string} environmentVariable Environment variable name
+ * @property {boolean} [secret] Whether the value is a secret
+ * @property {string[]} [options] Array of options
+ * @property {string|number|boolean} value Configuration value
+ */
+export interface ConfigurationSettings {
+  environmentVariable: string;
+  secret?: boolean;
+  options?: string[];
+  value: string | number | boolean;
+};
 
 /**
  * Discord client configuration object
@@ -45,11 +67,26 @@ export interface ElevenLabsSettings {
 }
 
 /**
+ * Feature gate settings object
+ * @property {ConfigurationSettings} enableAiGrounding Enable AI grounding using the Brave AI Grounding API
+ * @property {ConfigurationSettings} enableAutoRespond Enable bot auto-responding to messages
+ * @property {ConfigurationSettings} enableDebugLogging Enable debug logging to the console
+ */
+export interface FeatureGateSettings {
+  enableAiGrounding: ConfigurationSettings;
+  enableAutoRespond: ConfigurationSettings;
+  enableDebugLogging: ConfigurationSettings;
+  enableVoiceResponse: ConfigurationSettings;
+}
+
+/**
  * ElevenLabs client configuration object
+ * @property {BraveSettings} brave Brave settings
  * @property {ElevenLabsSettings} elevenlabs ElevenLabs settings
  * @property {OpenAISettings} openai OpenAI settings
  */
 export interface LlmsSettings {
+  brave: BraveSettings;
   elevenlabs: ElevenLabsSettings;
   openai: OpenAISettings;
 }
@@ -97,6 +134,7 @@ export interface OpenAISettings {
   apikey: ConfigurationSettings;
   caching: OpenAICacheSettings;
   describeImagePrompt: ConfigurationSettings;
+  groundDecisionPrompt: ConfigurationSettings;
   maxRetries: ConfigurationSettings;
   model: ConfigurationSettings;
   promptBotBehavior: ConfigurationSettings;
@@ -104,17 +142,3 @@ export interface OpenAISettings {
   systemPrompt: ConfigurationSettings;
   timeout: ConfigurationSettings;
 }
-
-/**
- * Generic configuration settings object
- * @property {string} environmentVariable Environment variable name
- * @property {boolean} [secret] Whether the value is a secret
- * @property {string[]} [options] Array of options
- * @property {string|number|boolean} value Configuration value
- */
-export interface ConfigurationSettings {
-  environmentVariable: string;
-  secret?: boolean;
-  options?: string[];
-  value: string | number | boolean;
-};

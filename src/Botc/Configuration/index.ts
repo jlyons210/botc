@@ -1,4 +1,5 @@
 import {
+  BraveSettings,
   ConfigurationOptions,
   ConfigurationSettings,
   DiscordClientSettings,
@@ -10,6 +11,7 @@ import { Configuration } from './Configuration.js';
 import { ConfigurationDefaults } from './Configuration.defaults.js';
 
 export {
+  BraveSettings,
   Configuration,
   ConfigurationDefaults,
   ConfigurationOptions,

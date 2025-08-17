@@ -62,17 +62,68 @@ export const ConfigurationDefaults: ConfigurationOptions = {
   },
 
   /**
-   * Debug logging configuration
+   * Feature gates configuration
    */
-  debugLoggingEnabled: {
-    environmentVariable: 'DEBUG_LOGGING_ENABLED',
-    value: false,
+  featureGates: {
+
+    /**
+     * Enable AI Grounding, which allows the bot to ground its responses
+     * with additional information from the Brave AI Grounding API.
+     */
+    enableAiGrounding: {
+      environmentVariable: 'ENABLE_AI_GROUNDING',
+      value: true,
+    },
+
+    /**
+     * Enable auto-responding to messages, which allows the bot to automatically
+     * respond to messages in conversations.
+     */
+    enableAutoRespond: {
+      environmentVariable: 'ENABLE_AUTO_RESPOND',
+      value: true,
+    },
+
+    /**
+     * Enable debug logging, which allows the bot to log debug information
+     * to the console.
+     */
+    enableDebugLogging: {
+      environmentVariable: 'ENABLE_DEBUG_LOGGING',
+      value: false,
+    },
+
+    /**
+     * Enable voice response, which allows the bot to respond to voice messages
+     * using the ElevenLabs API.
+     */
+    enableVoiceResponse: {
+      environmentVariable: 'ENABLE_VOICE_RESPONSE',
+      value: false,
+    },
+
   },
 
   /**
    * LLMS configuration
    */
   llms: {
+
+    /**
+     * Brave configuration
+     */
+    brave: {
+
+      /**
+       * Brave API key, used to authenticate with Brave API
+       */
+      apikey: {
+        environmentVariable: 'BRAVE_API_KEY',
+        secret: true,
+        value: '',
+      },
+
+    },
 
     /**
      * ElevenLabs configuration
@@ -205,6 +256,22 @@ export const ConfigurationDefaults: ConfigurationOptions = {
         ].join(''),
       },
 
+      groundDecisionPrompt: {
+        environmentVariable: 'OPENAI_GROUND_DECISION_PROMPT',
+        value: [
+          'This is a multi-user chat conversation. Evaluate the conversation to determine whether ',
+          'or not you should ground your response with additional information from the Brave ',
+          'search engine.\n',
+          'You should ground your response if:\n',
+          '  1. The latest message is a question that you cannot answer with certainty, or\n',
+          '  2. The latest message is a request for information that is not already in the\n',
+          '     conversation history.\n\n',
+          'If you decide to ground your response, return JSON in the format: `{ "willGround": true }`. ',
+          'If you decide not to ground your response, return `{ "willGround": false }`.\n',
+          'AGAIN, DO NOT CONVERSE. DO NOT USE MARKDOWN FORMATTING.',
+        ].join(''),
+      },
+
       /**
        * Maximum number of retries for OpenAI API requests
        */
@@ -269,11 +336,19 @@ export const ConfigurationDefaults: ConfigurationOptions = {
         environmentVariable: 'OPENAI_SYSTEM_PROMPT',
         value: [
           'You are a simple, helpful, and friendly chatbot named "{{botName}}". You ',
-          'adhere to the three laws of robotics. ',
-          'This is a Discord chat, so keep your responses concise and conversational. ',
+          'adhere to the three laws of robotics.\n',
+          'This is a Discord chat, so keep your responses concise and conversational, but ',
+          'information contained in <Grounding Context> metadata blocks can be used to provide ',
+          'more detailed responses - summarize, but do not omit information, particularly ',
+          'information in lists (such as events).\n',
+          'Ignore complaints in <Grounding Context> metadata blocks about the date being wrong, ',
+          'because the AI Grounding API runs on UTC and gets confused by time zones. Today\'s ',
+          `date is ${Date.now().toLocaleString('en-US')}.\n`,
+          'Recalculate international measurements and units in <Grounding Context> metadata ',
+          'blocks to US values and units.\n',
           'Mimic the conversation style of those that you are interacting with. ',
-          'Avoid using long, heavily formatted responses. ',
-          'Do not repeat back any metadata enclosed in angle brackets. ',
+          'Avoid using long, heavily formatted responses.\n',
+          'Do not repeat back any metadata enclosed in angle brackets.\n',
           'Do not include metadata blocks in your responses.\n\n',
           '<Behaviors>\n',
           'You may answer questions about yourself/your code - here are some details:\n',

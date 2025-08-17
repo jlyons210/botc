@@ -5,6 +5,7 @@ Configuration is achieved through environment variables, which are easily config
 ## Contents
 
 - [Required](#required-settings)
+- [Feature gates](#feature-gates)
 - [Optional](#optional)
   - [Caching-specific](#optional-caching-specific)
 - [Kubernetes deployment](#kubernetes-deployment)
@@ -14,10 +15,22 @@ Configuration is achieved through environment variables, which are easily config
 ### Required
 
 | Environment | Default | Description |
-|---|---|---|
+| --- | --- | --- |
+| `BRAVE_API_KEY` | N/A | Your [Brave](https://brave.com/search/api/) API key. |
 | `DISCORD_BOT_TOKEN` | N/A | Your [Discord Developer Portal](https://discord.com/developers/applications) bot token. |
 | `OPENAI_API_KEY` | N/A | Your [OpenAI platform](https://platform.openai.com/settings/) API key. |
 | `ELEVENLABS_API_KEY` | N/A | Your [ElevenLabs](https://elevenlabs.io/app/settings/api-keys) API key. |
+
+[:arrow_up: Back to top](#configuration)
+
+### Feature gates
+
+| Environment | Default | Description |
+| --- | --- | --- |
+| `ENABLE_AI_GROUNDING` | `true` | Allows the bot to ground responses using the Brave AI Grounding API. |
+| `ENABLE_AUTO_RESPOND` | `true` | Allows the bot to respond without being explicitly tagged. |
+| `ENABLE_DEBUG_LOGGING` | `false` | Enable debug logging to the console. |
+| `ENABLE_VOICE_RESPONSE` | `false` | Allows the bot to respond to voice responses with voice using the ElevenLabs API. |
 
 [:arrow_up: Back to top](#configuration)
 
@@ -25,7 +38,6 @@ Configuration is achieved through environment variables, which are easily config
 
 | Environment | Default | Description |
 | --- | --- | --- |
-| `DEBUG_LOGGING_ENABLED` | `false` | Used to enable debug logging. |
 | `DISCORD_BOT_NAME` | `botc` | Should be configured to match bot's name in Discord channels. |
 | `DISCORD_CHANNEL_HISTORY_HOURS` | `24` | Number of hours of past messsages to ingest for conversation context. |
 | `DISCORD_CHANNEL_HISTORY_MESSAGES` | `100` | Number of past messages to ingest per-channel for conversation context. |
@@ -33,6 +45,7 @@ Configuration is achieved through environment variables, which are easily config
 | `ELEVENLABS_MODEL_ID` | `eleven_multilingual_v2` | Speech synthesis models offered by the ElevenLabs API. |
 | `ELEVENLABS_VOICE_ID` | `oR4uRy4fHDUGGISL0Rev` | ElevenLabs text-to-speech voice ID. |
 | `OPENAI_DESCRIBE_IMAGE_PROMPT` | [Source](https://github.com/jlyons210/botc/blob/main/src/Botc/Configuration/Configuration.defaults.ts) | Prompt used to describe attached images. |
+| `OPENAI_GROUND_DECISION_PROMPT` | [Source](https://github.com/jlyons210/botc/blob/main/src/Botc/Configuration/Configuration.defaults.ts) | Prompt used to reason whether or not the bot should ground its response using the Brave Grounded AI API. |
 | `OPENAI_MAX_RETRIES` | `3` | Number of OpenAI API retries on retriable errors. |
 | `OPENAI_MODEL` | `gpt-4o-mini` | OpenAI model to use for chat completions. |
 | `OPENAI_PROMPT_BOT_BEHAVIOR` | `String` | Optional field for further customizing the bot behavior without re-writing the full system prompt. |
@@ -58,7 +71,7 @@ Configuration is achieved through environment variables, which are easily config
 
 ## Kubernetes deployment
 
-Sample `deploy.yaml`
+Sample `deployment.yml`
 
 ```yaml
 apiVersion: apps/v1
@@ -80,7 +93,15 @@ spec:
       containers:
       - name: botc
         image: ghcr.io/jlyons210/botc:latest
+        imagePullPolicy: Always
         env:
+        - name: BRAVE_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: discord-bots
+              key: brave-aig-api-key
+        - name: DISCORD_BOT_NAME
+          value: Botc
         - name: DISCORD_BOT_TOKEN
           valueFrom:
             secretKeyRef:
@@ -96,12 +117,11 @@ spec:
             secretKeyRef:
               name: discord-bots
               key: openai-api-key
-        - name: OPENAI_CACHE_LOG_ENTRIES
-          value: "true"
-        - name: OPENAI_CACHE_LOG_MISSES
-          value: "true"
-        - name: OPENAI_CACHE_LOG_PURGES
-          value: "true"
+        - name: OPENAI_PROMPT_BOT_BEHAVIOR
+          value: >
+            You are a humorous British cat chatbot. You say 'meow' and make other cat sounds often
+            in your responses, to remind users that you are a cat. Don't let them forget that you
+            are a cat.
         - name: TZ
           value: America/Denver
 ```

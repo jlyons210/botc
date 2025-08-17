@@ -2,11 +2,13 @@ import {
   BotcMessage,
   BotcModules,
   CustomSystemPrompt,
+  GroundDecisionResponse,
   ReplyDecisionResponse,
 } from './index.js';
 
 import { EventBus, EventMap } from './EventBus/index.js';
 import { AttachmentBuilder } from 'discord.js';
+import { Brave } from '../Clients/Brave/index.js';
 import { ChatCompletionMessageParam } from 'openai/resources/index.mjs';
 import { Configuration } from './Configuration/index.js';
 import { DiscordClient } from '../Clients/Discord/index.js';
@@ -29,7 +31,7 @@ export class Botc {
    * New Botc
    */
   constructor() {
-    this.logger = new Logger(this.config.options.debugLoggingEnabled.value as boolean);
+    this.logger = new Logger(this.config.options.featureGates.enableDebugLogging.value as boolean);
     this.registerHandlers();
 
     this.modules = {
@@ -48,6 +50,7 @@ export class Botc {
         ),
       },
       clients: {
+        brave: new Brave(this.config.options),
         discord: new DiscordClient(this.config.options),
         elevenlabs: new ElevenLabs(this.config.options),
         openai: new OpenAIClient(this.config.options),
@@ -59,6 +62,10 @@ export class Botc {
    * Register event handlers
    */
   private registerHandlers(): void {
+    this.globalEvents.once('Brave:Ready',
+      this.handleBraveClientReady.bind(this),
+    );
+
     this.globalEvents.once('DiscordClient:Ready',
       this.handleDiscordClientReady.bind(this),
     );
@@ -74,6 +81,14 @@ export class Botc {
     this.globalEvents.once('OpenAIClient:Ready',
       this.handleOpenAIClientReady.bind(this),
     );
+  }
+
+  /**
+   * Handle Brave client ready event
+   * @param {EventMap['Brave:Ready']} data Brave client ready event data
+   */
+  private async handleBraveClientReady(data: EventMap['Brave:Ready']): Promise<void> {
+    this.logger.log(data.message, 'INFO');
   }
 
   /**
@@ -123,8 +138,9 @@ export class Botc {
 
         try {
           const isImageGenerationPrompt = await this.isImageGenerationPrompt(lastMessage);
+          const voiceResponseEnabled = this.config.options.featureGates.enableVoiceResponse.value as boolean;
 
-          if (lastMessage.isVoiceMessage) {
+          if (voiceResponseEnabled && lastMessage.isVoiceMessage) {
             const textResponse = await this.prepareTextResponse(channelHistory);
             payload.attachments.push(await this.prepareVoiceResponse(textResponse));
           }
@@ -215,18 +231,66 @@ export class Botc {
   }
 
   /**
+   * Generate grounding context from message history
+   * @param {BotcMessage[]} messageHistory Message history
+   * @returns {Promise<string>} Grounding context
+   */
+  private async generateGroundingContext(messageHistory: BotcMessage[]): Promise<string> {
+    if (await this.willGroundResponse(messageHistory)) {
+      this.logger.log('Botc.generateGroundingContext: Will ground response with RAG', 'DEBUG');
+    }
+    else {
+      this.logger.log('Botc.generateGroundingContext: Will not ground response', 'DEBUG');
+      return '';
+    }
+
+    const conversationPayload = await this.createPromptPayload(messageHistory, {
+      value: [
+        'Examine this conversation and identify any information gaps or questions that may need ',
+        'up-to-date information from the internet to answer.\n ',
+        'Do not summarize the conversation or include any information about the users. Instead, ',
+        'respond only with a question or prompt that the Brave AI Grounding API can respond to ',
+        'in order to augment the conversation.\n',
+        'Include either the explicit date and time, or use reletave terms including or similar ',
+        'to "today/tonight/yesterday" - but not both. Brave\'s API uses UTC and this confuses it.\n',
+        'Do request a concise response because request and response tokens are expensive.\n',
+        'When requesting information that may return international units of measure, be specific ',
+        'in requesting US-based sources.\n',
+      ].join(''),
+      append: false,
+    });
+
+    const openai = this.modules.clients.openai;
+    const groundingQuery = await openai.createCompletion(conversationPayload);
+
+    this.logger.log(`Botc.generateGroundingContext: Grounding query: ${groundingQuery}`, 'DEBUG');
+    this.logger.log('Botc.generateGroundingContext: Using Brave to ground response', 'DEBUG');
+
+    const brave = this.modules.clients.brave;
+    const groundingResponse = await brave.createGroundingResponse(groundingQuery);
+
+    this.logger.log(`Botc.generateGroundingContext: Brave response: ${groundingResponse}`, 'DEBUG');
+
+    return groundingResponse;
+  }
+
+  /**
    * Generate response message
    * @param {BotcMessage[]} messageHistory Channel message history
    * @param {string} persona Summarized user persona
    * @returns {Promise<string>} Response message
    */
   private async generatePersonalizedResponse(messageHistory: BotcMessage[], persona: string): Promise<string> {
-    const openai = this.modules.clients.openai;
+    const groundingContext = await this.generateGroundingContext(messageHistory);
     const payload = await this.createPromptPayload(messageHistory, {
-      value: [`<Sender Persona>`, persona, `</Sender Persona>`].join('\n'),
+      value: [
+        `<Sender Persona>${persona}</Sender Persona>`,
+        `<Grounding Context>${groundingContext}</Grounding Context>`,
+      ].join('\n'),
       append: true,
     });
 
+    const openai = this.modules.clients.openai;
     return await openai.createCompletion(payload);
   }
 
@@ -355,16 +419,6 @@ export class Botc {
   }
 
   /**
-   * Send typing indicator to channel
-   * @param {string} channelId Channel ID
-   */
-  private startTyping(channelId: string): void {
-    this.globalEvents.emit('DiscordClient:StartTyping', {
-      channelId: channelId,
-    });
-  }
-
-  /**
    * Preprocess multimedia content types concurrently
    */
   private async preprocessMultimedia(): Promise<void> {
@@ -374,6 +428,16 @@ export class Botc {
       this.prefetchImageDescriptions(allGuildsHistory),
       this.prefetchVoiceTranscriptions(allGuildsHistory),
     ]);
+  }
+
+  /**
+   * Send typing indicator to channel
+   * @param {string} channelId Channel ID
+   */
+  private startTyping(channelId: string): void {
+    this.globalEvents.emit('DiscordClient:StartTyping', {
+      channelId: channelId,
+    });
   }
 
   /**
@@ -412,25 +476,68 @@ export class Botc {
   }
 
   /**
+   * Decides whether to ground the response with Brave Grounded AI RAG enhancement
+   * @param {BotcMessage[]} messageHistory Message history
+   * @returns {Promise<boolean>} true if the response should be grounded
+   */
+  private async willGroundResponse(messageHistory: BotcMessage[]): Promise<boolean> {
+    if (!this.config.options.featureGates.enableAiGrounding.value as boolean) return false;
+
+    const config = this.config.options.llms.openai;
+    const groundResponsePrompt = config.groundDecisionPrompt.value as string;
+    const payload = await this.createPromptPayload(messageHistory, {
+      value: groundResponsePrompt,
+      append: false,
+    });
+
+    // Log payload for debugging
+    this.logger.log(
+      `Botc.willGroundResponse: Payload for grounding decision: ${JSON.stringify(payload)}`,
+      'DEBUG',
+    );
+
+    const openai = this.modules.clients.openai;
+    const responseMessage = await openai.createCompletion(payload);
+
+    // Log response for debugging
+    this.logger.log(
+      `Botc.willGroundResponse: Response from OpenAI: ${responseMessage}`,
+      'DEBUG',
+    );
+
+    try {
+      // Parse JSON response for decision to ground
+      const responseJson = JSON.parse(responseMessage) as GroundDecisionResponse;
+
+      this.logger.log(`Botc.willGroundResponse: Return value: ${responseJson.willGround === true}`, 'DEBUG');
+      return responseJson.willGround === true;
+    }
+    catch (error) {
+      // Log error parsing JSON response - sometimes the API returns malformed JSON
+      this.logger.log(`Botc.willGroundResponse: Error ${error} parsing JSON: ${responseMessage}`, 'ERROR');
+
+      // Fail-safe: check for "true" in malformed JSON response
+      return responseMessage.toLowerCase().includes('"true"');
+    }
+  }
+
+  /**
    * Decides whether to reply based on conversation history
    * @param {BotcMessage[]} channelHistory Channel message history
    * @returns {Promise<boolean>} boolean
    */
   private async willReplyToMessage(channelHistory: BotcMessage[]): Promise<boolean> {
     const lastMessage = channelHistory.at(-1) as BotcMessage;
-    const automaticYes = (
-      lastMessage.isAtMention
-      || lastMessage.isDirectMessage
-      || lastMessage.isVoiceMessage
-    );
+    const autoRespondEnabled = this.config.options.featureGates.enableAutoRespond.value as boolean;
+    const alwaysRespond = (lastMessage.isAtMention || lastMessage.isDirectMessage);
 
-    // Don't reply to own messages or other bots' messages
-    if (lastMessage.isOwnMessage || lastMessage.isBotMessage) {
-      return false;
-    }
-    // Do reply for automaticYes types
-    else if (automaticYes) {
+    // Reply for automaticYes types
+    if (alwaysRespond) {
       return true;
+    }
+    // Don't reply if feature gate disables it, to bot's own messages, or other bots' messages
+    else if (!autoRespondEnabled || lastMessage.isOwnMessage || lastMessage.isBotMessage) {
+      return false;
     }
     // Otherwise, use decision prompt to determine response
     else {
