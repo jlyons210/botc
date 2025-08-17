@@ -93,6 +93,15 @@ export const ConfigurationDefaults: ConfigurationOptions = {
       value: false,
     },
 
+    /**
+     * Enable voice response, which allows the bot to respond to voice messages
+     * using the ElevenLabs API.
+     */
+    enableVoiceResponse: {
+      environmentVariable: 'ENABLE_VOICE_RESPONSE',
+      value: false,
+    },
+
   },
 
   /**

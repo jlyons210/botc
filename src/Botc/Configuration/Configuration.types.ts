@@ -76,6 +76,7 @@ export interface FeatureGateSettings {
   enableAiGrounding: ConfigurationSettings;
   enableAutoRespond: ConfigurationSettings;
   enableDebugLogging: ConfigurationSettings;
+  enableVoiceResponse: ConfigurationSettings;
 }
 
 /**
