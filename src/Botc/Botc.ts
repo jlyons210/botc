@@ -531,7 +531,7 @@ export class Botc {
     const automaticYes = (
       lastMessage.isAtMention
       || lastMessage.isDirectMessage
-      || lastMessage.isVoiceMessage
+      // || lastMessage.isVoiceMessage // now that bots are better named, testing removing this
     );
 
     // Reply for automaticYes types
