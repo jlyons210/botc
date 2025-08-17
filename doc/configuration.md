@@ -5,6 +5,7 @@ Configuration is achieved through environment variables, which are easily config
 ## Contents
 
 - [Required](#required-settings)
+- [Feature gates](#feature-gates)
 - [Optional](#optional)
   - [Caching-specific](#optional-caching-specific)
 - [Kubernetes deployment](#kubernetes-deployment)
@@ -19,6 +20,14 @@ Configuration is achieved through environment variables, which are easily config
 | `DISCORD_BOT_TOKEN` | N/A | Your [Discord Developer Portal](https://discord.com/developers/applications) bot token. |
 | `OPENAI_API_KEY` | N/A | Your [OpenAI platform](https://platform.openai.com/settings/) API key. |
 | `ELEVENLABS_API_KEY` | N/A | Your [ElevenLabs](https://elevenlabs.io/app/settings/api-keys) API key. |
+
+[:arrow_up: Back to top](#configuration)
+
+### Feature gates
+
+| Environment | Default | Description |
+| `ENABLE_AI_GROUNDING` | `true` | Allows the bot to ground responses using the Brave AI Grounding API. |
+| `ENABLE_AUTO_RESPOND` | `true` | Allows the bot to respond without being explicitly tagged. |
 
 [:arrow_up: Back to top](#configuration)
 
@@ -60,7 +69,7 @@ Configuration is achieved through environment variables, which are easily config
 
 ## Kubernetes deployment
 
-Sample `deploy.yaml`
+Sample `deployment.yml`
 
 ```yaml
 apiVersion: apps/v1
@@ -82,7 +91,15 @@ spec:
       containers:
       - name: botc
         image: ghcr.io/jlyons210/botc:latest
+        imagePullPolicy: Always
         env:
+        - name: BRAVE_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: discord-bots
+              key: brave-aig-api-key
+        - name: DISCORD_BOT_NAME
+          value: Botc
         - name: DISCORD_BOT_TOKEN
           valueFrom:
             secretKeyRef:
@@ -98,12 +115,11 @@ spec:
             secretKeyRef:
               name: discord-bots
               key: openai-api-key
-        - name: OPENAI_CACHE_LOG_ENTRIES
-          value: "true"
-        - name: OPENAI_CACHE_LOG_MISSES
-          value: "true"
-        - name: OPENAI_CACHE_LOG_PURGES
-          value: "true"
+        - name: OPENAI_PROMPT_BOT_BEHAVIOR
+          value: >
+            You are a humorous British cat chatbot. You say 'meow' and make other cat sounds often
+            in your responses, to remind users that you are a cat. Don't let them forget that you
+            are a cat.
         - name: TZ
           value: America/Denver
 ```
