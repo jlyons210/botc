@@ -31,7 +31,7 @@ export class Botc {
    * New Botc
    */
   constructor() {
-    this.logger = new Logger(this.config.options.debugLoggingEnabled.value as boolean);
+    this.logger = new Logger(this.config.options.featureGates.enableDebugLogging.value as boolean);
     this.registerHandlers();
 
     this.modules = {

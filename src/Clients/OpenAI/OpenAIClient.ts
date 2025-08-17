@@ -21,7 +21,7 @@ export class OpenAIClient {
    */
   constructor(private config: ConfigurationOptions) {
     this.openAIConfig = this.config.llms.openai;
-    this.logger = new Logger(this.config.debugLoggingEnabled.value as boolean);
+    this.logger = new Logger(this.config.featureGates.enableDebugLogging.value as boolean);
 
     this.client = new OpenAI({
       apiKey: this.openAIConfig.apikey.value as string,

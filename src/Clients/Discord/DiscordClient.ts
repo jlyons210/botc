@@ -39,8 +39,8 @@ export class DiscordClient {
    * Async initialize outside of constructor
    */
   private async initialize(): Promise<void> {
+    this.logger = new Logger(this.config.featureGates.enableDebugLogging.value as boolean);
     this.discordConfig = this.config.clients.discord;
-    this.logger = new Logger(this.config.debugLoggingEnabled.value as boolean);
     this.discordClient = await this.createDiscordClient();
     await this.registerHandlers();
     await this.authenticateDiscordClient();

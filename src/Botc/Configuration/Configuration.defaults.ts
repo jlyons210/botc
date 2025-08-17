@@ -62,11 +62,37 @@ export const ConfigurationDefaults: ConfigurationOptions = {
   },
 
   /**
-   * Debug logging configuration
+   * Feature gates configuration
    */
-  debugLoggingEnabled: {
-    environmentVariable: 'DEBUG_LOGGING_ENABLED',
-    value: false,
+  featureGates: {
+
+    /**
+     * Enable AI Grounding, which allows the bot to ground its responses
+     * with additional information from the Brave AI Grounding API.
+     */
+    enableAiGrounding: {
+      environmentVariable: 'ENABLE_AI_GROUNDING',
+      value: true,
+    },
+
+    /**
+     * Enable auto-responding to messages, which allows the bot to automatically
+     * respond to messages in conversations.
+     */
+    enableAutoRespond: {
+      environmentVariable: 'ENABLE_AUTO_RESPOND',
+      value: true,
+    },
+
+    /**
+     * Enable debug logging, which allows the bot to log debug information
+     * to the console.
+     */
+    enableDebugLogging: {
+      environmentVariable: 'ENABLE_DEBUG_LOGGING',
+      value: false,
+    },
+
   },
 
   /**

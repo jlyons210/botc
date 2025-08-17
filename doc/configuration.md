@@ -15,7 +15,7 @@ Configuration is achieved through environment variables, which are easily config
 ### Required
 
 | Environment | Default | Description |
-|---|---|---|
+| --- | --- | --- |
 | `BRAVE_API_KEY` | N/A | Your [Brave](https://brave.com/search/api/) API key. |
 | `DISCORD_BOT_TOKEN` | N/A | Your [Discord Developer Portal](https://discord.com/developers/applications) bot token. |
 | `OPENAI_API_KEY` | N/A | Your [OpenAI platform](https://platform.openai.com/settings/) API key. |
@@ -26,8 +26,10 @@ Configuration is achieved through environment variables, which are easily config
 ### Feature gates
 
 | Environment | Default | Description |
+| --- | --- | --- |
 | `ENABLE_AI_GROUNDING` | `true` | Allows the bot to ground responses using the Brave AI Grounding API. |
 | `ENABLE_AUTO_RESPOND` | `true` | Allows the bot to respond without being explicitly tagged. |
+| `ENABLE_DEBUG_LOGGING` | `false` | Enable debug logging to the console. |
 
 [:arrow_up: Back to top](#configuration)
 
@@ -35,7 +37,6 @@ Configuration is achieved through environment variables, which are easily config
 
 | Environment | Default | Description |
 | --- | --- | --- |
-| `DEBUG_LOGGING_ENABLED` | `false` | Used to enable debug logging. |
 | `DISCORD_BOT_NAME` | `botc` | Should be configured to match bot's name in Discord channels. |
 | `DISCORD_CHANNEL_HISTORY_HOURS` | `24` | Number of hours of past messsages to ingest for conversation context. |
 | `DISCORD_CHANNEL_HISTORY_MESSAGES` | `100` | Number of past messages to ingest per-channel for conversation context. |
