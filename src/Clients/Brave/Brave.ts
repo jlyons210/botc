@@ -32,7 +32,7 @@ export class Brave {
       apiKey: this.braveConfig.apikey.value as string,
       baseURL: 'https://api.search.brave.com/res/v1',
       maxRetries: 3,
-      timeout: 10000,
+      timeout: 60000,
     });
 
     this.globalEvents.emit('Brave:Ready', {
