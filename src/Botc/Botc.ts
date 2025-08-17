@@ -480,6 +480,8 @@ export class Botc {
    * @returns {Promise<boolean>} true if the response should be grounded
    */
   private async willGroundResponse(messageHistory: BotcMessage[]): Promise<boolean> {
+    if (!this.config.options.featureGates.enableAiGrounding.value as boolean) return false;
+
     const config = this.config.options.llms.openai;
     const groundResponsePrompt = config.groundDecisionPrompt.value as string;
     const payload = await this.createPromptPayload(messageHistory, {
@@ -525,19 +527,20 @@ export class Botc {
    */
   private async willReplyToMessage(channelHistory: BotcMessage[]): Promise<boolean> {
     const lastMessage = channelHistory.at(-1) as BotcMessage;
+    const autoRespondEnabled = this.config.options.featureGates.enableAutoRespond.value as boolean;
     const automaticYes = (
       lastMessage.isAtMention
       || lastMessage.isDirectMessage
       || lastMessage.isVoiceMessage
     );
 
-    // Don't reply to own messages or other bots' messages
-    if (lastMessage.isOwnMessage || lastMessage.isBotMessage) {
-      return false;
-    }
-    // Do reply for automaticYes types
-    else if (automaticYes) {
+    // Reply for automaticYes types
+    if (automaticYes) {
       return true;
+    }
+    // Don't reply if feature gate disables it, to bot's own messages, or other bots' messages
+    else if (!autoRespondEnabled || lastMessage.isOwnMessage || lastMessage.isBotMessage) {
+      return false;
     }
     // Otherwise, use decision prompt to determine response
     else {
