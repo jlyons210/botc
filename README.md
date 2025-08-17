@@ -24,6 +24,7 @@ My intent is for **Botc** to engage with chat users in a more human-like fashion
 
 - Monitors channels for active conversations, engaging automatically when a reasoning prompt determines that it would be appropriate.
 - Responds to replies, @-mentions, and direct messages, and the bot will respond to replies to old messages using the expected context.
+- Perform web research on topics before responding when a reasoning prompt determines it would be beneficial.
 - Bot builds a guild-wide persona of users being engaged to enhance responses. Personas are cached to limit API polling.
 - Examine and comprehend user image attachments and voice messages. Image descriptions and transcriptions are cached to limit API polling.
 - Responds to voice messages using voice - generated using text-to-speech from ElevenLabs.
@@ -36,7 +37,6 @@ My intent is for **Botc** to engage with chat users in a more human-like fashion
 
 - Follow hyperlinks and summarize pages into conversation context.
 - Timer for responding if no other users are active in chat.
-- Perform web research on topics before responding, responding with citations.
 
 ## Configuration
 

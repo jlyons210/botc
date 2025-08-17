@@ -26,7 +26,7 @@ export class Brave {
    */
   constructor(private config: ConfigurationOptions) {
     this.braveConfig = this.config.llms.brave;
-    this.logger = new Logger(this.config.debugLoggingEnabled.value as boolean);
+    this.logger = new Logger(this.config.featureGates.enableDebugLogging.value as boolean);
 
     this.brave = new OpenAI({
       apiKey: this.braveConfig.apikey.value as string,

@@ -31,7 +31,7 @@ export class Botc {
    * New Botc
    */
   constructor() {
-    this.logger = new Logger(this.config.options.debugLoggingEnabled.value as boolean);
+    this.logger = new Logger(this.config.options.featureGates.enableDebugLogging.value as boolean);
     this.registerHandlers();
 
     this.modules = {
@@ -138,8 +138,9 @@ export class Botc {
 
         try {
           const isImageGenerationPrompt = await this.isImageGenerationPrompt(lastMessage);
+          const voiceResponseEnabled = this.config.options.featureGates.enableVoiceResponse.value as boolean;
 
-          if (lastMessage.isVoiceMessage) {
+          if (voiceResponseEnabled && lastMessage.isVoiceMessage) {
             const textResponse = await this.prepareTextResponse(channelHistory);
             payload.attachments.push(await this.prepareVoiceResponse(textResponse));
           }
@@ -418,16 +419,6 @@ export class Botc {
   }
 
   /**
-   * Send typing indicator to channel
-   * @param {string} channelId Channel ID
-   */
-  private startTyping(channelId: string): void {
-    this.globalEvents.emit('DiscordClient:StartTyping', {
-      channelId: channelId,
-    });
-  }
-
-  /**
    * Preprocess multimedia content types concurrently
    */
   private async preprocessMultimedia(): Promise<void> {
@@ -437,6 +428,16 @@ export class Botc {
       this.prefetchImageDescriptions(allGuildsHistory),
       this.prefetchVoiceTranscriptions(allGuildsHistory),
     ]);
+  }
+
+  /**
+   * Send typing indicator to channel
+   * @param {string} channelId Channel ID
+   */
+  private startTyping(channelId: string): void {
+    this.globalEvents.emit('DiscordClient:StartTyping', {
+      channelId: channelId,
+    });
   }
 
   /**
@@ -480,6 +481,8 @@ export class Botc {
    * @returns {Promise<boolean>} true if the response should be grounded
    */
   private async willGroundResponse(messageHistory: BotcMessage[]): Promise<boolean> {
+    if (!this.config.options.featureGates.enableAiGrounding.value as boolean) return false;
+
     const config = this.config.options.llms.openai;
     const groundResponsePrompt = config.groundDecisionPrompt.value as string;
     const payload = await this.createPromptPayload(messageHistory, {
@@ -525,19 +528,16 @@ export class Botc {
    */
   private async willReplyToMessage(channelHistory: BotcMessage[]): Promise<boolean> {
     const lastMessage = channelHistory.at(-1) as BotcMessage;
-    const automaticYes = (
-      lastMessage.isAtMention
-      || lastMessage.isDirectMessage
-      || lastMessage.isVoiceMessage
-    );
+    const autoRespondEnabled = this.config.options.featureGates.enableAutoRespond.value as boolean;
+    const alwaysRespond = (lastMessage.isAtMention || lastMessage.isDirectMessage);
 
-    // Don't reply to own messages or other bots' messages
-    if (lastMessage.isOwnMessage || lastMessage.isBotMessage) {
-      return false;
-    }
-    // Do reply for automaticYes types
-    else if (automaticYes) {
+    // Reply for automaticYes types
+    if (alwaysRespond) {
       return true;
+    }
+    // Don't reply if feature gate disables it, to bot's own messages, or other bots' messages
+    else if (!autoRespondEnabled || lastMessage.isOwnMessage || lastMessage.isBotMessage) {
+      return false;
     }
     // Otherwise, use decision prompt to determine response
     else {

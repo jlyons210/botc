@@ -1,5 +1,5 @@
 import { ConfigurationOptions, OpenAISettings } from '../../Botc/Configuration/index.js';
-import { ChatCompletionMessageParam } from 'openai/resources/index.mjs';
+import { ChatCompletionMessageParam } from 'openai/resources';
 import { EventBus } from '../../Botc/EventBus/index.js';
 import { Logger } from '../../Botc/Logger/index.js';
 import OpenAI from 'openai';
@@ -21,7 +21,7 @@ export class OpenAIClient {
    */
   constructor(private config: ConfigurationOptions) {
     this.openAIConfig = this.config.llms.openai;
-    this.logger = new Logger(this.config.debugLoggingEnabled.value as boolean);
+    this.logger = new Logger(this.config.featureGates.enableDebugLogging.value as boolean);
 
     this.client = new OpenAI({
       apiKey: this.openAIConfig.apikey.value as string,

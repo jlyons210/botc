@@ -26,8 +26,11 @@
 ---
 ## 0.18.0 (2025-08-16)
 - Implemented Brave Grounded AI API.
-- Added `BRAVE_API_KEY` and `OPENAI_GROUND_DECISION_PROMPT` configuration options.
 - Bot will reply to current conversation with grounded information polled from the Brave Grounded AI API if a "grounding" check determines that a summarized version of the current conversation would benefit from additional context.
+- Configuration option updates:
+  - Added `BRAVE_API_KEY` and `OPENAI_GROUND_DECISION_PROMPT` configuration options to support AI grounding behavior.
+  - Added feature gates - see [configuration.md](./configuration.md#feature-gates).
+    - `ENABLE_DEBUG_LOGGING` feature gate replaces `DEBUG_LOGGING_ENABLED` top-level configuration option.
 - Updated dependencies.
 
 [:arrow_up: Back to top](#changelog)
