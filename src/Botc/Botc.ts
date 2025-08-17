@@ -529,14 +529,10 @@ export class Botc {
   private async willReplyToMessage(channelHistory: BotcMessage[]): Promise<boolean> {
     const lastMessage = channelHistory.at(-1) as BotcMessage;
     const autoRespondEnabled = this.config.options.featureGates.enableAutoRespond.value as boolean;
-    const automaticYes = (
-      lastMessage.isAtMention
-      || lastMessage.isDirectMessage
-      || lastMessage.isVoiceMessage
-    );
+    const alwaysRespond = (lastMessage.isAtMention || lastMessage.isDirectMessage);
 
     // Reply for automaticYes types
-    if (automaticYes) {
+    if (alwaysRespond) {
       return true;
     }
     // Don't reply if feature gate disables it, to bot's own messages, or other bots' messages
