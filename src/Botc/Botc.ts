@@ -138,8 +138,9 @@ export class Botc {
 
         try {
           const isImageGenerationPrompt = await this.isImageGenerationPrompt(lastMessage);
+          const voiceResponseEnabled = this.config.options.featureGates.enableVoiceResponse.value as boolean;
 
-          if (lastMessage.isVoiceMessage) {
+          if (voiceResponseEnabled && lastMessage.isVoiceMessage) {
             const textResponse = await this.prepareTextResponse(channelHistory);
             payload.attachments.push(await this.prepareVoiceResponse(textResponse));
           }
@@ -531,7 +532,7 @@ export class Botc {
     const automaticYes = (
       lastMessage.isAtMention
       || lastMessage.isDirectMessage
-      // || lastMessage.isVoiceMessage // now that bots are better named, testing removing this
+      || lastMessage.isVoiceMessage
     );
 
     // Reply for automaticYes types
