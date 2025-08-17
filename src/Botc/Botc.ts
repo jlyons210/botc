@@ -245,9 +245,16 @@ export class Botc {
 
     const conversationPayload = await this.createPromptPayload(messageHistory, {
       value: [
-        'Summarize the following conversation. The summary should pose a question that will be ',
-        'answered by Brave Grounded AI. The summary will be used to provide grounding context ',
-        'to generate a well-informed response to the same conversation.',
+        'Examine this conversation and identify any information gaps or questions that may need ',
+        'up-to-date information from the internet to answer.\n ',
+        'Do not summarize the conversation or include any information about the users. Instead, ',
+        'respond only with a question or prompt that the Brave AI Grounding API can respond to ',
+        'in order to augment the conversation.\n',
+        'Include either the explicit date and time, or use reletave terms including or similar ',
+        'to "today/tonight/yesterday" - but not both. Brave\'s API uses UTC and this confuses it.\n',
+        'Do request a concise response because request and response tokens are expensive.\n',
+        'When requesting information that may return international units of measure, be specific ',
+        'in requesting US-based sources.\n',
       ].join(''),
       append: false,
     });
