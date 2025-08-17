@@ -419,16 +419,6 @@ export class Botc {
   }
 
   /**
-   * Send typing indicator to channel
-   * @param {string} channelId Channel ID
-   */
-  private startTyping(channelId: string): void {
-    this.globalEvents.emit('DiscordClient:StartTyping', {
-      channelId: channelId,
-    });
-  }
-
-  /**
    * Preprocess multimedia content types concurrently
    */
   private async preprocessMultimedia(): Promise<void> {
@@ -438,6 +428,16 @@ export class Botc {
       this.prefetchImageDescriptions(allGuildsHistory),
       this.prefetchVoiceTranscriptions(allGuildsHistory),
     ]);
+  }
+
+  /**
+   * Send typing indicator to channel
+   * @param {string} channelId Channel ID
+   */
+  private startTyping(channelId: string): void {
+    this.globalEvents.emit('DiscordClient:StartTyping', {
+      channelId: channelId,
+    });
   }
 
   /**
