@@ -4,7 +4,7 @@
 
 ## Pre-release
 
-- 0.18.x: [0.18.0](#0180-2025-08-16)
+- 0.18.x: [0.18.0](#0180-2025-08-17), [0.18.1](#0181-2025-08-18)
 - 0.17.x: [0.17.0](#0170-2025-08-08), [0.17.1](#0171-2025-08-09), [0.17.2](#0172-2025-08-09), [0.17.3](#0173-2025-08-09), [0.17.4](#0174-2025-08-09), [0.17.5](#0175-2025-08-09), [0.17.6](#0176-2025-08-09), [0.17.7](#0177-2025-08-11)
 - 0.16.x: [0.16.0](#0160-2025-04-27), [0.16.1](#0161-2025-04-27), [0.16.2](#0162-2025-04-30), [0.16.3](#0163-2025-08-02)
 - 0.15.x: [0.15.0](#0150-2025-04-25), [0.15.1](#0151-2025-04-27)
@@ -24,7 +24,12 @@
 - 0.1.x: [0.1.0](#010-2025-01-24)
 
 ---
-## 0.18.0 (2025-08-16)
+## 0.18.1 (2025-08-18)
+- Fixed: DMing bots causes endless response loop, responding to its own messages.
+
+[:arrow_up: Back to top](#changelog)
+
+## 0.18.0 (2025-08-17)
 - Implemented Brave Grounded AI API.
 - Bot will reply to current conversation with grounded information polled from the Brave Grounded AI API if a "grounding" check determines that a summarized version of the current conversation would benefit from additional context.
 - Configuration option updates:
