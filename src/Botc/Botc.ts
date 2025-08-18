@@ -529,17 +529,14 @@ export class Botc {
   private async willReplyToMessage(channelHistory: BotcMessage[]): Promise<boolean> {
     const lastMessage = channelHistory.at(-1) as BotcMessage;
     const autoRespondEnabled = this.config.options.featureGates.enableAutoRespond.value as boolean;
-    const alwaysRespond = (lastMessage.isAtMention || lastMessage.isDirectMessage);
+    const alwaysRespond = (lastMessage.isAtMention || lastMessage.isDirectMessage) && !lastMessage.isOwnMessage;
 
-    // Reply for automaticYes types
     if (alwaysRespond) {
       return true;
     }
-    // Don't reply if feature gate disables it, to bot's own messages, or other bots' messages
     else if (!autoRespondEnabled || lastMessage.isOwnMessage || lastMessage.isBotMessage) {
       return false;
     }
-    // Otherwise, use decision prompt to determine response
     else {
       const openai = this.modules.clients.openai;
       const config = this.config.options.llms.openai;
@@ -550,7 +547,6 @@ export class Botc {
         append: false,
       });
 
-      // Log payload for debugging
       this.logger.log(
         `OpenAIClient.willReplyToMessage: Payload for reply decision: ${JSON.stringify(payload)}`,
         'DEBUG',
@@ -558,22 +554,17 @@ export class Botc {
 
       const responseMessage = await openai.createCompletion(payload);
 
-      // Log response for debugging
       this.logger.log(
         `OpenAIClient.willReplyToMessage: Response from OpenAI: ${responseMessage}`,
         'DEBUG',
       );
 
       try {
-        // Parse JSON response for decision to respond
         const responseJson = JSON.parse(responseMessage) as ReplyDecisionResponse;
         return responseJson.respondToUser.toLowerCase() === 'yes';
       }
       catch (error) {
-        // Log error parsing JSON response - sometimes the API returns malformed JSON
         this.logger.log(`OpenAIClient.willReplyToMessage: Error ${error} parsing JSON: ${responseMessage}`, 'ERROR');
-
-        // Fail-safe: check for "yes" in malformed JSON response
         return responseMessage.toLowerCase().includes('"yes"');
       }
     }
