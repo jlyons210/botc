@@ -93,6 +93,11 @@ export const ConfigurationDefaults: ConfigurationOptions = {
       value: false,
     },
 
+    enableImageGeneration: {
+      environmentVariable: 'ENABLE_IMAGE_GENERATION',
+      value: true,
+    },
+
     /**
      * Enable voice response, which allows the bot to respond to voice messages
      * using the ElevenLabs API.
