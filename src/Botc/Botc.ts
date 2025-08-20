@@ -138,13 +138,14 @@ export class Botc {
 
         try {
           const isImageGenerationPrompt = await this.isImageGenerationPrompt(lastMessage);
+          const imageGenerationEnabled = this.config.options.featureGates.enableImageGeneration.value as boolean;
           const voiceResponseEnabled = this.config.options.featureGates.enableVoiceResponse.value as boolean;
 
           if (voiceResponseEnabled && lastMessage.isVoiceMessage) {
             const textResponse = await this.prepareTextResponse(channelHistory);
             payload.attachments.push(await this.prepareVoiceResponse(textResponse));
           }
-          else if (isImageGenerationPrompt) {
+          else if (imageGenerationEnabled && isImageGenerationPrompt) {
             payload.attachments.push(await this.prepareImageResponse(lastMessage));
           }
           else {
