@@ -93,6 +93,10 @@ export const ConfigurationDefaults: ConfigurationOptions = {
       value: false,
     },
 
+    /**
+     * Enable image generation, which allows the bot to generate images
+     * using the OpenAI API.
+     */
     enableImageGeneration: {
       environmentVariable: 'ENABLE_IMAGE_GENERATION',
       value: true,
