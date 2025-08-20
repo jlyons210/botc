@@ -30,6 +30,7 @@ Configuration is achieved through environment variables, which are easily config
 | `ENABLE_AI_GROUNDING` | `true` | Allows the bot to ground responses using the Brave AI Grounding API. |
 | `ENABLE_AUTO_RESPOND` | `true` | Allows the bot to respond without being explicitly tagged. |
 | `ENABLE_DEBUG_LOGGING` | `false` | Enable debug logging to the console. |
+| `ENABLE_IMAGE_GENERATION` | `true` | Allows the bot to generate images using the OpenAI `gpt-image-1` model. |
 | `ENABLE_VOICE_RESPONSE` | `false` | Allows the bot to respond to voice responses with voice using the ElevenLabs API. |
 
 [:arrow_up: Back to top](#configuration)
