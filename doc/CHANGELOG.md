@@ -4,6 +4,7 @@
 
 ## Pre-release
 
+- 0.19.x: [0.19.0](#0190-2025-08-22)
 - 0.18.x: [0.18.0](#0180-2025-08-17), [0.18.1](#0181-2025-08-18), [0.18.2](#0182-2025-08-19)
 - 0.17.x: [0.17.0](#0170-2025-08-08), [0.17.1](#0171-2025-08-09), [0.17.2](#0172-2025-08-09), [0.17.3](#0173-2025-08-09), [0.17.4](#0174-2025-08-09), [0.17.5](#0175-2025-08-09), [0.17.6](#0176-2025-08-09), [0.17.7](#0177-2025-08-11)
 - 0.16.x: [0.16.0](#0160-2025-04-27), [0.16.1](#0161-2025-04-27), [0.16.2](#0162-2025-04-30), [0.16.3](#0163-2025-08-02)
@@ -24,6 +25,13 @@
 - 0.1.x: [0.1.0](#010-2025-01-24)
 
 ---
+
+## 0.19.0 (2025-08-22)
+- Changed default for `ENABLE_AI_GROUNDING` to `false` to reduce setup friction in requiring a Brave API account.
+- Updated dependencies.
+
+[:arrow_up: Back to top](#changelog)
+
 ## 0.18.2 (2025-08-19)
 - Added `ENABLE_IMAGE_GENERATION` feature gate. If multiple bot instances are running in a single channel, this can be used to mitigate the chance of multiple bots generating images at the same time.
 - Updated dependencies.
