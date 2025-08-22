@@ -48,7 +48,7 @@ Configuration is achieved through environment variables, which are easily config
 
 ### [discord-bot-ol-bootsie](https://github.com/jlyons210/discord-bot-ol-bootsie) ("dbob", archived)
 
-Dbob was developed in early 2023 as I was learning both TypeScript and how to interface with LLMs. It was actively developed for about 18 months, and is now in maintenance mode.
+Dbob was developed in early 2023 as I was learning both TypeScript and how to interface with LLMs. It was actively developed for about 18 months, and is now retired.
 
 #### 💡 Trivia
 > I'll point out that `botc` and `bootsie` have similar phonetics. Bootsie was one of my cats that passed away about 10 years ago. I run two instances of `dbob` using personas of my cats Boots and Manky. `dbob` was eventually containerized, and is a bot-container. Botc. There you have it :smile_cat:
