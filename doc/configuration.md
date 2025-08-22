@@ -16,10 +16,10 @@ Configuration is achieved through environment variables, which are easily config
 
 | Environment | Default | Description |
 | --- | --- | --- |
-| `BRAVE_API_KEY` | N/A | Your [Brave](https://brave.com/search/api/) API key. Under review: This is not required when `ENABLE_AI_GROUNDING` is disabled. |
-| `DISCORD_BOT_TOKEN` | N/A | Your [Discord Developer Portal](https://discord.com/developers/applications) bot token. |
-| `OPENAI_API_KEY` | N/A | Your [OpenAI platform](https://platform.openai.com/settings/) API key. |
-| `ELEVENLABS_API_KEY` | N/A | Your [ElevenLabs](https://elevenlabs.io/app/settings/api-keys) API key. Under review: This is not required when `ENABLE_VOICE_RESPONSE` is disabled. |
+| `BRAVE_API_KEY` | N/A | Your [Brave](https://brave.com/search/api/) API key. Only required when `ENABLE_AI_GROUNDING` is enabled. |
+| `DISCORD_BOT_TOKEN` | N/A | Your [Discord Developer Portal](https://discord.com/developers/applications) bot token. Always required. |
+| `OPENAI_API_KEY` | N/A | Your [OpenAI platform](https://platform.openai.com/settings/) API key. Always required. |
+| `ELEVENLABS_API_KEY` | N/A | Your [ElevenLabs](https://elevenlabs.io/app/settings/api-keys) API key. Only required when `ENABLE_VOICE_RESPONSE` is enabled. |
 
 [:arrow_up: Back to top](#configuration)
 
