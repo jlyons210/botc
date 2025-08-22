@@ -72,7 +72,7 @@ export const ConfigurationDefaults: ConfigurationOptions = {
      */
     enableAiGrounding: {
       environmentVariable: 'ENABLE_AI_GROUNDING',
-      value: true,
+      value: false,
     },
 
     /**
