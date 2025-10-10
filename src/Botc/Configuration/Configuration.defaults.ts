@@ -282,6 +282,18 @@ export const ConfigurationDefaults: ConfigurationOptions = {
       },
 
       /**
+       * OpenAI image generation model to use
+       */
+      imageModel: {
+        environmentVariable: 'OPENAI_IMAGE_MODEL',
+        options: [
+          'gpt-image-1',
+          'gpt-image-1-mini',
+        ],
+        value: 'gpt-image-1-mini',
+      },
+
+      /**
        * Maximum number of retries for OpenAI API requests
        */
       maxRetries: {

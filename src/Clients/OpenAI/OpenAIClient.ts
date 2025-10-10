@@ -13,6 +13,7 @@ export class OpenAIClient {
   private readonly globalEvents = EventBus.attach();
   private readonly logger: Logger;
   private openAIConfig: OpenAISettings;
+  private readonly imageModel: string;
   private readonly model: string;
 
   /**
@@ -29,6 +30,7 @@ export class OpenAIClient {
       timeout: this.openAIConfig.timeout.value as number,
     });
 
+    this.imageModel = this.openAIConfig.imageModel.value as string;
     this.model = this.openAIConfig.model.value as string;
 
     this.globalEvents.emit('OpenAIClient:Ready', {
@@ -83,13 +85,13 @@ export class OpenAIClient {
       const response = (imageFiles.length > 0)
         ? await await this.client.images.edit({
             prompt: prompt,
-            model: 'gpt-image-1',
+            model: this.imageModel,
             n: 1,
             image: imageFiles,
           })
         : await this.client.images.generate({
             prompt: prompt,
-            model: 'gpt-image-1',
+            model: this.imageModel,
             n: 1,
             moderation: 'low',
             output_format: 'png',
