@@ -136,6 +136,7 @@ export interface OpenAISettings {
   caching: OpenAICacheSettings;
   describeImagePrompt: ConfigurationSettings;
   groundDecisionPrompt: ConfigurationSettings;
+  imageModel: ConfigurationSettings;
   maxRetries: ConfigurationSettings;
   model: ConfigurationSettings;
   promptBotBehavior: ConfigurationSettings;

@@ -4,7 +4,7 @@ Configuration is achieved through environment variables, which are easily config
 
 ## Contents
 
-- [Required](#required-settings)
+- [Required](#required)
 - [Feature gates](#feature-gates)
 - [Optional](#optional)
   - [Caching-specific](#optional-caching-specific)
@@ -16,10 +16,10 @@ Configuration is achieved through environment variables, which are easily config
 
 | Environment | Default | Description |
 | --- | --- | --- |
-| `BRAVE_API_KEY` | N/A | Your [Brave](https://brave.com/search/api/) API key. |
-| `DISCORD_BOT_TOKEN` | N/A | Your [Discord Developer Portal](https://discord.com/developers/applications) bot token. |
-| `OPENAI_API_KEY` | N/A | Your [OpenAI platform](https://platform.openai.com/settings/) API key. |
-| `ELEVENLABS_API_KEY` | N/A | Your [ElevenLabs](https://elevenlabs.io/app/settings/api-keys) API key. |
+| `BRAVE_API_KEY` | N/A | Your [Brave](https://brave.com/search/api/) API key. Only required when `ENABLE_AI_GROUNDING` is enabled. |
+| `DISCORD_BOT_TOKEN` | N/A | Your [Discord Developer Portal](https://discord.com/developers/applications) bot token. Always required. |
+| `OPENAI_API_KEY` | N/A | Your [OpenAI platform](https://platform.openai.com/settings/) API key. Always required. |
+| `ELEVENLABS_API_KEY` | N/A | Your [ElevenLabs](https://elevenlabs.io/app/settings/api-keys) API key. Only required when `ENABLE_VOICE_RESPONSE` is enabled. |
 
 [:arrow_up: Back to top](#configuration)
 
@@ -27,11 +27,11 @@ Configuration is achieved through environment variables, which are easily config
 
 | Environment | Default | Description |
 | --- | --- | --- |
-| `ENABLE_AI_GROUNDING` | `true` | Allows the bot to ground responses using the Brave AI Grounding API. |
+| `ENABLE_AI_GROUNDING` | `false` | Allows the bot to ground responses using the Brave AI Grounding API. Requires `BRAVE_API_KEY`. |
 | `ENABLE_AUTO_RESPOND` | `true` | Allows the bot to respond without being explicitly tagged. |
 | `ENABLE_DEBUG_LOGGING` | `false` | Enable debug logging to the console. |
-| `ENABLE_IMAGE_GENERATION` | `true` | Allows the bot to generate images using the OpenAI `gpt-image-1` model. |
-| `ENABLE_VOICE_RESPONSE` | `false` | Allows the bot to respond to voice responses with voice using the ElevenLabs API. |
+| `ENABLE_IMAGE_GENERATION` | `true` | Allows the bot to generate images using the OpenAI `gpt-image-1` or `gpt-image-1-mini` model. |
+| `ENABLE_VOICE_RESPONSE` | `false` | Allows the bot to respond to voice responses with voice using the ElevenLabs API. Requires `ELEVENLABS_API_KEY`. |
 
 [:arrow_up: Back to top](#configuration)
 
@@ -47,6 +47,7 @@ Configuration is achieved through environment variables, which are easily config
 | `ELEVENLABS_VOICE_ID` | `oR4uRy4fHDUGGISL0Rev` | ElevenLabs text-to-speech voice ID. |
 | `OPENAI_DESCRIBE_IMAGE_PROMPT` | [Source](https://github.com/jlyons210/botc/blob/main/src/Botc/Configuration/Configuration.defaults.ts) | Prompt used to describe attached images. |
 | `OPENAI_GROUND_DECISION_PROMPT` | [Source](https://github.com/jlyons210/botc/blob/main/src/Botc/Configuration/Configuration.defaults.ts) | Prompt used to reason whether or not the bot should ground its response using the Brave Grounded AI API. |
+| `OPENAI_IMAGE_MODEL` | `gpt-image-1-mini` | OpenAI model to use for image generations and edits. |
 | `OPENAI_MAX_RETRIES` | `3` | Number of OpenAI API retries on retriable errors. |
 | `OPENAI_MODEL` | `gpt-4o-mini` | OpenAI model to use for chat completions. |
 | `OPENAI_PROMPT_BOT_BEHAVIOR` | `String` | Optional field for further customizing the bot behavior without re-writing the full system prompt. |

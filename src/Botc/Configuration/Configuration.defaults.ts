@@ -72,7 +72,7 @@ export const ConfigurationDefaults: ConfigurationOptions = {
      */
     enableAiGrounding: {
       environmentVariable: 'ENABLE_AI_GROUNDING',
-      value: true,
+      value: false,
     },
 
     /**
@@ -93,6 +93,10 @@ export const ConfigurationDefaults: ConfigurationOptions = {
       value: false,
     },
 
+    /**
+     * Enable image generation, which allows the bot to generate images
+     * using the OpenAI API.
+     */
     enableImageGeneration: {
       environmentVariable: 'ENABLE_IMAGE_GENERATION',
       value: true,
@@ -275,6 +279,18 @@ export const ConfigurationDefaults: ConfigurationOptions = {
           'If you decide not to ground your response, return `{ "willGround": false }`.\n',
           'AGAIN, DO NOT CONVERSE. DO NOT USE MARKDOWN FORMATTING.',
         ].join(''),
+      },
+
+      /**
+       * OpenAI image generation model to use
+       */
+      imageModel: {
+        environmentVariable: 'OPENAI_IMAGE_MODEL',
+        options: [
+          'gpt-image-1',
+          'gpt-image-1-mini',
+        ],
+        value: 'gpt-image-1-mini',
       },
 
       /**
