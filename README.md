@@ -28,7 +28,7 @@ My intent is for **Botc** to engage with chat users in a more human-like fashion
 - Bot builds a guild-wide persona of users being engaged to enhance responses. Personas are cached to limit API polling.
 - Examine and comprehend user image attachments and voice messages. Image descriptions and transcriptions are cached to limit API polling.
 - Responds to voice messages using voice - generated using text-to-speech from ElevenLabs.
-- Produce and edit images using the OpenAI `gpt-image-1` model. Edit images posted by others by replying to an image and prompting.
+- Produce and edit images using the OpenAI `gpt-image-1-mini` (default) or `gpt-image-1` model. Edit images posted by others by replying to an image and prompting.
 - System/developer prompts and individual messages have a metadata section that enables richer bot responses.
 
 [View Changelog](doc/CHANGELOG.md)
@@ -48,7 +48,7 @@ Configuration is achieved through environment variables, which are easily config
 
 ### [discord-bot-ol-bootsie](https://github.com/jlyons210/discord-bot-ol-bootsie) ("dbob", archived)
 
-Dbob was developed in early 2023 as I was learning both TypeScript and how to interface with LLMs. It was actively developed for about 18 months, and is now in maintenance mode.
+Dbob was developed in early 2023 as I was learning both TypeScript and how to interface with LLMs. It was actively developed for about 18 months, and is now retired.
 
 #### 💡 Trivia
 > I'll point out that `botc` and `bootsie` have similar phonetics. Bootsie was one of my cats that passed away about 10 years ago. I run two instances of `dbob` using personas of my cats Boots and Manky. `dbob` was eventually containerized, and is a bot-container. Botc. There you have it :smile_cat:
