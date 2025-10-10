@@ -26,7 +26,8 @@
 
 ---
 
-## 0.19.0 (2025-08-22)
+## 0.19.0 (2025-10-10)
+- Added `OPENAI_IMAGE_MODEL` configuration setting to support model switching. Defaults to `gpt-image-1-mini`, and `gpt-image-1` is also supported.
 - Changed default for `ENABLE_AI_GROUNDING` to `false` to reduce setup friction in requiring a Brave API account.
 - Updated dependencies.
 
