@@ -4,6 +4,7 @@
 
 ## Pre-release
 
+- 0.20.x: [0.20.0](#0200-2025-12-22)
 - 0.19.x: [0.19.0](#0190-2025-10-10)
 - 0.18.x: [0.18.0](#0180-2025-08-17), [0.18.1](#0181-2025-08-18), [0.18.2](#0182-2025-08-19)
 - 0.17.x: [0.17.0](#0170-2025-08-08), [0.17.1](#0171-2025-08-09), [0.17.2](#0172-2025-08-09), [0.17.3](#0173-2025-08-09), [0.17.4](#0174-2025-08-09), [0.17.5](#0175-2025-08-09), [0.17.6](#0176-2025-08-09), [0.17.7](#0177-2025-08-11)
@@ -25,6 +26,13 @@
 - 0.1.x: [0.1.0](#010-2025-01-24)
 
 ---
+
+## 0.20.0 (2025-12-22)
+- Added support for `gpt-image-1.5` model, `gpt-image-1-mini` is still the default image model due to cost.
+- Updated Node.js to 24.12.0
+- Updated dependencies.
+
+[:arrow_up: Back to top](#changelog)
 
 ## 0.19.0 (2025-10-10)
 - Added `OPENAI_IMAGE_MODEL` configuration setting to support model switching. Defaults to `gpt-image-1-mini`, and `gpt-image-1` is also supported.
