@@ -1,5 +1,5 @@
 # Build stage
-FROM node:22.20.0-alpine AS builder
+FROM node:24.12.0-alpine3.23 AS builder
 WORKDIR /usr/src/app
 
 # Copy package files and install all dependencies
@@ -11,7 +11,7 @@ COPY src ./src
 RUN npm run build
 
 # Production stage
-FROM node:22.20.0-alpine AS production
+FROM node:24.12.0-alpine3.23 AS production
 LABEL maintainer="Jeremy Lyons <jlyons210@gmail.com>" \
       description="My most ambitious Discord bot yet." \
       url="https://github.com/jlyons210/botc"
