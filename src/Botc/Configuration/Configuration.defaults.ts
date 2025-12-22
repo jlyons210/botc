@@ -289,6 +289,7 @@ export const ConfigurationDefaults: ConfigurationOptions = {
         options: [
           'gpt-image-1',
           'gpt-image-1-mini',
+          'gpt-image-1.5',
         ],
         value: 'gpt-image-1-mini',
       },
