@@ -4,6 +4,7 @@
 
 ## Pre-release
 
+- 0.21.x: [0.21.0](#0210-2026-03-02)
 - 0.20.x: [0.20.0](#0200-2025-12-22)
 - 0.19.x: [0.19.0](#0190-2025-10-10)
 - 0.18.x: [0.18.0](#0180-2025-08-17), [0.18.1](#0181-2025-08-18), [0.18.2](#0182-2025-08-19)
@@ -27,9 +28,16 @@
 
 ---
 
+## 0.21.0 (2026-03-02)
+- Switching to Docker Hardened Image (DHI) for Node.js.
+- Updated Node.js to 24.14.0.
+- Updated dependencies.
+
+[:arrow_up: Back to top](#changelog)
+
 ## 0.20.0 (2025-12-22)
 - Added support for `gpt-image-1.5` model, `gpt-image-1-mini` is still the default image model due to cost.
-- Updated Node.js to 24.12.0
+- Updated Node.js to 24.12.0.
 - Updated dependencies.
 
 [:arrow_up: Back to top](#changelog)
