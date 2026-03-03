@@ -18,11 +18,6 @@ LABEL maintainer="Jeremy Lyons <jlyons210@gmail.com>" \
       description="My most ambitious Discord bot yet." \
       url="https://github.com/jlyons210/botc"
 
-# Install tini for proper signal handling
-RUN apk update && \
-    apk add --no-cache tini && \
-    rm -rf /var/cache/apk/*
-
 # Install dependencies
 WORKDIR /usr/src/app
 COPY --chown=node:node package*.json ./
@@ -34,5 +29,4 @@ COPY --chown=node:node --from=builder /usr/src/app/dist ./dist
 
 # Run as non-root user
 USER node
-ENTRYPOINT ["/sbin/tini", "--"]
 CMD ["node", "dist/app.js"]
