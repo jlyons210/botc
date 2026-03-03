@@ -19,7 +19,9 @@ LABEL maintainer="Jeremy Lyons <jlyons210@gmail.com>" \
       url="https://github.com/jlyons210/botc"
 
 # Install tini for proper signal handling
-RUN apk add --no-cache tini
+RUN apk update && \
+    apk add --no-cache tini && \
+    rm -rf /var/cache/apk/*
 
 # Install dependencies
 WORKDIR /usr/src/app
