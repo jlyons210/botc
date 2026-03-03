@@ -34,7 +34,7 @@ LABEL maintainer="Jeremy Lyons <jlyons210@gmail.com>" \
 WORKDIR /app
 COPY --from=dependencies /sbin/tini /sbin/tini
 COPY --chown=node:node --from=dependencies /usr/src/app/node_modules ./node_modules
-COPY --chown=node:node --from=builder /usr/src/package.json .
+COPY --chown=node:node --from=builder /usr/src/app/package.json .
 COPY --chown=node:node --from=builder /usr/src/app/dist ./dist
 
 # Run as non-root user
