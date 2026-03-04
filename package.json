@@ -36,7 +36,7 @@
     "sharp": "0.34.5"
   },
   "overrides": {
-    "undici": "7.22.0"
+    "undici": "6.23.0"
   },
   "devDependencies": {
     "@eslint/js": "10.0.1",
