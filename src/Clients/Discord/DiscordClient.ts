@@ -145,10 +145,14 @@ export class DiscordClient {
     }
     catch (error) {
       if (error instanceof DiscordjsError && error.code === DiscordjsErrorCodes.TokenInvalid) {
-        throw Error('DISCORD_BOT_TOKEN is invalid. Exiting.');
+        throw new Error('DISCORD_BOT_TOKEN is invalid. Exiting.', {
+          cause: error,
+        });
       }
       else {
-        throw Error(`Error: ${error}`);
+        throw new Error(`Error: ${error}`, {
+          cause: error,
+        });
       }
     }
   }
