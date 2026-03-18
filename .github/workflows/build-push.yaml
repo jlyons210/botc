@@ -96,7 +96,6 @@ jobs:
           context: .
           file: ./Dockerfile
           platforms: linux/amd64,linux/arm64
-          outputs: type=registry,oci-mediatypes=true,oci-artifact=true
           provenance: mode=max
           sbom: true
           push: true
