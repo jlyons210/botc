@@ -26,9 +26,9 @@ RUN npm run build
 FROM dhi.io/node:24.14.0-alpine3.23 AS production
 ENV NODE_ENV=production
 
-LABEL maintainer="Jeremy Lyons <jlyons210@gmail.com>" \
-      description="My most ambitious Discord bot yet." \
-      url="https://github.com/jlyons210/botc"
+LABEL org.opencontainers.image.authors="Jeremy Lyons <jlyons210@gmail.com>" \
+      org.opencontainers.image.description="My most ambitious Discord bot yet." \
+      org.opencontainers.image.source="https://github.com/jlyons210/botc"
 
 # Copy production dependencies and built application
 WORKDIR /app
