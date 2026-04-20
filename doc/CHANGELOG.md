@@ -4,6 +4,7 @@
 
 ## Pre-release
 
+- 0.22.x: [0.22.0](#0220-2026-04-20)
 - 0.21.x: [0.21.0](#0210-2026-03-02), [0.21.1](#0211-2026-03-16), [0.21.2](#0212-2026-04-02)
 - 0.20.x: [0.20.0](#0200-2025-12-22)
 - 0.19.x: [0.19.0](#0190-2025-10-10)
@@ -27,6 +28,15 @@
 - 0.1.x: [0.1.0](#010-2025-01-24)
 
 ---
+
+## 0.22.0 (2026-04-20)
+- Refreshed OpenAI chat model list to `gpt-5`, `gpt-5-mini`, `gpt-5-nano`, `gpt-5.4`, `gpt-5.4-mini`, `gpt-5.4-nano`; removed older models.
+- Changed `OPENAI_MODEL` default from `gpt-4o-mini` to `gpt-5.4-mini`.
+- Changed `OPENAI_IMAGE_MODEL` default from `gpt-image-1-mini` to `gpt-image-1.5`.
+- Updated dependencies.
+  - Holding back `discord.js` to 14.26.1 as bot DMs aren't received in later versions. Will monitor GitHub [issue #11486](https://github.com/discordjs/discord.js/issues/11486).
+
+[:arrow_up: Back to top](#changelog)
 
 ## 0.21.2 (2026-04-02)
 - Updated dependencies.
