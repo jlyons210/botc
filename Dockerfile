@@ -1,5 +1,5 @@
 ### Dependencies stage
-FROM node:24.14.1-alpine3.23 AS dependencies
+FROM node:24.15.0-alpine3.23 AS dependencies
 
 # Install dependencies for production stage
 WORKDIR /usr/src/app
@@ -10,7 +10,7 @@ RUN apk add --no-cache tini
 
 
 ### Build stage
-FROM node:24.14.1-alpine3.23 AS builder
+FROM node:24.15.0-alpine3.23 AS builder
 
 # Install prod and dev dependencies for build
 WORKDIR /usr/src/app
@@ -23,7 +23,7 @@ RUN npm run build
 
 
 ### Production stage
-FROM dhi.io/node:24.14.1-alpine3.23 AS production
+FROM dhi.io/node:24.15.0-alpine3.23 AS production
 ENV NODE_ENV=production
 
 LABEL org.opencontainers.image.authors="Jeremy Lyons <jlyons210@gmail.com>" \
