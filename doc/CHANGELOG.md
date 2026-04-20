@@ -34,6 +34,7 @@
 - Changed `OPENAI_MODEL` default from `gpt-4o-mini` to `gpt-5.4-mini`.
 - Changed `OPENAI_IMAGE_MODEL` default from `gpt-image-1-mini` to `gpt-image-1.5`.
 - Updated dependencies.
+  - Holding back `discord.js` to 14.26.1 as bot DMs aren't received in later versions. Will monitor GitHub [issue #11486](https://github.com/discordjs/discord.js/issues/11486).
 
 [:arrow_up: Back to top](#changelog)
 
