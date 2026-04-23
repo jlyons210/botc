@@ -290,8 +290,9 @@ export const ConfigurationDefaults: ConfigurationOptions = {
           'gpt-image-1',
           'gpt-image-1-mini',
           'gpt-image-1.5',
+          'gpt-image-2',
         ],
-        value: 'gpt-image-1.5',
+        value: 'gpt-image-2',
       },
 
       /**
@@ -308,6 +309,7 @@ export const ConfigurationDefaults: ConfigurationOptions = {
       model: {
         environmentVariable: 'OPENAI_MODEL',
         options: [
+          'gpt-4o-mini',
           'gpt-5',
           'gpt-5-mini',
           'gpt-5-nano',
