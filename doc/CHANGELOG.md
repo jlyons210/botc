@@ -4,6 +4,7 @@
 
 ## Pre-release
 
+- 0.23.x: [0.23.0](#0230-2026-04-23)
 - 0.22.x: [0.22.0](#0220-2026-04-20)
 - 0.21.x: [0.21.0](#0210-2026-03-02), [0.21.1](#0211-2026-03-16), [0.21.2](#0212-2026-04-02)
 - 0.20.x: [0.20.0](#0200-2025-12-22)
@@ -28,6 +29,14 @@
 - 0.1.x: [0.1.0](#010-2025-01-24)
 
 ---
+
+## 0.23.0 (2026-04-23)
+- Added support for `gpt-image-2`.
+- Changed `OPENAI_IMAGE_MODEL` default from `gpt-image-1.5` to `gpt-image-2`.
+- Returning support for `gpt-4o-mini`, which seems to better implement `OPENAI_PROMPT_BOT_BEHAVIOR` better than `gpt-5.4-mini`.
+- Updated dependencies.
+
+[:arrow_up: Back to top](#changelog)
 
 ## 0.22.0 (2026-04-20)
 - Refreshed OpenAI chat model list to `gpt-5`, `gpt-5-mini`, `gpt-5-nano`, `gpt-5.4`, `gpt-5.4-mini`, `gpt-5.4-nano`; removed older models.
