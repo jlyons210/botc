@@ -1,5 +1,5 @@
 ### Dependencies stage
-FROM node:24.15.0-alpine3.23 AS dependencies
+FROM dhi.io/node:24.15.0-alpine3.23-dev AS dependencies
 
 # Install dependencies for production stage
 WORKDIR /usr/src/app
@@ -10,7 +10,7 @@ RUN apk add --no-cache tini
 
 
 ### Build stage
-FROM node:24.15.0-alpine3.23 AS builder
+FROM dhi.io/node:24.15.0-alpine3.23-dev AS builder
 
 # Install prod and dev dependencies for build
 WORKDIR /usr/src/app
