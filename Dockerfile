@@ -6,7 +6,6 @@ WORKDIR /usr/src/app
 COPY package*.json ./
 RUN npm ci --omit=dev --ignore-scripts \
     && npm cache clean --force
-RUN apk add --no-cache tini
 
 
 ### Build stage
@@ -32,12 +31,11 @@ LABEL org.opencontainers.image.authors="Jeremy Lyons <jlyons210@gmail.com>" \
 
 # Copy production dependencies and built application
 WORKDIR /app
-COPY --from=dependencies /sbin/tini /sbin/tini
 COPY --chown=node:node --from=dependencies /usr/src/app/node_modules ./node_modules
 COPY --chown=node:node --from=builder /usr/src/app/package.json .
 COPY --chown=node:node --from=builder /usr/src/app/dist ./dist
 
 # Run as non-root user
 USER node
-ENTRYPOINT ["tini", "--"]
-CMD ["node", "dist/app.js"]
+ENTRYPOINT ["node"]
+CMD ["dist/app.js"]
