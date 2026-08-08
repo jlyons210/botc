@@ -4,7 +4,7 @@
 
 ## Pre-release
 
-- 0.23.x: [0.23.0](#0230-2026-04-23)
+- 0.23.x: [0.23.0](#0230-2026-04-23), [0.23.1](#0231-2026-08-07)
 - 0.22.x: [0.22.0](#0220-2026-04-20)
 - 0.21.x: [0.21.0](#0210-2026-03-02), [0.21.1](#0211-2026-03-16), [0.21.2](#0212-2026-04-02)
 - 0.20.x: [0.20.0](#0200-2025-12-22)
@@ -29,6 +29,17 @@
 - 0.1.x: [0.1.0](#010-2025-01-24)
 
 ---
+
+## 0.23.1 (2026-08-07)
+- Updated Node.js to 24.19.0.
+- Updated `Dockerfile`:
+  - Uses DHI dev images for earlier stages
+  - Pinned all images to specific digests
+  - No longer uses `tini` to launch `node`
+- Updated dependencies.
+  - Released hold on `discord.js` as [issue #11486](https://github.com/discordjs/discord.js/issues/11486) was resolved.
+
+[:arrow_up: Back to top](#changelog)
 
 ## 0.23.0 (2026-04-23)
 - Added support for `gpt-image-2`.
