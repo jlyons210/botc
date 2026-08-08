@@ -50,9 +50,13 @@ export class Botc {
         ),
       },
       clients: {
-        brave: new Brave(this.config.options),
+        brave: (this.config.options.featureGates.enableAiGrounding.value as boolean)
+          ? new Brave(this.config.options)
+          : null,
         discord: new DiscordClient(this.config.options),
-        elevenlabs: new ElevenLabs(this.config.options),
+        elevenlabs: (this.config.options.featureGates.enableVoiceResponse.value as boolean)
+          ? new ElevenLabs(this.config.options)
+          : null,
         openai: new OpenAIClient(this.config.options),
       },
     };
@@ -237,7 +241,7 @@ export class Botc {
    * @returns {Promise<string>} Grounding context
    */
   private async generateGroundingContext(messageHistory: BotcMessage[]): Promise<string> {
-    if (await this.willGroundResponse(messageHistory)) {
+    if (this.modules.clients.brave && await this.willGroundResponse(messageHistory)) {
       this.logger.log('Botc.generateGroundingContext: Will ground response with RAG', 'DEBUG');
     }
     else {
@@ -415,6 +419,11 @@ export class Botc {
    */
   private async prepareVoiceResponse(responseText: string): Promise<AttachmentBuilder> {
     const elevenlabs = this.modules.clients.elevenlabs;
+    if (!elevenlabs) {
+      this.logger.log('Botc.prepareVoiceResponse: ElevenLabs client is not available', 'ERROR');
+      throw new Error('ElevenLabs client is not available');
+    }
+
     const voiceMessage = await elevenlabs.generateVoiceFile(responseText);
     return new AttachmentBuilder(voiceMessage);
   }

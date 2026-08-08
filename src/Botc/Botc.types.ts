@@ -16,9 +16,9 @@ export type BotcCacheModules = {
 };
 
 export type BotcClientModules = {
-  brave: Brave;
+  brave: Brave | null;
   discord: DiscordClient;
-  elevenlabs: ElevenLabs;
+  elevenlabs: ElevenLabs | null;
   openai: OpenAIClient;
 };
 
