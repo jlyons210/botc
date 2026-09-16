@@ -66,6 +66,12 @@ export class Botc {
    * Register event handlers
    */
   private registerHandlers(): void {
+    ['SIGINT', 'SIGTERM'].forEach((signal) => {
+      process.once(signal, () => {
+        this.handleShutdown();
+      });
+    });
+
     this.globalEvents.once('Brave:Ready',
       this.handleBraveClientReady.bind(this),
     );
@@ -175,6 +181,16 @@ export class Botc {
    */
   private async handleOpenAIClientReady(data: EventMap['OpenAIClient:Ready']): Promise<void> {
     this.logger.log(data.message, 'INFO');
+  }
+
+  /**
+   * Handle application shutdown and clean up resources
+   */
+  private handleShutdown(): void {
+    this.modules.caches.imageDescriptions.destroy();
+    this.modules.caches.personas.destroy();
+    this.modules.caches.transcriptions.destroy();
+    this.modules.clients.discord.destroy();
   }
 
   /**
