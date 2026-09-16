@@ -8,15 +8,14 @@ import { Logger } from '../Logger/index.js';
 export class ObjectCache {
   private readonly cached: CacheEntry = {};
   private readonly logger = new Logger();
+  private readonly expirationInterval = setInterval(() => this.clearExpired(), 60000);
 
   /**
    * New object cache
    * @param {ConfigurationSettings} ttlConfig Cache TTL configuration
    * @param {OpenAICacheLoggingSettings} logConfig Cache logging configuration
    */
-  constructor(private ttlConfig: ConfigurationSettings, private logConfig: OpenAICacheLoggingSettings) {
-    setInterval(() => this.clearExpired(), 60000);
-  }
+  constructor(private ttlConfig: ConfigurationSettings, private logConfig: OpenAICacheLoggingSettings) {}
 
   /**
    * Clears expired cache entries
@@ -40,6 +39,14 @@ export class ObjectCache {
    */
   public contains(key: string): boolean {
     return (this.get(key) !== undefined);
+  }
+
+  /**
+   * Clear the expiration interval to allow shutdown
+   */
+  public destroy(): void {
+    clearInterval(this.expirationInterval);
+    this.logger.log(`ObjectCache.destroy: Object cache destroyed`, 'DEBUG');
   }
 
   /**

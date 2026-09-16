@@ -291,8 +291,10 @@ export const ConfigurationDefaults: ConfigurationOptions = {
           'gpt-image-1-mini',
           'gpt-image-1.5',
           'gpt-image-2',
+          'gpt-image-2.5-flare',
+          'gpt-image-2.5-sunburst',
         ],
-        value: 'gpt-image-2',
+        value: 'gpt-image-2.5-sunburst',
       },
 
       /**

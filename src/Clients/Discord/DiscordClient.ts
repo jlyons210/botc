@@ -36,6 +36,14 @@ export class DiscordClient {
   }
 
   /**
+   * Destroy the Discord Client
+   */
+  public destroy(): void {
+    this.discordClient.destroy();
+    this.logger.log(`Discord client destroyed.`, 'INFO');
+  }
+
+  /**
    * Async initialize outside of constructor
    */
   private async initialize(): Promise<void> {
