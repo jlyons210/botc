@@ -4,6 +4,7 @@
 
 ## Pre-release
 
+- 0.24.x: [0.24.0]()
 - 0.23.x: [0.23.0](#0230-2026-04-23), [0.23.1](#0231-2026-08-07)
 - 0.22.x: [0.22.0](#0220-2026-04-20)
 - 0.21.x: [0.21.0](#0210-2026-03-02), [0.21.1](#0211-2026-03-16), [0.21.2](#0212-2026-04-02)
@@ -29,6 +30,15 @@
 - 0.1.x: [0.1.0](#010-2025-01-24)
 
 ---
+
+## 0.24.0 (2026-09-16)
+- Added support for `gpt-image-2.5-flare` and `gpt-image-2.5-sunburst`
+- Changed `OPENAI_IMAGE_MODEL` default from `gpt-image-2` to `gpt-image-2.5-sunburst`
+- Added explicit shutdown handling to speed up container exits.
+- Updated GHA workflows.
+- Updated dependencies.
+
+[:arrow_up: Back to top](#changelog)
 
 ## 0.23.1 (2026-08-07)
 - Updated Node.js to 24.19.0.
