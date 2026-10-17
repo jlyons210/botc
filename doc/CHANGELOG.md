@@ -4,6 +4,7 @@
 
 ## Pre-release
 
+- 0.25.x: [0.25.0](#0250-2026-10-17)
 - 0.24.x: [0.24.0](#0240-2026-09-16)
 - 0.23.x: [0.23.0](#0230-2026-04-23), [0.23.1](#0231-2026-08-07)
 - 0.22.x: [0.22.0](#0220-2026-04-20)
@@ -30,6 +31,19 @@
 - 0.1.x: [0.1.0](#010-2025-01-24)
 
 ---
+
+## 0.25.0 (2026-10-17)
+- Migrated from the OpenAI Completions API to the [Responses API](https://developers.openai.com/api/docs/guides/migrate-to-responses).
+- Added support for new models:
+  - Chat: `gpt-6-luna`, `gpt-6.1-sol`
+- Added configuration option `OPENAI_MODEL_REASONING_EFFORT`.
+  - Available settings are `none` (default), `low`, `medium`, and `high`.
+- Removed support for older models:
+  - Chat: `gpt-4o-mini`, `gpt-5`, `gpt-5-mini`, `gpt-5-nano`, `gpt-5.4`, `gpt-5.4-mini`, `gpt-5.4-nano`
+  - Image: `gpt-image-1`, `gpt-image-1-mini`, `gpt-image-1.5`, `gpt-image-2`
+- Updated dependencies.
+
+[:arrow_up: Back to top](#changelog)
 
 ## 0.24.0 (2026-09-16)
 - Added support for `gpt-image-2.5-flare` and `gpt-image-2.5-sunburst`

@@ -1,5 +1,5 @@
 ### Dependencies stage
-FROM dhi.io/node:26.8.2-alpine3.23-dev@sha256:34ebd987d37dba56553ee67dbe772894fdcff51f9e70169bae6a49e22ef65f22 AS deps
+FROM dhi.io/node:26.9.0-alpine3.23-dev@sha256:d7d4b9e020dd2e8feb873df27a49c898b85d7b2f6f59d9d7dbaa7c9070bc4db5 AS deps
 
 # Install dependencies for production stage
 WORKDIR /usr/src/app
@@ -9,7 +9,7 @@ RUN npm ci --omit=dev --ignore-scripts \
 
 
 ### Build stage
-FROM dhi.io/node:26.8.2-alpine3.23-dev@sha256:34ebd987d37dba56553ee67dbe772894fdcff51f9e70169bae6a49e22ef65f22 AS build
+FROM dhi.io/node:26.9.0-alpine3.23-dev@sha256:d7d4b9e020dd2e8feb873df27a49c898b85d7b2f6f59d9d7dbaa7c9070bc4db5 AS build
 
 # Install prod and dev dependencies for build
 WORKDIR /usr/src/app
@@ -22,7 +22,7 @@ RUN npm run build
 
 
 ### Production stage
-FROM dhi.io/node:26.8.2-alpine3.23@sha256:6c2d623d11571160de1461e7fa13093055fb58df510e9b75ba752e7cbb4154f6 AS runtime
+FROM dhi.io/node:26.9.0-alpine3.23@sha256:8d2c30232878a0631a01eb2f8eae51b5dac199d801766ae2da6c71fec9f7f3e7 AS runtime
 ENV NODE_ENV=production
 
 LABEL org.opencontainers.image.authors="Jeremy Lyons <jlyons210@gmail.com>" \

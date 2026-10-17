@@ -287,10 +287,6 @@ export const ConfigurationDefaults: ConfigurationOptions = {
       imageModel: {
         environmentVariable: 'OPENAI_IMAGE_MODEL',
         options: [
-          'gpt-image-1',
-          'gpt-image-1-mini',
-          'gpt-image-1.5',
-          'gpt-image-2',
           'gpt-image-2.5-flare',
           'gpt-image-2.5-sunburst',
         ],
@@ -306,20 +302,29 @@ export const ConfigurationDefaults: ConfigurationOptions = {
       },
 
       /**
-       * OpenAI model to use for chat completions
+       * OpenAI model to use for chat responses
        */
       model: {
         environmentVariable: 'OPENAI_MODEL',
         options: [
-          'gpt-4o-mini',
-          'gpt-5',
-          'gpt-5-mini',
-          'gpt-5-nano',
-          'gpt-5.4',
-          'gpt-5.4-mini',
-          'gpt-5.4-nano',
+          'gpt-6-luna',
+          'gpt-6.1-sol',
         ],
-        value: 'gpt-5.4-mini',
+        value: 'gpt-6-luna',
+      },
+
+      /**
+       * Reasoning effort used when generating responses.
+       */
+      modelReasoningEffort: {
+        environmentVariable: 'OPENAI_MODEL_REASONING_EFFORT',
+        options: [
+          'none',
+          'low',
+          'medium',
+          'high',
+        ],
+        value: 'none',
       },
 
       promptBotBehavior: {
@@ -356,7 +361,7 @@ export const ConfigurationDefaults: ConfigurationOptions = {
       },
 
       /**
-       * OpenAI system prompt to use for chat completions
+       * OpenAI system prompt to use for chat responses
        */
       systemPrompt: {
         environmentVariable: 'OPENAI_SYSTEM_PROMPT',

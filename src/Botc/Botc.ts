@@ -7,15 +7,17 @@ import {
 } from './index.js';
 
 import { EventBus, EventMap } from './EventBus/index.js';
+import {
+  OpenAIClient,
+  type OpenAIResponsePayload,
+} from '../Clients/OpenAI/index.js';
 import { AttachmentBuilder } from 'discord.js';
 import { Brave } from '../Clients/Brave/index.js';
-import { ChatCompletionMessageParam } from 'openai/resources/index.mjs';
 import { Configuration } from './Configuration/index.js';
 import { DiscordClient } from '../Clients/Discord/index.js';
 import { ElevenLabs } from '../Clients/ElevenLabs/index.js';
 import { Logger } from './Logger/index.js';
 import { ObjectCache } from './ObjectCache/index.js';
-import { OpenAIClient } from '../Clients/OpenAI/index.js';
 import { Resizer } from './Resizer/index.js';
 
 /**
@@ -197,28 +199,23 @@ export class Botc {
    * Create prompt payload
    * @param {BotcMessage[]} messageHistory Channel message history
    * @param {CustomSystemPrompt} customSystemPrompt Custom system prompt
-   * @returns {ChatCompletionMessageParam[]} Chat completion message
+   * @returns {OpenAIResponsePayload} Responses API request context
    */
-  private async createPromptPayload(messageHistory: BotcMessage[], customSystemPrompt?: CustomSystemPrompt): Promise<ChatCompletionMessageParam[]> {
+  private async createPromptPayload(messageHistory: BotcMessage[], customSystemPrompt?: CustomSystemPrompt): Promise<OpenAIResponsePayload> {
     const config = this.config.options.llms.openai;
     const configSystemPrompt = config.systemPrompt;
-
-    const payload = messageHistory.map(message => ({
-      content: message.promptContent,
-      name: message.promptUsername,
-      role: message.promptRole,
-    } as ChatCompletionMessageParam));
 
     const systemPrompt = (customSystemPrompt?.append)
       ? [configSystemPrompt.value, customSystemPrompt.value].join('\n')
       : customSystemPrompt?.value || configSystemPrompt.value;
 
-    payload.unshift({
-      content: systemPrompt,
-      role: 'system',
-    } as ChatCompletionMessageParam);
-
-    return payload;
+    return {
+      instructions: systemPrompt as string,
+      input: messageHistory.map(message => ({
+        role: message.promptRole,
+        content: `Username: ${message.promptUsername}\n${message.promptContent}`,
+      })),
+    };
   }
 
   /**
@@ -282,7 +279,7 @@ export class Botc {
     });
 
     const openai = this.modules.clients.openai;
-    const groundingQuery = await openai.createCompletion(conversationPayload);
+    const groundingQuery = await openai.createResponse(conversationPayload);
 
     this.logger.log(`Botc.generateGroundingContext: Grounding query: ${groundingQuery}`, 'DEBUG');
     this.logger.log('Botc.generateGroundingContext: Using Brave to ground response', 'DEBUG');
@@ -312,7 +309,7 @@ export class Botc {
     });
 
     const openai = this.modules.clients.openai;
-    return await openai.createCompletion(payload);
+    return await openai.createResponse(payload);
   }
 
   /**
@@ -338,7 +335,7 @@ export class Botc {
         append: false,
       });
 
-      const persona = await openai.createCompletion(payload);
+      const persona = await openai.createResponse(payload);
 
       cache.put({
         key: cacheKey,
@@ -360,7 +357,7 @@ export class Botc {
       value: 'Is this message an image generation or image edit prompt? Respond with "yes" or "no".',
       append: false,
     });
-    const response = await openai.createCompletion(payload);
+    const response = await openai.createResponse(payload);
 
     return (response.toLowerCase() === 'yes');
   }
@@ -523,7 +520,7 @@ export class Botc {
     );
 
     const openai = this.modules.clients.openai;
-    const responseMessage = await openai.createCompletion(payload);
+    const responseMessage = await openai.createResponse(payload);
 
     // Log response for debugging
     this.logger.log(
@@ -578,7 +575,7 @@ export class Botc {
         'DEBUG',
       );
 
-      const responseMessage = await openai.createCompletion(payload);
+      const responseMessage = await openai.createResponse(payload);
 
       this.logger.log(
         `OpenAIClient.willReplyToMessage: Response from OpenAI: ${responseMessage}`,
