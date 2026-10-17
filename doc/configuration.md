@@ -30,7 +30,7 @@ Configuration is achieved through environment variables, which are easily config
 | `ENABLE_AI_GROUNDING` | `false` | Allows the bot to ground responses using the Brave AI Grounding API. Requires `BRAVE_API_KEY`. |
 | `ENABLE_AUTO_RESPOND` | `true` | Allows the bot to respond without being explicitly tagged. |
 | `ENABLE_DEBUG_LOGGING` | `false` | Enable debug logging to the console. |
-| `ENABLE_IMAGE_GENERATION` | `true` | Allows the bot to generate images using the OpenAI `gpt-image-1` or `gpt-image-1-mini` model. |
+| `ENABLE_IMAGE_GENERATION` | `true` | Allows the bot to generate and edit images using `OPENAI_IMAGE_MODEL`. |
 | `ENABLE_VOICE_RESPONSE` | `false` | Allows the bot to respond to voice responses with voice using the ElevenLabs API. Requires `ELEVENLABS_API_KEY`. |
 
 [:arrow_up: Back to top](#configuration)
@@ -49,7 +49,8 @@ Configuration is achieved through environment variables, which are easily config
 | `OPENAI_GROUND_DECISION_PROMPT` | [Source](https://github.com/jlyons210/botc/blob/main/src/Botc/Configuration/Configuration.defaults.ts) | Prompt used to reason whether or not the bot should ground its response using the Brave Grounded AI API. |
 | `OPENAI_IMAGE_MODEL` | `gpt-image-2.5-sunburst` | OpenAI model to use for image generations and edits. |
 | `OPENAI_MAX_RETRIES` | `3` | Number of OpenAI API retries on retriable errors. |
-| `OPENAI_MODEL` | `gpt-5.4-mini` | OpenAI model to use for chat completions. |
+| `OPENAI_MODEL` | `gpt-6-luna` | OpenAI model to use for chat responses. |
+| `OPENAI_MODEL_REASONING_EFFORT` | `none` | Reasoning effort the OpenAI model will use. |
 | `OPENAI_PROMPT_BOT_BEHAVIOR` | `String` | Optional field for further customizing the bot behavior without re-writing the full system prompt. |
 | `OPENAI_REPLY_DECISION_PROMPT` | [Source](https://github.com/jlyons210/botc/blob/main/src/Botc/Configuration/Configuration.defaults.ts) | Prompt used to reason whether or not the bot should engage in conversation. |
 | `OPENAI_SYSTEM_PROMPT` | [Source](https://github.com/jlyons210/botc/blob/main/src/Botc/Configuration/Configuration.defaults.ts) | Behavioral prompt to set the overall bot behavior. |

@@ -139,6 +139,7 @@ export interface OpenAISettings {
   imageModel: ConfigurationSettings;
   maxRetries: ConfigurationSettings;
   model: ConfigurationSettings;
+  modelReasoningEffort: ConfigurationSettings;
   promptBotBehavior: ConfigurationSettings;
   replyDecisionPrompt: ConfigurationSettings;
   systemPrompt: ConfigurationSettings;

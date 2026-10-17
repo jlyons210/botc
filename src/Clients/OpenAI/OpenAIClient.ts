@@ -1,9 +1,14 @@
 import { ConfigurationOptions, OpenAISettings } from '../../Botc/Configuration/index.js';
-import { ChatCompletionMessageParam } from 'openai/resources';
 import { EventBus } from '../../Botc/EventBus/index.js';
 import { Logger } from '../../Botc/Logger/index.js';
 import OpenAI from 'openai';
 import { OpenAINotAllowedError } from './OpenAIClient.errors.js';
+import { type ResponseInputItem } from 'openai/resources/responses/responses.js';
+
+export type OpenAIResponsePayload = {
+  instructions?: string;
+  input: ResponseInputItem[];
+};
 
 /**
  * OpenAI client wrapper
@@ -39,27 +44,32 @@ export class OpenAIClient {
   }
 
   /**
-   * Create completion
-   * @param {ChatCompletionMessageParam[]} payload Chat completion message
-   * @returns {Promise<string>} string
+   * Create a response
+   * @param {OpenAIResponsePayload} payload Response instructions and conversation input
+   * @returns {Promise<string>} Response text
    */
-  public async createCompletion(payload: ChatCompletionMessageParam[]): Promise<string> {
+  public async createResponse(payload: OpenAIResponsePayload): Promise<string> {
     try {
-      const completion = await this.client.chat.completions.create({
+      const response = await this.client.responses.create({
         model: this.model,
-        messages: payload,
+        instructions: payload.instructions,
+        input: payload.input,
+        reasoning: {
+          effort: this.openAIConfig.modelReasoningEffort.value as OpenAI.ReasoningEffort,
+        },
+        store: false,
       });
 
-      return completion.choices[0].message.content as string;
+      return response.output_text;
     }
     catch (error) {
       if (error instanceof OpenAI.APIError) {
-        this.logger.log(`OpenAIClient.createCompletion: OpenAI API error.`, 'ERROR');
-        this.logger.log(`OpenAIClient.createCompletion: error: ${error.message}`, 'ERROR');
+        this.logger.log('OpenAIClient.createResponse: OpenAI API error.', 'ERROR');
+        this.logger.log(`OpenAIClient.createResponse: error: ${error.message}`, 'ERROR');
       }
       else {
-        this.logger.log(`OpenAIClient.createCompletion: ${error}`, 'ERROR');
-        this.logger.log(`OpenAIClient.createCompletion: payload: ${JSON.stringify(payload)}`, 'DEBUG');
+        this.logger.log(`OpenAIClient.createResponse: ${error}`, 'ERROR');
+        this.logger.log(`OpenAIClient.createResponse: payload: ${JSON.stringify(payload)}`, 'DEBUG');
       }
 
       throw new OpenAINotAllowedError('OpenAI API rejected the request.');
@@ -83,7 +93,7 @@ export class OpenAIClient {
 
     try {
       const response = (imageFiles.length > 0)
-        ? await await this.client.images.edit({
+        ? await this.client.images.edit({
             prompt: prompt,
             model: this.imageModel,
             n: 1,
@@ -97,12 +107,12 @@ export class OpenAIClient {
             output_format: 'png',
           });
 
-      if (response.data && response.data.length > 0) {
-        return response.data[0].b64_json as string;
+      const imageData = response.data?.[0]?.b64_json;
+      if (imageData) {
+        return imageData;
       }
-      else {
-        throw new OpenAINotAllowedError('OpenAI API rejected the request.');
-      }
+
+      throw new OpenAINotAllowedError('OpenAI API rejected the request.');
     }
     catch (error) {
       if (error instanceof OpenAI.APIError) {
@@ -124,11 +134,12 @@ export class OpenAIClient {
    * @returns {Promise<string>} Transcription
    */
   public async generateAudioTranscription(audioFile: File): Promise<string> {
-    return await this.client.audio.transcriptions.create({
+    const transcription = await this.client.audio.transcriptions.create({
       file: audioFile,
-      model: 'whisper-1',
-      response_format: 'text',
+      model: 'gpt-transcribe',
     });
+
+    return transcription.text;
   }
 
   /**
@@ -138,14 +149,16 @@ export class OpenAIClient {
    */
   public async generateImageDescription(imageUrl: string): Promise<string> {
     const describeImagePrompt = this.openAIConfig.describeImagePrompt.value as string;
-    const payload = [{
-      role: 'user',
-      content: [
-        { type: 'text', text: describeImagePrompt },
-        { type: 'image_url', image_url: { url: imageUrl } },
-      ],
-    }] satisfies ChatCompletionMessageParam[];
+    const payload: OpenAIResponsePayload = {
+      input: [{
+        role: 'user',
+        content: [
+          { type: 'input_text', text: describeImagePrompt },
+          { type: 'input_image', image_url: imageUrl, detail: 'auto' },
+        ],
+      }],
+    };
 
-    return await this.createCompletion(payload);
+    return await this.createResponse(payload);
   }
 }
