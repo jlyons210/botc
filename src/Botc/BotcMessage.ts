@@ -339,7 +339,7 @@ export class BotcMessage {
    * Message role used by the OpenAI prompt role field.
    * @returns {string} Prompt role
    */
-  public get promptRole(): string {
+  public get promptRole(): 'assistant' | 'user' {
     return (this.isOwnMessage)
       ? 'assistant'
       : 'user';
@@ -386,7 +386,7 @@ export class BotcMessage {
 
   /**
    * Voice message attachment
-   * @returns {any | undefined} Voice message attachment
+   * @returns {Attachment | undefined} Voice message attachment
    */
   public get voiceMessage(): Attachment | undefined {
     return this.message.attachments.find(attachment =>

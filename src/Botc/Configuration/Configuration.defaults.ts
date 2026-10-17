@@ -302,7 +302,7 @@ export const ConfigurationDefaults: ConfigurationOptions = {
       },
 
       /**
-       * OpenAI model to use for chat completions
+       * OpenAI model to use for chat responses
        */
       model: {
         environmentVariable: 'OPENAI_MODEL',
@@ -361,7 +361,7 @@ export const ConfigurationDefaults: ConfigurationOptions = {
       },
 
       /**
-       * OpenAI system prompt to use for chat completions
+       * OpenAI system prompt to use for chat responses
        */
       systemPrompt: {
         environmentVariable: 'OPENAI_SYSTEM_PROMPT',

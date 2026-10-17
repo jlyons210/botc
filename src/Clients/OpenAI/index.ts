@@ -5,3 +5,5 @@ export {
   OpenAIClient,
   OpenAINotAllowedError,
 };
+
+export type { OpenAIResponsePayload } from './OpenAIClient.js';
