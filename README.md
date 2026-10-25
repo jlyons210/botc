@@ -1,4 +1,4 @@
-![Wise, learned botc](assets/botc-logo.png)
+![Wise, learned botc](doc/botc-logo.png)
 
 # botc
 
