@@ -38,14 +38,20 @@ export class Botc {
         imageDescriptions: new ObjectCache(
           this.config.options.llms.openai.caching.describeImageCacheTtlHours,
           this.config.options.llms.openai.caching.logging,
+          this.config.options.llms.openai.caching.maxEntriesPerCache
+            .value as number,
         ),
         personas: new ObjectCache(
           this.config.options.llms.openai.caching.personaCacheTtlHours,
           this.config.options.llms.openai.caching.logging,
+          this.config.options.llms.openai.caching.maxEntriesPerCache
+            .value as number,
         ),
         transcriptions: new ObjectCache(
           this.config.options.llms.openai.caching.voiceTranscriptCacheTtlHours,
           this.config.options.llms.openai.caching.logging,
+          this.config.options.llms.openai.caching.maxEntriesPerCache
+            .value as number,
         ),
       },
       clients: {
@@ -181,9 +187,6 @@ export class Botc {
   }
 
   private handleShutdown(): void {
-    this.modules.caches.imageDescriptions.destroy();
-    this.modules.caches.personas.destroy();
-    this.modules.caches.transcriptions.destroy();
     this.modules.clients.discord.destroy();
   }
 
@@ -219,20 +222,18 @@ export class Botc {
 
     await Promise.all(
       images.map(async ({ message, image }) => {
-        if (!cache.contains(image.imageUrl)) {
-          const resize = new Resizer(
-            this.config.options.llms.openai.imageMaxSide.value as number,
-          );
-          const imageUrl = await resize.getUrl(image.imageUrl);
-          const description = await openai.generateImageDescription(imageUrl);
+        const description = await cache.getOrCreate(
+          image.imageUrl,
+          async () => {
+            const resize = new Resizer(
+              this.config.options.llms.openai.imageMaxSide.value as number,
+            );
+            const imageUrl = await resize.getUrl(image.imageUrl);
+            return openai.generateImageDescription(imageUrl);
+          },
+        );
 
-          cache.put({
-            key: image.imageUrl,
-            value: description,
-          });
-        }
-
-        message.addImageDescription(cache.get(image.imageUrl) as string);
+        message.addImageDescription(description);
       }),
     );
   }
@@ -325,7 +326,7 @@ export class Botc {
     const discord = this.modules.clients.discord;
     const openai = this.modules.clients.openai;
 
-    if (!cache.contains(cacheKey)) {
+    return cache.getOrCreate(cacheKey, async () => {
       const guildHistory = await discord.getGuildHistory(guildId, authorId);
       await this.describeImages(guildHistory);
       await this.transcribeVoiceMessages(guildHistory);
@@ -336,15 +337,8 @@ export class Botc {
         append: false,
       });
 
-      const persona = await openai.createResponse(payload);
-
-      cache.put({
-        key: cacheKey,
-        value: persona,
-      });
-    }
-
-    return cache.get(cacheKey) as string;
+      return openai.createResponse(payload);
+    });
   }
 
   private async isImageGenerationPrompt(
@@ -470,25 +464,20 @@ export class Botc {
           const voiceMessageUrl = message.voiceMessage?.url;
 
           if (voiceMessageUrl) {
-            if (!cache.contains(voiceMessageUrl)) {
-              const fetchedAudio = await fetch(voiceMessageUrl);
-              const audioBuffer = await fetchedAudio.arrayBuffer();
-              const audioFile = new File([audioBuffer], "audio.ogg", {
-                type: "audio/ogg",
-              });
-
-              const transcription =
-                await openai.generateAudioTranscription(audioFile);
-
-              cache.put({
-                key: voiceMessageUrl,
-                value: transcription,
-              });
-            }
-
-            message.voiceMessageTranscription = cache.get(
+            const transcription = await cache.getOrCreate(
               voiceMessageUrl,
-            ) as string;
+              async () => {
+                const fetchedAudio = await fetch(voiceMessageUrl);
+                const audioBuffer = await fetchedAudio.arrayBuffer();
+                const audioFile = new File([audioBuffer], "audio.ogg", {
+                  type: "audio/ogg",
+                });
+
+                return openai.generateAudioTranscription(audioFile);
+              },
+            );
+
+            message.voiceMessageTranscription = transcription;
           }
         }),
     );

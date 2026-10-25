@@ -96,6 +96,8 @@ export interface OpenAICacheLoggingSettings {
 export interface OpenAICacheSettings {
   /** Image-description cache lifetime in hours. */
   describeImageCacheTtlHours: ConfigurationSettings;
+  /** Maximum entries retained in each cache instance. */
+  maxEntriesPerCache: ConfigurationSettings;
   /** Cache logging controls. */
   logging: OpenAICacheLoggingSettings;
   /** Persona cache lifetime in hours. */

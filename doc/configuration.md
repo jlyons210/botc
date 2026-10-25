@@ -77,11 +77,12 @@ Configure botc through environment variables. Start with the prerequisites and r
 
 | Environment                               | Default | Description                                        |
 | ----------------------------------------- | ------- | -------------------------------------------------- |
-| `OPENAI_DESCRIBE_IMAGE_CACHE_TTL_HOURS`   | `24`    | Hours to cache image descriptions.                 |
 | `OPENAI_CACHE_LOG_ENTRIES`                | `false` | Enables logging of new cache entries.              |
 | `OPENAI_CACHE_LOG_HITS`                   | `false` | Enables logging of cache hits.                     |
 | `OPENAI_CACHE_LOG_MISSES`                 | `false` | Enables logging of cache misses.                   |
 | `OPENAI_CACHE_LOG_PURGES`                 | `false` | Enables logging of cache entry expiration/purging. |
+| `OPENAI_CACHE_MAX_ENTRIES`                | `1000`  | Maximum entries retained in each cache instance.   |
+| `OPENAI_DESCRIBE_IMAGE_CACHE_TTL_HOURS`   | `24`    | Hours to cache image descriptions.                 |
 | `OPENAI_PERSONA_CACHE_TTL_HOURS`          | `3`     | Hours to cache guild-wide user personas.           |
 | `OPENAI_VOICE_TRANSCRIPT_CACHE_TTL_HOURS` | `24`    | Hours to cache voice message transcriptions.       |
 
