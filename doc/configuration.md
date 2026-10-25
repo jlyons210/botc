@@ -1,24 +1,38 @@
 # Configuration
 
-Configuration is achieved through environment variables, which are easily configured for container deployments.
+Configure botc through environment variables. Start with the prerequisites and required credentials, then review optional features and settings before choosing a Docker or Kubernetes deployment below.
 
 ## Contents
 
-- [Required](#required)
-- [Feature gates](#feature-gates)
-- [Optional](#optional)
-  - [Caching-specific](#optional-caching-specific)
-- [Kubernetes deployment](#kubernetes-deployment)
+- [Prerequisites](#prerequisites)
+- [Settings](#settings)
+  - [Required](#required)
+  - [Feature gates](#feature-gates)
+  - [Optional](#optional)
+    - [Caching-specific](#optional-caching-specific)
+- [Deployment](#deployment)
+  - [Docker](#docker)
+  - [Kubernetes](#kubernetes)
 
 [:arrow_left: Back to README.md](/README.md)
+
+## Prerequisites
+
+- **Discord:** Create a Discord application with a bot, add it to your server, enable the `Message Content` and `Server Members` privileged intents, and grant it permission to view channels, read message history, and send messages. See the [Discord Developer Portal](https://discord.com/developers/applications), [Gateway intents](https://discord.com/developers/docs/topics/gateway#privileged-intents), and [permissions](https://discord.com/developers/docs/topics/permissions).
+- **OpenAI:** An API key is required for chat responses and the bot's image and audio processing. Create one in the [OpenAI API dashboard](https://platform.openai.com/api-keys).
+- **Optional providers:** [Brave Search](https://brave.com/search/api/) is needed only when AI grounding is enabled; [ElevenLabs](https://elevenlabs.io/app/settings/api-keys) is needed only when voice responses are enabled.
+
+[:arrow_up: Back to top](#configuration)
+
+## Settings
 
 ### Required
 
 | Environment          | Default | Description                                                                                                                    |
 | -------------------- | ------- | ------------------------------------------------------------------------------------------------------------------------------ |
-| `BRAVE_API_KEY`      | N/A     | Your [Brave](https://brave.com/search/api/) API key. Only required when `ENABLE_AI_GROUNDING` is enabled.                      |
 | `DISCORD_BOT_TOKEN`  | N/A     | Your [Discord Developer Portal](https://discord.com/developers/applications) bot token. Always required.                       |
 | `OPENAI_API_KEY`     | N/A     | Your [OpenAI platform](https://platform.openai.com/settings/) API key. Always required.                                        |
+| `BRAVE_API_KEY`      | N/A     | Your [Brave](https://brave.com/search/api/) API key. Only required when `ENABLE_AI_GROUNDING` is enabled.                      |
 | `ELEVENLABS_API_KEY` | N/A     | Your [ElevenLabs](https://elevenlabs.io/app/settings/api-keys) API key. Only required when `ENABLE_VOICE_RESPONSE` is enabled. |
 
 [:arrow_up: Back to top](#configuration)
@@ -73,9 +87,47 @@ Configuration is achieved through environment variables, which are easily config
 
 [:arrow_up: Back to top](#configuration)
 
-## Kubernetes deployment
+## Deployment
 
-Sample `deployment.yml`
+The published image supports `amd64` and `arm64` and is available from [GitHub Container Registry](https://github.com/jlyons210/botc/pkgs/container/botc). The examples pin version `0.26.0`; change the tag when upgrading.
+
+### Docker
+
+Create a local `botc.env` file with the required credentials and any optional settings. Keep it out of source control:
+
+```dotenv
+DISCORD_BOT_TOKEN=your-discord-bot-token
+OPENAI_API_KEY=your-openai-api-key
+OPENAI_PROMPT_BOT_BEHAVIOR=You are a humorous British cat chatbot. Use occasional cat sounds to add personality.
+```
+
+Start the container with:
+
+```sh
+docker run --detach \
+  --name botc \
+  --restart unless-stopped \
+  --env-file ./botc.env \
+  ghcr.io/jlyons210/botc:0.26.0
+```
+
+Docker pulls the image automatically when it is not already available locally.
+
+### Kubernetes
+
+Create a namespace and a Kubernetes Secret for the required credentials. Keep credential files out of source control:
+
+```sh
+kubectl create namespace discord-bots
+kubectl create secret generic botc \
+  --namespace discord-bots \
+  --from-file=DISCORD_BOT_TOKEN=./discord-bot-token \
+  --from-file=OPENAI_API_KEY=./openai-api-key
+```
+
+Add `BRAVE_API_KEY` or `ELEVENLABS_API_KEY` to the Secret only when enabling the corresponding optional feature. The `ENABLE_AI_GROUNDING` and `ENABLE_VOICE_RESPONSE` settings can also be set there.
+
+Run one replica. The `Recreate` strategy prevents the old and new pods from handling messages at the same time during an update.
 
 ```yaml
 apiVersion: apps/v1
@@ -85,6 +137,8 @@ metadata:
   namespace: discord-bots
 spec:
   replicas: 1
+  strategy:
+    type: Recreate
   selector:
     matchLabels:
       app: botc
@@ -93,41 +147,21 @@ spec:
       labels:
         app: botc
     spec:
-      restartPolicy: Always
       containers:
         - name: botc
-          image: ghcr.io/jlyons210/botc:latest
-          imagePullPolicy: Always
+          image: ghcr.io/jlyons210/botc:0.26.0
+          imagePullPolicy: IfNotPresent
+          envFrom:
+            - secretRef:
+                name: botc
           env:
-            - name: BRAVE_API_KEY
-              valueFrom:
-                secretKeyRef:
-                  name: discord-bots
-                  key: brave-aig-api-key
-            - name: DISCORD_BOT_NAME
-              value: Botc
-            - name: DISCORD_BOT_TOKEN
-              valueFrom:
-                secretKeyRef:
-                  name: discord-bots
-                  key: botc-discord-token
-            - name: ELEVENLABS_API_KEY
-              valueFrom:
-                secretKeyRef:
-                  name: discord-bots
-                  key: elevenlabs-api-key
-            - name: OPENAI_API_KEY
-              valueFrom:
-                secretKeyRef:
-                  name: discord-bots
-                  key: openai-api-key
             - name: OPENAI_PROMPT_BOT_BEHAVIOR
               value: >
                 You are a humorous British cat chatbot. You say 'meow' and make other cat sounds often
                 in your responses, to remind users that you are a cat. Don't let them forget that you
                 are a cat.
-            - name: TZ
-              value: America/Denver
 ```
+
+Apply the manifest with `kubectl apply -f deployment.yml`.
 
 [:arrow_up: Back to top](#configuration)
