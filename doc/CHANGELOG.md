@@ -4,6 +4,7 @@
 
 ## Pre-release
 
+- 0.26.x: [0.26.0](#0260-2026-10-25)
 - 0.25.x: [0.25.0](#0250-2026-10-17)
 - 0.24.x: [0.24.0](#0240-2026-09-16)
 - 0.23.x: [0.23.0](#0230-2026-04-23), [0.23.1](#0231-2026-08-07)
@@ -32,7 +33,19 @@
 
 ---
 
+## 0.26.0 (2026-10-25)
+
+- Updated the development toolchain and run TypeScript directly on Node.js 26.
+- Added formatting, TSDoc linting, security lint rules, tests, and pre-commit checks.
+- Added pull request security scans and gated multi-architecture container publishing on clean scans.
+- Added configurable image resizing and streamed generated voice responses directly to Discord.
+- Hardened configuration traversal and cache storage.
+- Aligned package license metadata with the Unlicense.
+
+[:arrow_up: Back to top](#changelog)
+
 ## 0.25.0 (2026-10-17)
+
 - Migrated from the OpenAI Completions API to the [Responses API](https://developers.openai.com/api/docs/guides/migrate-to-responses).
 - Added support for new models:
   - Chat: `gpt-6-luna`, `gpt-6.1-sol`
@@ -46,6 +59,7 @@
 [:arrow_up: Back to top](#changelog)
 
 ## 0.24.0 (2026-09-16)
+
 - Added support for `gpt-image-2.5-flare` and `gpt-image-2.5-sunburst`
 - Changed `OPENAI_IMAGE_MODEL` default from `gpt-image-2` to `gpt-image-2.5-sunburst`
 - Added explicit shutdown handling to speed up container exits.
@@ -55,6 +69,7 @@
 [:arrow_up: Back to top](#changelog)
 
 ## 0.23.1 (2026-08-07)
+
 - Updated Node.js to 24.19.0.
 - Updated `Dockerfile`:
   - Uses DHI dev images for earlier stages
@@ -66,6 +81,7 @@
 [:arrow_up: Back to top](#changelog)
 
 ## 0.23.0 (2026-04-23)
+
 - Added support for `gpt-image-2`.
 - Changed `OPENAI_IMAGE_MODEL` default from `gpt-image-1.5` to `gpt-image-2`.
 - Returning support for `gpt-4o-mini`, which seems to better implement `OPENAI_PROMPT_BOT_BEHAVIOR` better than `gpt-5.4-mini`.
@@ -74,6 +90,7 @@
 [:arrow_up: Back to top](#changelog)
 
 ## 0.22.0 (2026-04-20)
+
 - Refreshed OpenAI chat model list to `gpt-5`, `gpt-5-mini`, `gpt-5-nano`, `gpt-5.4`, `gpt-5.4-mini`, `gpt-5.4-nano`; removed older models.
 - Changed `OPENAI_MODEL` default from `gpt-4o-mini` to `gpt-5.4-mini`.
 - Changed `OPENAI_IMAGE_MODEL` default from `gpt-image-1-mini` to `gpt-image-1.5`.
@@ -83,18 +100,21 @@
 [:arrow_up: Back to top](#changelog)
 
 ## 0.21.2 (2026-04-02)
+
 - Updated dependencies.
 - Unpinned `undici` as `discord.js` updated.
 
 [:arrow_up: Back to top](#changelog)
 
 ## 0.21.1 (2026-03-16)
+
 - Pin `undici` sub-dependency to 6.24.0 to resolve 5 CVEs.
 - Updated dependencies.
 
 [:arrow_up: Back to top](#changelog)
 
 ## 0.21.0 (2026-03-02)
+
 - Switching to Docker Hardened Image (DHI) for Node.js.
 - Updated Node.js to 24.14.0.
 - Updated dependencies.
@@ -102,6 +122,7 @@
 [:arrow_up: Back to top](#changelog)
 
 ## 0.20.0 (2025-12-22)
+
 - Added support for `gpt-image-1.5` model, `gpt-image-1-mini` is still the default image model due to cost.
 - Updated Node.js to 24.12.0.
 - Updated dependencies.
@@ -109,6 +130,7 @@
 [:arrow_up: Back to top](#changelog)
 
 ## 0.19.0 (2025-10-10)
+
 - Added `OPENAI_IMAGE_MODEL` configuration setting to support model switching. Defaults to `gpt-image-1-mini`, and `gpt-image-1` is also supported.
 - Changed default for `ENABLE_AI_GROUNDING` to `false` to reduce setup friction in requiring a Brave API account.
 - Updated dependencies.
@@ -116,17 +138,20 @@
 [:arrow_up: Back to top](#changelog)
 
 ## 0.18.2 (2025-08-19)
+
 - Added `ENABLE_IMAGE_GENERATION` feature gate. If multiple bot instances are running in a single channel, this can be used to mitigate the chance of multiple bots generating images at the same time.
 - Updated dependencies.
 
 [:arrow_up: Back to top](#changelog)
 
 ## 0.18.1 (2025-08-18)
+
 - Fixed: DMing bots causes endless response loop, responding to its own messages.
 
 [:arrow_up: Back to top](#changelog)
 
 ## 0.18.0 (2025-08-17)
+
 - Implemented Brave Grounded AI API.
 - Bot will reply to current conversation with grounded information polled from the Brave Grounded AI API if a "grounding" check determines that a summarized version of the current conversation would benefit from additional context.
 - Configuration option updates:
@@ -138,71 +163,84 @@
 [:arrow_up: Back to top](#changelog)
 
 ## 0.17.7 (2025-08-11)
+
 - Updated dependencies.
   - Changed `elevenlabs` to `@elevenlabs/elevenlabs-js` per deprecation warning in container build.
 
 [:arrow_up: Back to top](#changelog)
 
 ## 0.17.6 (2025-08-09)
+
 - Tweaked `replyDecisionPrompt` to instruct the bot to not respond if its name isn't "botc".
 
 [:arrow_up: Back to top](#changelog)
 
 ## 0.17.5 (2025-08-09)
+
 - Cleaned up some references that assumed the bot's name is "botc".
 
 [:arrow_up: Back to top](#changelog)
 
 ## 0.17.4 (2025-08-09)
+
 - Fixed bug in configuration loading resulting in only the first prompt substitution occurring - e.g., `{{botName}}` would only be replaced on the first occurrence within the prompt.
 
 [:arrow_up: Back to top](#changelog)
 
 ## 0.17.3 (2025-08-09)
+
 - Tuned system prompt and reply decision prompt to improve bot name recognition.
 - Added debug logging in `Botc.willReplyToMessage` to monitor behavior.
 
 [:arrow_up: Back to top](#changelog)
 
 ## 0.17.2 (2025-08-09)
+
 - Added `DISCORD_BOT_NAME` configuration setting to make bot name configurable. Used for prompt augmentation.
 
 [:arrow_up: Back to top](#changelog)
 
 ## 0.17.1 (2025-08-09)
+
 - Disabled bot replies to other bots to mitigate bot chat storms in channels with multiple bots. This is temporary, and will move toward better handling of other bot responses.
 - Updated dependencies.
 
 [:arrow_up: Back to top](#changelog)
 
 ## 0.17.0 (2025-08-08)
+
 - Added GPT-5 model support; default is unchanged from `gpt-4o-mini` due to higher cost of GPT-5 models.
 - Updated dependencies.
 
 [:arrow_up: Back to top](#changelog)
 
 ## 0.16.3 (2025-08-02)
+
 - Updated and pinned dependencies.
 
 [:arrow_up: Back to top](#changelog)
 
 ## 0.16.2 (2025-04-30)
+
 - Fixed: BotcMessage.getMessageReplyContext cannot be async as it's called from a getter, resulting in an unresolved promise.
 - Updated dependencies.
 
 [:arrow_up: Back to top](#changelog)
 
 ## 0.16.1 (2025-04-27)
+
 - Fixed a regression that reintroduced the "metadata in image prompt" bug fixed in [0.15.1](#0151-2025-04-27).
 
 [:arrow_up: Back to top](#changelog)
 
 ## 0.16.0 (2025-04-27)
+
 - Added the ability to reply to a message that has an attached image and prompt for image edits.
 
 [:arrow_up: Back to top](#changelog)
 
 ## 0.15.1 (2025-04-27)
+
 - Performance-optimized code path when handling incoming messages.
 - Fixed a "bug" where message metadata was included in image edit prompts, resulting in things like usernames randomly appearing in generated images.
 - Other light refactoring.
@@ -211,6 +249,7 @@
 [:arrow_up: Back to top](#changelog)
 
 ## 0.15.0 (2025-04-25)
+
 - Implemented image generation and edit capabilities using the `gpt-image-1` model. The code is still messy; I'll clean it up later. Just excited to have this right now.
 - Changed default `OPENAI_API_TIMEOUT` value to 600 seconds. Image generation and edits can take a while.
 - Updated dependencies.
@@ -218,6 +257,7 @@
 [:arrow_up: Back to top](#changelog)
 
 ## 0.14.1 (2025-04-23)
+
 - Added `DEBUG_LOGGING_ENABLED` configuration setting to enable extra logging.
 - Reworked how configuration is passed between components.
 - Added channel name to message metadata - this should be revisited as it doesn't seem to have the desired effect of informing `botc` where messages originated from.
@@ -226,12 +266,14 @@
 [:arrow_up: Back to top](#changelog)
 
 ## 0.14.0 (2025-04-22)
+
 - Added ability to augment the system prompt with additional metadata. Includes fields such as bot name, version, configured LLM, and the new `OPENAI_PROMPT_BOT_BEHAVIOR` environment variable for customizing bot behavior without rewriting the whole system prompt.
 - Updated dependencies.
 
 [:arrow_up: Back to top](#changelog)
 
 ## 0.13.420 (2025-04-20)
+
 - Fix: Configuration now correctly converts `string` environment variables to correct types when loading.
 - Fix: Processing messages that are a reply to a deleted message no longer crashes botc.
 - Added `Logger` logging utility.
@@ -240,6 +282,7 @@
 [:arrow_up: Back to top](#changelog)
 
 ## 0.13.2 (2025-02-22)
+
 - Some minor cleanup and consistency changes.
 - ObjectCache and Resizer (utilities) moved from Clients subdirectories to Botc.
 - Added `EventBus.once()` for handling one-time events, applied where appropriate.
@@ -247,6 +290,7 @@
 [:arrow_up: Back to top](#changelog)
 
 ## 0.13.1 (2025-02-14)
+
 - Fixed a bug where the guild-wide user persona was shared across guilds. Instead of using the username as a cache key, it now uses `guildId:authorId`.
 - Moved image description and voice transcription early in the flow, as there were times that BotcMessage.promptContent came back with empty image descriptions.
 - Added other optimizations and code cleanup.
@@ -254,12 +298,14 @@
 [:arrow_up: Back to top](#changelog)
 
 ## 0.13.0 (2025-02-09)
+
 - Massive refactor of the codebase. I know a good spaghetti when I see one. Mmmmm. Fixed it.
 - Added `DISCORD_MAX_RETRIES` configuration setting.
 
 [:arrow_up: Back to top](#changelog)
 
 ## 0.12.0 (2025-02-08)
+
 - Added voice response support using ElevenLabs text-to-speech API, as an MP3 attachment.
   - I would like to create a native voice response using Ogg/Opus, but the Discord API requires a hacky solution today. I'm following a Discord.js [issue](https://github.com/discordjs/discord.js/issues/10298) with a linked [PR](https://github.com/discordjs/discord.js/pull/10462).
 - Re-released to resolve crashes with voice response.
@@ -267,17 +313,20 @@
 [:arrow_up: Back to top](#changelog)
 
 ## 0.11.1 (2025-02-07)
+
 - Added `OPENAI_VOICE_TRANSCRIPT_CACHE_TTL_HOURS` configuration setting.
 - Fixed an error in ObjectCache class resulting in only one TTL setting being used.
 
 [:arrow_up: Back to top](#changelog)
 
 ## 0.11.0 (2025-02-07)
+
 - Bot can now comprehend voice messages (via transcription).
 
 [:arrow_up: Back to top](#changelog)
 
 ## 0.10.0 (2025-02-07)
+
 - Added `DISCORD_CHANNEL_HISTORY_MESSAGES` configuration setting.
 - Resolve @-mention tags in message content to display names (if available) or usernames.
 - Added Kubernetes deployment yaml example to configuration documentation.
@@ -285,42 +334,50 @@
 [:arrow_up: Back to top](#changelog)
 
 ## 0.9.0 (2025-02-06)
+
 - Bot intelligently handles replies to its messages. Replies, @-mentions, and direct messages will always get a bot response.
 
 [:arrow_up: Back to top](#changelog)
 
 ## 0.8.5 (2025-02-06)
+
 - Pre-fetch attached image descriptions as soon as they hit the channel.
 
 [:arrow_up: Back to top](#changelog)
 
 ## 0.8.4 (2025-02-06)
+
 - Fixed a fatal error handling DM conversations.
 - Tuned system prompt to mitigate rare responses that include metadata blocks.
 
 [:arrow_up: Back to top](#changelog)
 
 ## 0.8.3 (2025-02-06)
+
 - Fixed a fatal error fetching messages from private channels that the bot is not a member of.
 
 [:arrow_up: Back to top](#changelog)
 
 ## 0.8.2 (2025-02-05)
+
 - Fixed ObjectCache configuration handling. Configuration of "false" (string) evaluated to true.
 
 [:arrow_up: Back to top](#changelog)
 
 ## 0.8.1 (2025-02-05)
+
 - Cleanup and performance tuning.
 
 [:arrow_up: Back to top](#changelog)
 
 ## 0.8.0 (2025-02-04)
+
 - Implemented an image resizer for images that are too large for Vision descriptions.
 
 [:arrow_up: Back to top](#changelog)
 
 ## 0.7.0 (2025-02-04)
+
 - Implemented a generic key-value cache.
 - Deleted nearly-identical persona and image description cache implementations.
 - Added configuration options for cache logging.
@@ -328,27 +385,32 @@
 [:arrow_up: Back to top](#changelog)
 
 ## 0.6.0 (2025-02-03)
+
 - Added "Preferred name: (Discord display name)" to message metadata for more personalized responses.
 - Implemented a guild-wide persona generation cache with TTL and automatic pruning.
 
 [:arrow_up: Back to top](#changelog)
 
 ## 0.5.0 (2025-02-03)
+
 - Implemented an image description cache with TTL and automatic pruning.
 
 [:arrow_up: Back to top](#changelog)
 
 ## 0.4.0 (2025-02-02)
+
 - Added metadata sections to system/developer prompt and chat messages provided to the chat API to enable passing of even more context, enabling more enriched responses.
 
 [:arrow_up: Back to top](#changelog)
 
 ## 0.3.1 (2025-02-02)
+
 - Refactor and cleanup
 
 [:arrow_up: Back to top](#changelog)
 
 ## 0.3.0 (2025-02-01)
+
 - Added attached image comprehension. It's still in early form with very rough caching that will eventually be a memory leak.
 
 [:arrow_up: Back to top](#changelog)
