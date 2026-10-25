@@ -210,5 +210,9 @@ jobs:
           provenance: mode=max
           sbom: true
           push: true
+          annotations: |
+            index:org.opencontainers.image.authors=Jeremy Lyons <jlyons210@gmail.com>
+            index:org.opencontainers.image.description=My most ambitious Discord bot yet.
+            index:org.opencontainers.image.source=https://github.com/jlyons210/botc
           tags: ${{ steps.metadata.outputs.tags }}
           labels: ${{ steps.metadata.outputs.labels }}
