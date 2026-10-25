@@ -13,9 +13,6 @@ export type OpenAIResponsePayload = {
   input: ResponseInputItem[];
 };
 
-/**
- * OpenAI client wrapper
- */
 export class OpenAIClient {
   private readonly client: OpenAI;
   private readonly globalEvents = EventBus.attach();
@@ -25,10 +22,6 @@ export class OpenAIClient {
   private readonly model: string;
   private config: ConfigurationOptions;
 
-  /**
-   * New OpenAIClient
-   * @param config - OpenAI client configuration
-   */
   constructor(config: ConfigurationOptions) {
     this.config = config;
     this.openAIConfig = this.config.llms.openai;

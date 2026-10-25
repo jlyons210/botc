@@ -17,11 +17,6 @@ export class Resizer {
     this.maxImageSide = maxImageSide;
   }
 
-  /**
-   * Fetch image
-   * @param imageUrl - Image URL
-   * @returns Image buffer
-   */
   private async fetchImage(imageUrl: string): Promise<Sharp | null> {
     return await fetch(imageUrl)
       .then((response) => response.arrayBuffer())
@@ -42,13 +37,11 @@ export class Resizer {
    * @returns Resized or original image URL
    */
   public async getUrl(imageUrl: string): Promise<string> {
-    // Fetch image
     const fetchedImage = await this.fetchImage(imageUrl);
     if (!fetchedImage) {
       return "";
     }
 
-    // Retrieve image width and height from original image
     const { width, height } = await fetchedImage.metadata();
     if (!width || !height) {
       return imageUrl;
@@ -67,13 +60,7 @@ export class Resizer {
     });
   }
 
-  /**
-   * Resize image
-   * @param config - Resize image configuration
-   * @returns Image URL
-   */
   private async resizeImage(config: ResizeImageConfig): Promise<string> {
-    // Resize image
     const resizedImageBuffer = await config.image
       .resize(config.width, config.height, {
         fit: "inside",
@@ -82,7 +69,6 @@ export class Resizer {
       .png()
       .toBuffer();
 
-    // Return resized image URL
     return `data:image/png;base64,${resizedImageBuffer.toString("base64")}`;
   }
 }

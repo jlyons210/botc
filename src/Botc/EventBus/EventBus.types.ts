@@ -1,9 +1,6 @@
 import type { AttachmentBuilder } from "discord.js";
 import type { BotcMessage } from "../index.ts";
 
-/**
- * EventMap is a map of event names to their payload types
- */
 export interface EventMap {
   "Botc:ResponseComplete": {
     channelId: string;

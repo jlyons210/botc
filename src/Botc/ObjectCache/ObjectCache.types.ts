@@ -1,6 +1,3 @@
-/**
- * Cache entries keyed by their cache key
- */
 export type CacheEntry = Map<string, CacheValue>;
 
 /** A cached value and its expiration time. */

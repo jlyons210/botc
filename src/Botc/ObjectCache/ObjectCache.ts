@@ -5,9 +5,6 @@ import type {
 } from "../Configuration/index.ts";
 import { Logger } from "../Logger/index.ts";
 
-/**
- * Multi-purpose key-value cache
- */
 export class ObjectCache {
   private readonly cached: CacheEntry = new Map();
   private readonly logger = new Logger();
@@ -18,11 +15,6 @@ export class ObjectCache {
     60000,
   );
 
-  /**
-   * New object cache
-   * @param ttlConfig - Cache TTL configuration
-   * @param logConfig - Cache logging configuration
-   */
   constructor(
     ttlConfig: ConfigurationSettings,
     logConfig: OpenAICacheLoggingSettings,
@@ -31,9 +23,6 @@ export class ObjectCache {
     this.logConfig = logConfig;
   }
 
-  /**
-   * Clears expired cache entries
-   */
   private clearExpired(): void {
     for (const [key, entry] of this.cached) {
       if (entry.expiresAt < Date.now()) {
@@ -49,11 +38,6 @@ export class ObjectCache {
     }
   }
 
-  /**
-   * Check if key is cached
-   * @param key - Entry key
-   * @returns true if cached
-   */
   public contains(key: string): boolean {
     return this.get(key) !== undefined;
   }
@@ -66,11 +50,6 @@ export class ObjectCache {
     this.logger.log(`ObjectCache.destroy: Object cache destroyed`, "DEBUG");
   }
 
-  /**
-   * Retrieve cached value from key
-   * @param key - Entry key
-   * @returns Cached value or undefined if not found
-   */
   public get(key: string): string | undefined {
     const entry = this.cached.get(key);
 
@@ -89,10 +68,6 @@ export class ObjectCache {
     }
   }
 
-  /**
-   * Cache the provided entry
-   * @param entry - Entry to be cached
-   */
   public put(entry: CacheConfig): void {
     this.cached.set(entry.key, {
       value: entry.value,
@@ -104,10 +79,6 @@ export class ObjectCache {
     }
   }
 
-  /**
-   * Get number of cache entries
-   * @returns Number of cache entries
-   */
   public get count(): number {
     return this.cached.size;
   }

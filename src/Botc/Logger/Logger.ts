@@ -14,7 +14,6 @@ export class Logger {
    * @param level - Severity: DEBUG, INFO, or ERROR.
    */
   public async log(message: string, level: LogLevel): Promise<void> {
-    // Don't log if debug logging is disabled and the level is DEBUG
     if (level === "DEBUG" && !this.debugLoggingIsEnabled) {
       return;
     }

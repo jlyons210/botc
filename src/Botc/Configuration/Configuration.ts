@@ -41,12 +41,10 @@ function isConfigurationSetting(
   );
 }
 
-/** Configuration */
 export class Configuration {
   private readonly _options: ConfigurationOptions;
   private readonly logger = new Logger();
 
-  /** Load Configuration */
   constructor() {
     this.logger.log("Configuration:", "INFO");
     this._options = ConfigurationDefaults;
@@ -54,11 +52,6 @@ export class Configuration {
     this.augmentInternalPrompts();
   }
 
-  /**
-   * Converts a string value to its appropriate type
-   * @param value - Value to convert
-   * @returns Converted value
-   */
   private convertValueType(value: string): string | number | boolean {
     if (!isNaN(Number(value))) {
       return Number(value);
@@ -82,17 +75,14 @@ export class Configuration {
 
     for (const [key, child] of Object.entries(node)) {
       if (isConfigurationSetting(child)) {
-        // Leaf node, set value
         const settings = child;
         const userSetting = process.env[settings.environmentVariable] as string;
 
-        // Equals 'true' if user-defined setting is defined and not listed in options
         const userSettingIsInvalid =
           userSetting !== undefined &&
           settings.options &&
           !settings.options.includes(userSetting);
 
-        // Quit with error if user-defined setting is invalid
         if (userSettingIsInvalid) {
           throw new Error(
             `Invalid value '${userSetting}' for ${path.concat(key).join(".")}. ` +
@@ -100,7 +90,6 @@ export class Configuration {
           );
         }
 
-        // Prefer user-defined setting, otherwise use default
         settings.value =
           userSetting !== undefined
             ? this.convertValueType(userSetting)
@@ -109,7 +98,7 @@ export class Configuration {
         const userOrDefault =
           userSetting !== undefined ? `(user)` : `(default)`;
 
-        // Log configuration setting, masking secret values
+        // Log settings without exposing secret values
         this.logger.log(
           settings.secret
             ? `- ${path.concat(key).join(".")} = ${"*".repeat(12)} ${userOrDefault}`
@@ -122,9 +111,7 @@ export class Configuration {
     }
   }
 
-  /**
-   * Augment system prompt with optional configuration settings
-   */
+  /** Replaces prompt placeholders with configured bot and model values. */
   private async augmentInternalPrompts(): Promise<void> {
     const discordOptions = this.options.clients.discord;
     const openaiOptions = this.options.llms.openai;
@@ -159,10 +146,6 @@ export class Configuration {
     );
   }
 
-  /**
-   * Get configuration options
-   * @returns Configuration options
-   */
   public get options(): ConfigurationOptions {
     return this._options;
   }
