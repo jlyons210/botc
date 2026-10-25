@@ -1,9 +1,12 @@
-import { ConfigurationOptions, OpenAISettings } from '../../Botc/Configuration/index.js';
-import { EventBus } from '../../Botc/EventBus/index.js';
-import { Logger } from '../../Botc/Logger/index.js';
-import OpenAI from 'openai';
-import { OpenAINotAllowedError } from './OpenAIClient.errors.js';
-import { type ResponseInputItem } from 'openai/resources/responses/responses.js';
+import type {
+  ConfigurationOptions,
+  OpenAISettings,
+} from "../../Botc/Configuration/index.ts";
+import { EventBus } from "../../Botc/EventBus/index.ts";
+import { Logger } from "../../Botc/Logger/index.ts";
+import OpenAI from "openai";
+import { OpenAINotAllowedError } from "./OpenAIClient.errors.ts";
+import { type ResponseInputItem } from "openai/resources/responses/responses.js";
 
 export type OpenAIResponsePayload = {
   instructions?: string;
@@ -20,14 +23,18 @@ export class OpenAIClient {
   private openAIConfig: OpenAISettings;
   private readonly imageModel: string;
   private readonly model: string;
+  private config: ConfigurationOptions;
 
   /**
    * New OpenAIClient
-   * @param {ConfigurationOptions} config OpenAI client configuration
+   * @param config - OpenAI client configuration
    */
-  constructor(private config: ConfigurationOptions) {
+  constructor(config: ConfigurationOptions) {
+    this.config = config;
     this.openAIConfig = this.config.llms.openai;
-    this.logger = new Logger(this.config.featureGates.enableDebugLogging.value as boolean);
+    this.logger = new Logger(
+      this.config.featureGates.enableDebugLogging.value as boolean,
+    );
 
     this.client = new OpenAI({
       apiKey: this.openAIConfig.apikey.value as string,
@@ -38,15 +45,15 @@ export class OpenAIClient {
     this.imageModel = this.openAIConfig.imageModel.value as string;
     this.model = this.openAIConfig.model.value as string;
 
-    this.globalEvents.emit('OpenAIClient:Ready', {
-      message: 'OpenAI client is ready.',
+    this.globalEvents.emit("OpenAIClient:Ready", {
+      message: "OpenAI client is ready.",
     });
   }
 
   /**
    * Create a response
-   * @param {OpenAIResponsePayload} payload Response instructions and conversation input
-   * @returns {Promise<string>} Response text
+   * @param payload - Response instructions and conversation input
+   * @returns Response text
    */
   public async createResponse(payload: OpenAIResponsePayload): Promise<string> {
     try {
@@ -55,88 +62,109 @@ export class OpenAIClient {
         instructions: payload.instructions,
         input: payload.input,
         reasoning: {
-          effort: this.openAIConfig.modelReasoningEffort.value as OpenAI.ReasoningEffort,
+          effort: this.openAIConfig.modelReasoningEffort
+            .value as OpenAI.ReasoningEffort,
         },
         store: false,
       });
 
       return response.output_text;
-    }
-    catch (error) {
+    } catch (error) {
       if (error instanceof OpenAI.APIError) {
-        this.logger.log('OpenAIClient.createResponse: OpenAI API error.', 'ERROR');
-        this.logger.log(`OpenAIClient.createResponse: error: ${error.message}`, 'ERROR');
-      }
-      else {
-        this.logger.log(`OpenAIClient.createResponse: ${error}`, 'ERROR');
-        this.logger.log(`OpenAIClient.createResponse: payload: ${JSON.stringify(payload)}`, 'DEBUG');
+        this.logger.log(
+          "OpenAIClient.createResponse: OpenAI API error.",
+          "ERROR",
+        );
+        this.logger.log(
+          `OpenAIClient.createResponse: error: ${error.message}`,
+          "ERROR",
+        );
+      } else {
+        this.logger.log(`OpenAIClient.createResponse: ${error}`, "ERROR");
+        this.logger.log(
+          `OpenAIClient.createResponse: payload: ${JSON.stringify(payload)}`,
+          "DEBUG",
+        );
       }
 
-      throw new OpenAINotAllowedError('OpenAI API rejected the request.');
+      throw new OpenAINotAllowedError("OpenAI API rejected the request.");
     }
   }
 
   /**
    * Generate or edit an image
-   * @param {string} prompt Image creation or editing prompt
-   * @param {string[]} imageUrls Image URLs
-   * @returns {Promise<string>} Image base64 string
+   * @param prompt - Image creation or editing prompt
+   * @param imageUrls - Image URLs
+   * @returns Image base64 string
    */
-  public async createImage(prompt: string, imageUrls: string[] = []): Promise<string> {
-    const imageFiles = await Promise.all(imageUrls.map(async (url) => {
-      const response = await fetch(url);
-      const blob = await response.blob();
-      const extension = blob.type.split('/')[1];
-      const filename = `image.${extension}`;
-      return new File([blob], filename, { type: blob.type });
-    }));
+  public async createImage(
+    prompt: string,
+    imageUrls: string[] = [],
+  ): Promise<string> {
+    const imageFiles = await Promise.all(
+      imageUrls.map(async (url) => {
+        const response = await fetch(url);
+        const blob = await response.blob();
+        const extension = blob.type.split("/")[1];
+        const filename = `image.${extension}`;
+        return new File([blob], filename, { type: blob.type });
+      }),
+    );
 
     try {
-      const response = (imageFiles.length > 0)
-        ? await this.client.images.edit({
-            prompt: prompt,
-            model: this.imageModel,
-            n: 1,
-            image: imageFiles,
-          })
-        : await this.client.images.generate({
-            prompt: prompt,
-            model: this.imageModel,
-            n: 1,
-            moderation: 'low',
-            output_format: 'png',
-          });
+      const response =
+        imageFiles.length > 0
+          ? await this.client.images.edit({
+              prompt: prompt,
+              model: this.imageModel,
+              n: 1,
+              image: imageFiles,
+            })
+          : await this.client.images.generate({
+              prompt: prompt,
+              model: this.imageModel,
+              n: 1,
+              moderation: "low",
+              output_format: "png",
+            });
 
       const imageData = response.data?.[0]?.b64_json;
       if (imageData) {
         return imageData;
       }
 
-      throw new OpenAINotAllowedError('OpenAI API rejected the request.');
-    }
-    catch (error) {
+      throw new OpenAINotAllowedError("OpenAI API rejected the request.");
+    } catch (error) {
       if (error instanceof OpenAI.APIError) {
-        this.logger.log(`OpenAIClient.generateImage: OpenAI API error.`, 'ERROR');
-        this.logger.log(`OpenAIClient.generateImage: error: ${error.message}`, 'ERROR');
-      }
-      else {
-        this.logger.log(`OpenAIClient.generateImage: ${error}`, 'ERROR');
-        this.logger.log(`OpenAIClient.generateImage: prompt: ${JSON.stringify(prompt)}`, 'DEBUG');
+        this.logger.log(
+          `OpenAIClient.generateImage: OpenAI API error.`,
+          "ERROR",
+        );
+        this.logger.log(
+          `OpenAIClient.generateImage: error: ${error.message}`,
+          "ERROR",
+        );
+      } else {
+        this.logger.log(`OpenAIClient.generateImage: ${error}`, "ERROR");
+        this.logger.log(
+          `OpenAIClient.generateImage: prompt: ${JSON.stringify(prompt)}`,
+          "DEBUG",
+        );
       }
 
-      throw new OpenAINotAllowedError('OpenAI API rejected the request.');
+      throw new OpenAINotAllowedError("OpenAI API rejected the request.");
     }
   }
 
   /**
    * Create transcription
-   * @param {File} audioFile Audio file
-   * @returns {Promise<string>} Transcription
+   * @param audioFile - Audio file
+   * @returns Transcription
    */
   public async generateAudioTranscription(audioFile: File): Promise<string> {
     const transcription = await this.client.audio.transcriptions.create({
       file: audioFile,
-      model: 'gpt-transcribe',
+      model: "gpt-transcribe",
     });
 
     return transcription.text;
@@ -144,19 +172,22 @@ export class OpenAIClient {
 
   /**
    * Generate image description
-   * @param {string} imageUrl Image URL
-   * @returns {Promise<string>} Image description
+   * @param imageUrl - Image URL
+   * @returns Image description
    */
   public async generateImageDescription(imageUrl: string): Promise<string> {
-    const describeImagePrompt = this.openAIConfig.describeImagePrompt.value as string;
+    const describeImagePrompt = this.openAIConfig.describeImagePrompt
+      .value as string;
     const payload: OpenAIResponsePayload = {
-      input: [{
-        role: 'user',
-        content: [
-          { type: 'input_text', text: describeImagePrompt },
-          { type: 'input_image', image_url: imageUrl, detail: 'auto' },
-        ],
-      }],
+      input: [
+        {
+          role: "user",
+          content: [
+            { type: "input_text", text: describeImagePrompt },
+            { type: "input_image", image_url: imageUrl, detail: "auto" },
+          ],
+        },
+      ],
     };
 
     return await this.createResponse(payload);

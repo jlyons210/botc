@@ -1,8 +1,9 @@
-import { EventEmitter } from 'node:events';
-import { EventMap } from './index.js';
+import { EventEmitter } from "node:events";
+import type { EventMap } from "./index.ts";
 
 /**
  * Construct an EventEmitter singleton for event handling
+ * @typeParam T - Event map handled by this bus.
  */
 class EventBus<T extends EventMap> {
   private static instance: EventBus<EventMap>;
@@ -10,8 +11,8 @@ class EventBus<T extends EventMap> {
 
   /**
    * Return the singleton instance of EventBus
-   * @template T EventMap
-   * @returns {EventBus<T>} EventBus instance
+   * @typeParam T - Event map handled by the returned bus.
+   * @returns The singleton EventBus instance.
    */
   static attach<T extends EventMap>(): EventBus<T> {
     if (!EventBus.instance) {
@@ -22,10 +23,9 @@ class EventBus<T extends EventMap> {
 
   /**
    * Emit an event on the EventBus
-   * @template T EventMap
-   * @template K EventMap key
-   * @param {K} eventName Event name
-   * @param {T[K]} data Event data
+   * @typeParam K - Event map key to emit.
+   * @param eventName - Event name
+   * @param data - Event data
    */
   emit<K extends keyof T>(eventName: K, data: T[K]): void {
     this.emitter.emit(eventName as string, data);
@@ -33,10 +33,9 @@ class EventBus<T extends EventMap> {
 
   /**
    * Register an event handler on the EventBus
-   * @template T EventMap
-   * @template K EventMap key
-   * @param {K} eventName Event name
-   * @param {(data: T[K]) => void} handler Event handler
+   * @typeParam K - Event map key to handle.
+   * @param eventName - Event name
+   * @param handler - Event handler
    */
   on<K extends keyof T>(eventName: K, handler: (data: T[K]) => void): void {
     this.emitter.on(eventName as string, handler);
@@ -44,10 +43,9 @@ class EventBus<T extends EventMap> {
 
   /**
    * Register an event handler on the EventBus that will only be called once
-   * @template T EventMap
-   * @template K EventMap key
-   * @param {K} eventName Event name
-   * @param {(data: T[K]) => void} handler Event handler
+   * @typeParam K - Event map key to handle.
+   * @param eventName - Event name
+   * @param handler - Event handler
    */
   once<K extends keyof T>(eventName: K, handler: (data: T[K]) => void): void {
     this.emitter.once(eventName as string, handler);

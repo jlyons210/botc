@@ -1,4 +1,6 @@
-import {
+export { Configuration } from "./Configuration.ts";
+export { ConfigurationDefaults } from "./Configuration.defaults.ts";
+export type {
   BraveSettings,
   ConfigurationOptions,
   ConfigurationSettings,
@@ -6,18 +8,4 @@ import {
   ElevenLabsSettings,
   OpenAICacheLoggingSettings,
   OpenAISettings,
-} from './Configuration.types.js';
-import { Configuration } from './Configuration.js';
-import { ConfigurationDefaults } from './Configuration.defaults.js';
-
-export {
-  BraveSettings,
-  Configuration,
-  ConfigurationDefaults,
-  ConfigurationOptions,
-  ConfigurationSettings,
-  DiscordClientSettings,
-  ElevenLabsSettings,
-  OpenAICacheLoggingSettings,
-  OpenAISettings,
-};
+} from "./Configuration.types.ts";

@@ -1,7 +1,2 @@
-import { Brave } from './Brave.js';
-import { BraveNotAllowedError } from './Brave.errors.js';
-
-export {
-  Brave,
-  BraveNotAllowedError,
-};
+export { Brave } from "./Brave.ts";
+export { BraveNotAllowedError } from "./Brave.errors.ts";

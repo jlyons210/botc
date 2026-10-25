@@ -1,2 +1,1 @@
-import { DiscordClient } from './DiscordClient.js';
-export { DiscordClient };
+export { DiscordClient } from "./DiscordClient.ts";

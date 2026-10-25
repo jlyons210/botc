@@ -1,13 +1,11 @@
-import { Sharp } from 'sharp';
+import type { Sharp } from "sharp";
 
-/**
- * ResizeImageConfig
- * @property {Sharp} image - Sharp image object
- * @property {number} height - Height of the image
- * @property {number} width - Width of the image
- */
+/** Options for resizing a Sharp image. */
 export type ResizeImageConfig = {
+  /** Image to resize. */
   image: Sharp;
+  /** Target height in pixels. */
   height: number;
+  /** Target width in pixels. */
   width: number;
 };

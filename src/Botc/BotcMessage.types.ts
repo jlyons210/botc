@@ -1,25 +1,21 @@
-import { Message } from 'discord.js';
+import type { Message } from "discord.js";
 
-/**
- * Configuration object used when creating a new BotcMessage instance.
- * @property {string} botUserId Bot user ID provided by the authenticated Discord Client
- * @property {Message} discordMessage Discord.js Message object
- */
+/** Configuration used when creating a BotcMessage. */
 export interface BotcMessageConfig {
+  /** Bot user ID provided by the authenticated Discord client. */
   botUserId: string;
-  discordMessage: Message
-};
+  /** Original Discord.js message. */
+  discordMessage: Message;
+}
 
-/**
- * Container for Discord message image attachment data.
- * @property {string} contentType Image content type
- * @property {number} height Image height in pixels
- * @property {string} imageUrl Image URL
- * @property {number} width Image width in pixels
- */
+/** Image attachment data extracted from a Discord message. */
 export type BotcMessageImageAttachment = {
+  /** MIME type reported by Discord. */
   contentType: string;
+  /** Image height in pixels. */
   height: number;
+  /** URL of the image attachment. */
   imageUrl: string;
+  /** Image width in pixels. */
   width: number;
 };

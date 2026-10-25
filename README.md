@@ -8,7 +8,7 @@
 
 Unlike [dbob](#discord-bot-ol-bootsie-dbob), which requires @-mentions, replies, or a dice roll to determine whether the bot should engage with users, **Botc** monitors conversations and uses a [decision prompt](doc/configuration.md#optional) to decide whether it would be appropriate to engage.
 
-My intent is for **Botc** to engage with chat users in a more human-like fashion. 
+My intent is for **Botc** to engage with chat users in a more human-like fashion.
 
 ![Wise, learned botc](assets/botc-profile.png)
 
@@ -51,6 +51,7 @@ Configuration is achieved through environment variables, which are easily config
 Dbob was developed in early 2023 as I was learning both TypeScript and how to interface with LLMs. It was actively developed for about 18 months, and is now retired.
 
 #### 💡 Trivia
+
 > I'll point out that `botc` and `bootsie` have similar phonetics. Bootsie was one of my cats that passed away about 10 years ago. I run two instances of `dbob` using personas of my cats Boots and Manky. `dbob` was eventually containerized, and is a bot-container. Botc. There you have it :smile_cat:
 
 ### [envoy-ai](https://github.com/jlyons210/envoy-ai-interest) (incomplete proof-of-concept, archived)
@@ -59,5 +60,4 @@ Envoy-ai was a proof-of-concept project that I started in late 2023. I wanted to
 
 ## License
 
-Distributed under the UNLICENSE license. See `LICENSE` for more information.
-
+This project is released under the Unlicense. See the [LICENSE](LICENSE) file.

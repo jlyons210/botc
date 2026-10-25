@@ -1,26 +1,20 @@
 /**
- * Cache entry object
+ * Cache entries keyed by their cache key
  */
-export type CacheEntry = {
-  [key: string]: CacheValue;
-};
+export type CacheEntry = Map<string, CacheValue>;
 
-/**
- * Cache value object
- * @property {string} value Cache value
- * @property {number} expiresAt Cache expiration timestamp
- */
+/** A cached value and its expiration time. */
 export type CacheValue = {
+  /** Value stored in the cache. */
   value: string;
+  /** Unix timestamp in milliseconds when the entry expires. */
   expiresAt: number;
 };
 
-/**
- * Cache configuration object
- * @property {string} key Cache key
- * @property {string} value Cache value
- */
+/** Input used to add a value to the cache. */
 export interface CacheConfig {
+  /** Key used to retrieve the value. */
   key: string;
+  /** Value to store. */
   value: string;
 }

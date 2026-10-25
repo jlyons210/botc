@@ -1,41 +1,27 @@
 ### Dependencies stage
-FROM dhi.io/node:26.9.0-alpine3.23-dev@sha256:d7d4b9e020dd2e8feb873df27a49c898b85d7b2f6f59d9d7dbaa7c9070bc4db5 AS deps
+FROM dhi.io/node:26.12.1-alpine3.23-dev@sha256:1fb4a2757c11fc174d3118363d01d7a7cdcd2b96544083c2a372e12d175bc754 AS deps
 
 # Install dependencies for production stage
 WORKDIR /usr/src/app
 COPY package*.json ./
-RUN npm ci --omit=dev --ignore-scripts \
-    && npm cache clean --force
-
-
-### Build stage
-FROM dhi.io/node:26.9.0-alpine3.23-dev@sha256:d7d4b9e020dd2e8feb873df27a49c898b85d7b2f6f59d9d7dbaa7c9070bc4db5 AS build
-
-# Install prod and dev dependencies for build
-WORKDIR /usr/src/app
-COPY package*.json tsconfig.json ./
-RUN npm ci --ignore-scripts
-
-# Copy source and build
-COPY src ./src
-RUN npm run build
+RUN npm ci --omit=dev --ignore-scripts
 
 
 ### Production stage
-FROM dhi.io/node:26.9.0-alpine3.23@sha256:8d2c30232878a0631a01eb2f8eae51b5dac199d801766ae2da6c71fec9f7f3e7 AS runtime
+FROM dhi.io/node:26.12.1-alpine3.23@sha256:ed0e7626b8b1b5322a31746d7ca476cfd98bc3d3be251e5a074c63be89aa1d53 AS runtime
 ENV NODE_ENV=production
 
 LABEL org.opencontainers.image.authors="Jeremy Lyons <jlyons210@gmail.com>" \
       org.opencontainers.image.description="My most ambitious Discord bot yet." \
       org.opencontainers.image.source="https://github.com/jlyons210/botc"
 
-# Copy production dependencies and built application
+# Copy production dependencies and TypeScript source
 WORKDIR /app
 COPY --chown=node:node --from=deps /usr/src/app/node_modules ./node_modules
-COPY --chown=node:node --from=build /usr/src/app/package.json .
-COPY --chown=node:node --from=build /usr/src/app/dist ./dist
+COPY --chown=node:node --from=deps /usr/src/app/package.json .
+COPY --chown=node:node src ./src
 
 # Run as non-root user
 USER node
 ENTRYPOINT ["node"]
-CMD ["dist/app.js"]
+CMD ["src/app.ts"]
