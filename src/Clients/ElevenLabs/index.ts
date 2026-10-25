@@ -1,2 +1,1 @@
-import { ElevenLabs } from './ElevenLabs.js';
-export { ElevenLabs };
+export { ElevenLabs } from "./ElevenLabs.ts";

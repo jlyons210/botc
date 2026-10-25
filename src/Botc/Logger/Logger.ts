@@ -1,57 +1,36 @@
-import { LogLevel } from './index.js';
-import { access } from 'fs/promises';
+import type { LogLevel } from "./index.ts";
 
-/**
- * Centralized logging class
- */
 export class Logger {
-  /**
-   * Creates a Logger instance and sets debug logging enabled state
-   * @param {boolean} debugLoggingIsEnabled indicating whether or not debug logging is to be enabled.
-   */
-  constructor(private debugLoggingIsEnabled = false) { }
+  private readonly debugLoggingIsEnabled: boolean;
+
+  constructor(debugLoggingIsEnabled = false) {
+    this.debugLoggingIsEnabled = debugLoggingIsEnabled;
+  }
 
   /**
-   * Logs a message to the console with a timestamp and log level
-   * @param {string} message The message to log
-   * @param {LogLevel} level The log level (DEBUG, INFO, ERROR)
+   * Write a timestamped message at the requested level. Debug messages are skipped unless debug
+   * logging is enabled.
+   * @param message - Message to write.
+   * @param level - Severity: DEBUG, INFO, or ERROR.
    */
   public async log(message: string, level: LogLevel): Promise<void> {
     // Don't log if debug logging is disabled and the level is DEBUG
-    if (level === 'DEBUG' && !this.debugLoggingIsEnabled && !(await this.breakGlassDebugLoggingIsEnabled())) {
+    if (level === "DEBUG" && !this.debugLoggingIsEnabled) {
       return;
     }
 
     const timestamp = new Date().toISOString();
 
     switch (level) {
-      case 'DEBUG':
+      case "DEBUG":
         console.debug(`${timestamp} - ${level} - ${message}`);
         break;
-      case 'INFO':
+      case "INFO":
         console.log(`${timestamp} - ${level} - ${message}`);
         break;
-      case 'ERROR':
+      case "ERROR":
         console.error(`${timestamp} - ${level} - ${message}`);
         break;
-    }
-  }
-
-  /**
-   * Break-glass debugging allows debug logging to be enabled during a live troubleshooting
-   * scenario.
-   * To enable within a running container:
-   *   docker exec -it <container_name> /bin/sh
-   *   /usr/src/app # touch DEBUG
-   * @returns {Promise<boolean>} indicating whether or not the DEBUG file exists
-   */
-  private async breakGlassDebugLoggingIsEnabled(): Promise<boolean> {
-    try {
-      await access(process.cwd() + '/DEBUG');
-      return true;
-    }
-    catch {
-      return false;
     }
   }
 }

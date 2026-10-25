@@ -1,14 +1,6 @@
-import {
+export { ObjectCache } from "./ObjectCache.ts";
+export type {
   CacheConfig,
   CacheEntry,
   CacheValue,
-} from './ObjectCache.types.js';
-
-import { ObjectCache } from './ObjectCache.js';
-
-export {
-  CacheConfig,
-  CacheEntry,
-  CacheValue,
-  ObjectCache,
-};
+} from "./ObjectCache.types.ts";

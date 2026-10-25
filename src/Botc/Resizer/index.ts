@@ -1,7 +1,2 @@
-import { ResizeImageConfig } from './Resizer.types.js';
-import { Resizer } from './Resizer.js';
-
-export {
-  ResizeImageConfig,
-  Resizer,
-};
+export { Resizer } from "./Resizer.ts";
+export type { ResizeImageConfig } from "./Resizer.types.ts";

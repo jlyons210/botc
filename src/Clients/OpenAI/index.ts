@@ -1,9 +1,4 @@
-import { OpenAIClient } from './OpenAIClient.js';
-import { OpenAINotAllowedError } from './OpenAIClient.errors.js';
+export { OpenAIClient } from "./OpenAIClient.ts";
+export { OpenAINotAllowedError } from "./OpenAIClient.errors.ts";
 
-export {
-  OpenAIClient,
-  OpenAINotAllowedError,
-};
-
-export type { OpenAIResponsePayload } from './OpenAIClient.js';
+export type { OpenAIResponsePayload } from "./OpenAIClient.ts";
