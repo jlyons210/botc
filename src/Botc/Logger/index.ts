@@ -1,7 +1,2 @@
-import { LogLevel } from './Logger.types.js';
-import { Logger } from './Logger.js';
-
-export {
-  LogLevel,
-  Logger,
-};
+export { Logger } from "./Logger.ts";
+export type { LogLevel } from "./Logger.types.ts";

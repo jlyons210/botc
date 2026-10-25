@@ -1,8 +1,8 @@
-import { Brave } from '../Clients/Brave/index.js';
-import { DiscordClient } from '../Clients/Discord/index.js';
-import { ElevenLabs } from '../Clients/ElevenLabs/index.js';
-import { ObjectCache } from './ObjectCache/index.js';
-import { OpenAIClient } from '../Clients/OpenAI/index.js';
+import type { Brave } from "../Clients/Brave/index.ts";
+import type { DiscordClient } from "../Clients/Discord/index.ts";
+import type { ElevenLabs } from "../Clients/ElevenLabs/index.ts";
+import type { ObjectCache } from "./ObjectCache/index.ts";
+import type { OpenAIClient } from "../Clients/OpenAI/index.ts";
 
 export type BotcModules = {
   caches: BotcCacheModules;
@@ -23,17 +23,17 @@ export type BotcClientModules = {
 };
 
 export interface CustomSystemPrompt {
-  value: string,
-  append: boolean,
+  value: string;
+  append: boolean;
 }
 
 export interface GroundDecisionResponse {
-  willGround: boolean,
+  willGround: boolean;
 }
 
 export interface ReplyDecisionResponse {
-  respondToUser: string,
-  reason: string,
-  conversationTarget: string,
-  botIsAddressed: string,
+  respondToUser: string;
+  reason: string;
+  conversationTarget: string;
+  botIsAddressed: string;
 }

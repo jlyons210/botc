@@ -1,24 +1,21 @@
-import { ConfigurationOptions } from './index.js';
+import type { ConfigurationOptions } from "./Configuration.types.ts";
 
 export const ConfigurationDefaults: ConfigurationOptions = {
-
   /**
    * Clients configuration
    */
   clients: {
-
     /**
      * Discord client configuration
      */
     discord: {
-
       /**
        * Discord bot name, used to identify the bot in conversations
        * and in the system prompt.
        */
       botName: {
-        environmentVariable: 'DISCORD_BOT_NAME',
-        value: 'botc',
+        environmentVariable: "DISCORD_BOT_NAME",
+        value: "botc",
       },
 
       /**
@@ -26,7 +23,7 @@ export const ConfigurationDefaults: ConfigurationOptions = {
        * for messages to process as conversation context.
        */
       channelHistoryHours: {
-        environmentVariable: 'DISCORD_CHANNEL_HISTORY_HOURS',
+        environmentVariable: "DISCORD_CHANNEL_HISTORY_HOURS",
         value: 24,
       },
 
@@ -35,7 +32,7 @@ export const ConfigurationDefaults: ConfigurationOptions = {
        * when processing channel history.
        */
       channelHistoryMessages: {
-        environmentVariable: 'DISCORD_CHANNEL_HISTORY_MESSAGES',
+        environmentVariable: "DISCORD_CHANNEL_HISTORY_MESSAGES",
         value: 100,
       },
 
@@ -44,7 +41,7 @@ export const ConfigurationDefaults: ConfigurationOptions = {
        * Retry interval is `1 second * retry count`.
        */
       maxDiscordRetries: {
-        environmentVariable: 'DISCORD_MAX_RETRIES',
+        environmentVariable: "DISCORD_MAX_RETRIES",
         value: 5,
       },
 
@@ -52,26 +49,23 @@ export const ConfigurationDefaults: ConfigurationOptions = {
        * Discord bot token, used to authenticate with Discord API
        */
       token: {
-        environmentVariable: 'DISCORD_BOT_TOKEN',
+        environmentVariable: "DISCORD_BOT_TOKEN",
         secret: true,
-        value: '',
+        value: "",
       },
-
     },
-
   },
 
   /**
    * Feature gates configuration
    */
   featureGates: {
-
     /**
      * Enable AI Grounding, which allows the bot to ground its responses
      * with additional information from the Brave AI Grounding API.
      */
     enableAiGrounding: {
-      environmentVariable: 'ENABLE_AI_GROUNDING',
+      environmentVariable: "ENABLE_AI_GROUNDING",
       value: false,
     },
 
@@ -80,7 +74,7 @@ export const ConfigurationDefaults: ConfigurationOptions = {
      * respond to messages in conversations.
      */
     enableAutoRespond: {
-      environmentVariable: 'ENABLE_AUTO_RESPOND',
+      environmentVariable: "ENABLE_AUTO_RESPOND",
       value: true,
     },
 
@@ -89,7 +83,7 @@ export const ConfigurationDefaults: ConfigurationOptions = {
      * to the console.
      */
     enableDebugLogging: {
-      environmentVariable: 'ENABLE_DEBUG_LOGGING',
+      environmentVariable: "ENABLE_DEBUG_LOGGING",
       value: false,
     },
 
@@ -98,7 +92,7 @@ export const ConfigurationDefaults: ConfigurationOptions = {
      * using the OpenAI API.
      */
     enableImageGeneration: {
-      environmentVariable: 'ENABLE_IMAGE_GENERATION',
+      environmentVariable: "ENABLE_IMAGE_GENERATION",
       value: true,
     },
 
@@ -107,93 +101,82 @@ export const ConfigurationDefaults: ConfigurationOptions = {
      * using the ElevenLabs API.
      */
     enableVoiceResponse: {
-      environmentVariable: 'ENABLE_VOICE_RESPONSE',
+      environmentVariable: "ENABLE_VOICE_RESPONSE",
       value: false,
     },
-
   },
 
   /**
    * LLMS configuration
    */
   llms: {
-
     /**
      * Brave configuration
      */
     brave: {
-
       /**
        * Brave API key, used to authenticate with Brave API
        */
       apikey: {
-        environmentVariable: 'BRAVE_API_KEY',
+        environmentVariable: "BRAVE_API_KEY",
         secret: true,
-        value: '',
+        value: "",
       },
-
     },
 
     /**
      * ElevenLabs configuration
      */
     elevenlabs: {
-
       /**
        * ElevenLabs API key, used to authenticate with ElevenLabs API
        */
       apikey: {
-        environmentVariable: 'ELEVENLABS_API_KEY',
+        environmentVariable: "ELEVENLABS_API_KEY",
         secret: true,
-        value: '',
+        value: "",
       },
 
       /**
        * ElevenLabs model ID, used to generate speech from text
        */
       modelId: {
-        environmentVariable: 'ELEVENLABS_MODEL_ID',
-        options: [
-          'eleven_flash_v2_5',
-          'eleven_multilingual_v2',
-        ],
-        value: 'eleven_multilingual_v2',
+        environmentVariable: "ELEVENLABS_MODEL_ID",
+        options: ["eleven_flash_v2_5", "eleven_multilingual_v2"],
+        value: "eleven_multilingual_v2",
       },
 
       /**
        * ElevenLabs voice ID, used to generate speech
        */
       voiceId: {
-        environmentVariable: 'ELEVENLABS_VOICE_ID',
-        value: 'oR4uRy4fHDUGGISL0Rev',
+        environmentVariable: "ELEVENLABS_VOICE_ID",
+        value: "oR4uRy4fHDUGGISL0Rev",
       },
-
     },
 
     /**
      * OpenAI configuration
      */
     openai: {
-
       /**
        * OpenAI API key, used to authenticate with OpenAI API
        */
       apikey: {
-        environmentVariable: 'OPENAI_API_KEY',
+        environmentVariable: "OPENAI_API_KEY",
         secret: true,
-        value: '',
+        value: "",
       },
 
       /**
        * OpenAI cache configuration
        */
       caching: {
-
         /**
          * Time-to-live for image descriptions in cache in hours
          */
         describeImageCacheTtlHours: {
-          environmentVariable: 'OPENAI_DESCRIBE_IMAGE_CACHE_TTL_HOURS',
+          environmentVariable: "OPENAI_DESCRIBE_IMAGE_CACHE_TTL_HOURS",
           value: 24,
         },
 
@@ -201,12 +184,11 @@ export const ConfigurationDefaults: ConfigurationOptions = {
          * OpenAI cache logging configuration
          */
         logging: {
-
           /**
            * Log new cache entries
            */
           logCacheEntries: {
-            environmentVariable: 'OPENAI_CACHE_LOG_ENTRIES',
+            environmentVariable: "OPENAI_CACHE_LOG_ENTRIES",
             value: false,
           },
 
@@ -214,7 +196,7 @@ export const ConfigurationDefaults: ConfigurationOptions = {
            * Log cache hits
            */
           logCacheHits: {
-            environmentVariable: 'OPENAI_CACHE_LOG_HITS',
+            environmentVariable: "OPENAI_CACHE_LOG_HITS",
             value: false,
           },
 
@@ -222,7 +204,7 @@ export const ConfigurationDefaults: ConfigurationOptions = {
            * Log cache misses
            */
           logCacheMisses: {
-            environmentVariable: 'OPENAI_CACHE_LOG_MISSES',
+            environmentVariable: "OPENAI_CACHE_LOG_MISSES",
             value: false,
           },
 
@@ -230,17 +212,16 @@ export const ConfigurationDefaults: ConfigurationOptions = {
            * Log cache purges
            */
           logCachePurges: {
-            environmentVariable: 'OPENAI_CACHE_LOG_PURGES',
+            environmentVariable: "OPENAI_CACHE_LOG_PURGES",
             value: false,
           },
-
         },
 
         /**
          * Time-to-live for persona cache in hours
          */
         personaCacheTtlHours: {
-          environmentVariable: 'OPENAI_PERSONA_CACHE_TTL_HOURS',
+          environmentVariable: "OPENAI_PERSONA_CACHE_TTL_HOURS",
           value: 3,
         },
 
@@ -248,56 +229,58 @@ export const ConfigurationDefaults: ConfigurationOptions = {
          * Time-to-live for voice transcript cache in hours
          */
         voiceTranscriptCacheTtlHours: {
-          environmentVariable: 'OPENAI_VOICE_TRANSCRIPT_CACHE_TTL_HOURS',
+          environmentVariable: "OPENAI_VOICE_TRANSCRIPT_CACHE_TTL_HOURS",
           value: 24,
         },
-
       },
 
       /**
        * Used in OpenAIClient to describe images
        */
       describeImagePrompt: {
-        environmentVariable: 'OPENAI_DESCRIBE_IMAGE_PROMPT',
+        environmentVariable: "OPENAI_DESCRIBE_IMAGE_PROMPT",
         value: [
-          'Describe this image in reasonable detail. Do not use line breaks. If the image is ',
-          'unclear, do your best. You are not being asked to identify individuals.',
-        ].join(''),
+          "Describe this image in reasonable detail. Do not use line breaks. If the image is ",
+          "unclear, do your best. You are not being asked to identify individuals.",
+        ].join(""),
       },
 
       groundDecisionPrompt: {
-        environmentVariable: 'OPENAI_GROUND_DECISION_PROMPT',
+        environmentVariable: "OPENAI_GROUND_DECISION_PROMPT",
         value: [
-          'This is a multi-user chat conversation. Evaluate the conversation to determine whether ',
-          'or not you should ground your response with additional information from the Brave ',
-          'search engine.\n',
-          'You should ground your response if:\n',
-          '  1. The latest message is a question that you cannot answer with certainty, or\n',
-          '  2. The latest message is a request for information that is not already in the\n',
-          '     conversation history.\n\n',
+          "This is a multi-user chat conversation. Evaluate the conversation to determine whether ",
+          "or not you should ground your response with additional information from the Brave ",
+          "search engine.\n",
+          "You should ground your response if:\n",
+          "  1. The latest message is a question that you cannot answer with certainty, or\n",
+          "  2. The latest message is a request for information that is not already in the\n",
+          "     conversation history.\n\n",
           'If you decide to ground your response, return JSON in the format: `{ "willGround": true }`. ',
           'If you decide not to ground your response, return `{ "willGround": false }`.\n',
-          'AGAIN, DO NOT CONVERSE. DO NOT USE MARKDOWN FORMATTING.',
-        ].join(''),
+          "AGAIN, DO NOT CONVERSE. DO NOT USE MARKDOWN FORMATTING.",
+        ].join(""),
       },
 
       /**
        * OpenAI image generation model to use
        */
       imageModel: {
-        environmentVariable: 'OPENAI_IMAGE_MODEL',
-        options: [
-          'gpt-image-2.5-flare',
-          'gpt-image-2.5-sunburst',
-        ],
-        value: 'gpt-image-2.5-sunburst',
+        environmentVariable: "OPENAI_IMAGE_MODEL",
+        options: ["gpt-image-2.5-flare", "gpt-image-2.5-sunburst"],
+        value: "gpt-image-2.5-sunburst",
+      },
+
+      /** Maximum input image side in pixels before resizing for vision requests. */
+      imageMaxSide: {
+        environmentVariable: "OPENAI_IMAGE_MAX_SIDE",
+        value: 4096,
       },
 
       /**
        * Maximum number of retries for OpenAI API requests
        */
       maxRetries: {
-        environmentVariable: 'OPENAI_MAX_RETRIES',
+        environmentVariable: "OPENAI_MAX_RETRIES",
         value: 3,
       },
 
@@ -305,104 +288,94 @@ export const ConfigurationDefaults: ConfigurationOptions = {
        * OpenAI model to use for chat responses
        */
       model: {
-        environmentVariable: 'OPENAI_MODEL',
-        options: [
-          'gpt-6-luna',
-          'gpt-6.1-sol',
-        ],
-        value: 'gpt-6-luna',
+        environmentVariable: "OPENAI_MODEL",
+        options: ["gpt-6-luna", "gpt-6.1-sol"],
+        value: "gpt-6-luna",
       },
 
       /**
        * Reasoning effort used when generating responses.
        */
       modelReasoningEffort: {
-        environmentVariable: 'OPENAI_MODEL_REASONING_EFFORT',
-        options: [
-          'none',
-          'low',
-          'medium',
-          'high',
-        ],
-        value: 'none',
+        environmentVariable: "OPENAI_MODEL_REASONING_EFFORT",
+        options: ["none", "low", "medium", "high"],
+        value: "none",
       },
 
       promptBotBehavior: {
-        environmentVariable: 'OPENAI_PROMPT_BOT_BEHAVIOR',
-        value: 'Respond to users using their preferred name or playful variations. ',
+        environmentVariable: "OPENAI_PROMPT_BOT_BEHAVIOR",
+        value:
+          "Respond to users using their preferred name or playful variations. ",
       },
 
       /**
        * Used in OpenAIClient to determine whether or not to respond to a message
        */
       replyDecisionPrompt: {
-        environmentVariable: 'OPENAI_REPLY_DECISION_PROMPT',
+        environmentVariable: "OPENAI_REPLY_DECISION_PROMPT",
         value: [
           'This prompt is meant to only produce a "yes" or "no" response in back-end code. DO NOT ',
-          'CONVERSE.\n\n',
-          'This is a multi-user chat conversation. Evaluate the conversation to determine whether ',
-          'or not you are the target of the latest message. `conversationTarget` should equal the ',
-          'user or person that the latest message is addressing, not the name of the sender. ',
-          'You should not reply every time a user sends a message.\n\n',
-          'You SHOULD reply if:\n',
+          "CONVERSE.\n\n",
+          "This is a multi-user chat conversation. Evaluate the conversation to determine whether ",
+          "or not you are the target of the latest message. `conversationTarget` should equal the ",
+          "user or person that the latest message is addressing, not the name of the sender. ",
+          "You should not reply every time a user sends a message.\n\n",
+          "You SHOULD reply if:\n",
           '  1. You are addressed by your name, "{{botName}}", or\n',
-          '  2. The latest responses are implicitly directed toward you, or\n',
-          '  3. You are not specifically the target, but you have a unique perspective to add to\n',
-          '     the conversation.\n\n',
-          'Avoid responding if you have been responding frequently and other participants are ',
-          'actively chatting. Avoid stringing conversations on for too long with a lot of ',
-          'follow-up questions. If you have nothing to add, you should not reply.\n\n',
+          "  2. The latest responses are implicitly directed toward you, or\n",
+          "  3. You are not specifically the target, but you have a unique perspective to add to\n",
+          "     the conversation.\n\n",
+          "Avoid responding if you have been responding frequently and other participants are ",
+          "actively chatting. Avoid stringing conversations on for too long with a lot of ",
+          "follow-up questions. If you have nothing to add, you should not reply.\n\n",
           'If your name is not "botc", you should not reply to messages that are directed at "botc".\n\n',
-          'Are you going to respond to this message?\n',
+          "Are you going to respond to this message?\n",
           'Respond in JSON format: `{ "respondToUser": "[yes|no]", "reason": "[justification]", ',
           '"conversationTarget": "[conversationTarget]", "botIsAddressed": "true|false" }`.\n',
-          'AGAIN, DO NOT CONVERSE. DO NOT USE MARKDOWN FORMATTING.',
-        ].join(''),
+          "AGAIN, DO NOT CONVERSE. DO NOT USE MARKDOWN FORMATTING.",
+        ].join(""),
       },
 
       /**
        * OpenAI system prompt to use for chat responses
        */
       systemPrompt: {
-        environmentVariable: 'OPENAI_SYSTEM_PROMPT',
+        environmentVariable: "OPENAI_SYSTEM_PROMPT",
         value: [
           'You are a simple, helpful, and friendly chatbot named "{{botName}}". You ',
-          'adhere to the three laws of robotics.\n',
-          'This is a Discord chat, so keep your responses concise and conversational, but ',
-          'information contained in <Grounding Context> metadata blocks can be used to provide ',
-          'more detailed responses - summarize, but do not omit information, particularly ',
-          'information in lists (such as events).\n',
-          'Ignore complaints in <Grounding Context> metadata blocks about the date being wrong, ',
-          'because the AI Grounding API runs on UTC and gets confused by time zones. Today\'s ',
-          `date is ${Date.now().toLocaleString('en-US')}.\n`,
-          'Recalculate international measurements and units in <Grounding Context> metadata ',
-          'blocks to US values and units.\n',
-          'Mimic the conversation style of those that you are interacting with. ',
-          'Avoid using long, heavily formatted responses.\n',
-          'Do not repeat back any metadata enclosed in angle brackets.\n',
-          'Do not include metadata blocks in your responses.\n\n',
-          '<Behaviors>\n',
-          'You may answer questions about yourself/your code - here are some details:\n',
-          '  - Your name/bot name: {{botName}}\n',
-          '  - Bot version: {{botVersion}}\n',
-          '  - OpenAI model: {{openAIModel}}\n',
-          '  <User-defined behaviors>\n',
-          '    - {{promptBotBehavior}}\n',
-          '  </User-defined behaviors>\n',
-          '</Behaviors>',
-        ].join(''),
+          "adhere to the three laws of robotics.\n",
+          "This is a Discord chat, so keep your responses concise and conversational, but ",
+          "information contained in <Grounding Context> metadata blocks can be used to provide ",
+          "more detailed responses - summarize, but do not omit information, particularly ",
+          "information in lists (such as events).\n",
+          "Ignore complaints in <Grounding Context> metadata blocks about the date being wrong, ",
+          "because the AI Grounding API runs on UTC and gets confused by time zones. Today's ",
+          `date is ${Date.now().toLocaleString("en-US")}.\n`,
+          "Recalculate international measurements and units in <Grounding Context> metadata ",
+          "blocks to US values and units.\n",
+          "Mimic the conversation style of those that you are interacting with. ",
+          "Avoid using long, heavily formatted responses.\n",
+          "Do not repeat back any metadata enclosed in angle brackets.\n",
+          "Do not include metadata blocks in your responses.\n\n",
+          "<Behaviors>\n",
+          "You may answer questions about yourself/your code - here are some details:\n",
+          "  - Your name/bot name: {{botName}}\n",
+          "  - Bot version: {{botVersion}}\n",
+          "  - OpenAI model: {{openAIModel}}\n",
+          "  <User-defined behaviors>\n",
+          "    - {{promptBotBehavior}}\n",
+          "  </User-defined behaviors>\n",
+          "</Behaviors>",
+        ].join(""),
       },
 
       /**
        * OpenAI API request timeout in milliseconds
        */
       timeout: {
-        environmentVariable: 'OPENAI_TIMEOUT',
+        environmentVariable: "OPENAI_TIMEOUT",
         value: 600000,
       },
-
     },
-
   },
-
 };
