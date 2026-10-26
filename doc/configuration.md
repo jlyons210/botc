@@ -103,7 +103,7 @@ Bot names are matched case-insensitively against `DISCORD_BOT_NAME`. When severa
 
 ## Deployment
 
-The published image supports `amd64` and `arm64` and is available from [GitHub Container Registry](https://github.com/jlyons210/botc/pkgs/container/botc). The examples pin version `0.26.0`; change the tag when upgrading.
+The published image supports `amd64` and `arm64` and is available from [GitHub Container Registry](https://github.com/jlyons210/botc/pkgs/container/botc). The examples pin version `0.27.0`; change the tag when upgrading.
 
 ### Docker
 
@@ -122,7 +122,7 @@ docker run --detach \
   --name botc \
   --restart unless-stopped \
   --env-file ./botc.env \
-  ghcr.io/jlyons210/botc:0.26.0
+  ghcr.io/jlyons210/botc:0.27.0
 ```
 
 Docker pulls the image automatically when it is not already available locally.
@@ -163,7 +163,7 @@ spec:
     spec:
       containers:
         - name: botc
-          image: ghcr.io/jlyons210/botc:0.26.0
+          image: ghcr.io/jlyons210/botc:0.27.0
           imagePullPolicy: IfNotPresent
           envFrom:
             - secretRef:
