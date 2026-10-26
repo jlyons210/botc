@@ -4,6 +4,7 @@
 
 ## Pre-release
 
+- 0.28.x: [0.28.0](#0280-2026-10-26)
 - 0.27.x: [0.27.0](#0270-2026-10-25)
 - 0.26.x: [0.26.0](#0260-2026-10-25)
 - 0.25.x: [0.25.0](#0250-2026-10-17)
@@ -33,6 +34,12 @@
 - 0.1.x: [0.1.0](#010-2025-01-24)
 
 ---
+
+## 0.28.0 (2026-10-26)
+
+- Added `OPENAI_CUSTOM_BASE_URL` to send chat and vision requests to a local OpenAI-compatible API such as Ollama. Image generation, audio transcription, Brave, and ElevenLabs **do not** use the custom base URL. See [Configuration](configuration.md).
+
+[:arrow_up: Back to top](#changelog)
 
 ## 0.27.0 (2026-10-25)
 
