@@ -193,13 +193,17 @@ export class Botc {
   private async createPromptPayload(
     messageHistory: BotcMessage[],
     customSystemPrompt?: CustomSystemPrompt,
+    botBehavior?: string,
   ): Promise<OpenAIResponsePayload> {
     const config = this.config.options.llms.openai;
-    const configSystemPrompt = config.systemPrompt;
+    const baseSystemPrompt = (config.systemPrompt.value as string).replaceAll(
+      "{{promptBotBehavior}}",
+      botBehavior ?? (config.promptBotBehavior.value as string),
+    );
 
     const systemPrompt = customSystemPrompt?.append
-      ? [configSystemPrompt.value, customSystemPrompt.value].join("\n")
-      : customSystemPrompt?.value || configSystemPrompt.value;
+      ? [baseSystemPrompt, customSystemPrompt.value].join("\n")
+      : customSystemPrompt?.value || baseSystemPrompt;
 
     return {
       instructions: systemPrompt as string,
@@ -208,6 +212,45 @@ export class Botc {
         content: `Username: ${message.promptUsername}\n${message.promptContent}`,
       })),
     };
+  }
+
+  /**
+   * Applies channel topic tags (`#botc:`, `#botc_name:`, `#botc!:`, `#botc!_name:`), one per line.
+   * `!` tags replace the base behavior; others are appended.
+   */
+  private resolveChannelBehavior(
+    topic: string | null,
+    botName: string,
+    baseBehavior: string,
+  ): string {
+    const overrides: string[] = [];
+    const additions: string[] = [];
+
+    for (const line of (topic ?? "").split(/\r?\n/)) {
+      const trimmed = line.trim();
+      const colon = trimmed.indexOf(":");
+      if (colon < 0) continue;
+
+      let key = trimmed.slice(0, colon).toLowerCase();
+      if (!key.startsWith("#botc")) continue;
+      key = key.slice("#botc".length);
+
+      const override = key.startsWith("!");
+      if (override) key = key.slice(1);
+
+      if (key.startsWith("_")) {
+        if (key.slice(1) !== botName.toLowerCase()) continue;
+      } else if (key !== "") {
+        continue;
+      }
+
+      const text = trimmed.slice(colon + 1).trim();
+      if (text) (override ? overrides : additions).push(text);
+    }
+
+    return [...(overrides.length ? overrides : [baseBehavior]), ...additions]
+      .filter((text) => text.length > 0)
+      .join(" ");
   }
 
   private async describeImages(messageHistory: BotcMessage[]): Promise<void> {
@@ -304,13 +347,29 @@ export class Botc {
   ): Promise<string> {
     const groundingContext =
       await this.generateGroundingContext(messageHistory);
-    const payload = await this.createPromptPayload(messageHistory, {
-      value: [
-        `<Sender Persona>${persona}</Sender Persona>`,
-        `<Grounding Context>${groundingContext}</Grounding Context>`,
-      ].join("\n"),
-      append: true,
-    });
+    const lastMessage = messageHistory.at(-1) as BotcMessage;
+    const topic = lastMessage.guildId
+      ? await this.modules.clients.discord.getChannelTopic(
+          lastMessage.channelId,
+        )
+      : null;
+    const botBehavior = this.resolveChannelBehavior(
+      topic,
+      this.config.options.clients.discord.botName.value as string,
+      this.config.options.llms.openai.promptBotBehavior.value as string,
+    );
+
+    const payload = await this.createPromptPayload(
+      messageHistory,
+      {
+        value: [
+          `<Sender Persona>${persona}</Sender Persona>`,
+          `<Grounding Context>${groundingContext}</Grounding Context>`,
+        ].join("\n"),
+        append: true,
+      },
+      botBehavior,
+    );
 
     const openai = this.modules.clients.openai;
     return await openai.createResponse(payload);

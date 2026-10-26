@@ -182,6 +182,12 @@ export class DiscordClient {
     return messages.flat();
   }
 
+  /** Returns the channel topic, or null when the channel has none. */
+  public async getChannelTopic(channelId: string): Promise<string | null> {
+    const channel = await this.discordClient.channels.fetch(channelId);
+    return channel && "topic" in channel ? (channel.topic ?? null) : null;
+  }
+
   /**
    * Get channel history
    * @param channelId - Channel ID

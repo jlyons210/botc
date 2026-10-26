@@ -71,6 +71,19 @@ Configure botc through environment variables. Start with the prerequisites and r
 | `OPENAI_SYSTEM_PROMPT`             | [Source](https://github.com/jlyons210/botc/blob/main/src/Botc/Configuration/Configuration.defaults.ts) | Behavioral prompt to set the overall bot behavior.                                                       |
 | `OPENAI_TIMEOUT`                   | `600000`                                                                                               | Milliseconds to wait for OpenAI API response.                                                            |
 
+#### Channel topic behavior
+
+Channel topics can adjust behavior per channel. Put each tag on its own line; multiple tags are supported.
+
+| Tag                 | Applies to       | Effect                                   |
+| ------------------- | ---------------- | ---------------------------------------- |
+| `#botc: text`       | All bots         | Appended to `OPENAI_PROMPT_BOT_BEHAVIOR` |
+| `#botc_name: text`  | Bot named `name` | Appended to `OPENAI_PROMPT_BOT_BEHAVIOR` |
+| `#botc!: text`      | All bots         | Replaces `OPENAI_PROMPT_BOT_BEHAVIOR`    |
+| `#botc!_name: text` | Bot named `name` | Replaces `OPENAI_PROMPT_BOT_BEHAVIOR`    |
+
+Bot names are matched case-insensitively against `DISCORD_BOT_NAME`. When several override tags apply, they replace the base behavior together; append tags are then added after.
+
 [:arrow_up: Back to top](#configuration)
 
 #### Optional: Caching-specific

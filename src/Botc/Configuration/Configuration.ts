@@ -121,11 +121,9 @@ export class Configuration {
     )
       .replaceAll("{{botName}}", discordOptions.botName.value as string)
       .replaceAll("{{botVersion}}", packageJson.version)
-      .replaceAll("{{openAIModel}}", openaiOptions.model.value as string)
-      .replaceAll(
-        "{{promptBotBehavior}}",
-        openaiOptions.promptBotBehavior.value as string,
-      );
+      .replaceAll("{{openAIModel}}", openaiOptions.model.value as string);
+
+    // {{promptBotBehavior}} is resolved per-channel at request time.
 
     openaiOptions.replyDecisionPrompt.value = (
       openaiOptions.replyDecisionPrompt.value as string
