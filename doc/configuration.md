@@ -51,25 +51,26 @@ Configure botc through environment variables. Start with the prerequisites and r
 
 ### Optional
 
-| Environment                        | Default                                                                                                | Description                                                                                              |
-| ---------------------------------- | ------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------- |
-| `DISCORD_BOT_NAME`                 | `botc`                                                                                                 | Should be configured to match bot's name in Discord channels.                                            |
-| `DISCORD_CHANNEL_HISTORY_HOURS`    | `24`                                                                                                   | Number of hours of past messsages to ingest for conversation context.                                    |
-| `DISCORD_CHANNEL_HISTORY_MESSAGES` | `100`                                                                                                  | Number of past messages to ingest per-channel for conversation context.                                  |
-| `DISCORD_MAX_RETRIES`              | `5`                                                                                                    | Number of times to retry Discord APIs. Retry interval is `1 second * retry count`.                       |
-| `ELEVENLABS_MODEL_ID`              | `eleven_multilingual_v2`                                                                               | Speech synthesis models offered by the ElevenLabs API.                                                   |
-| `ELEVENLABS_VOICE_ID`              | `oR4uRy4fHDUGGISL0Rev`                                                                                 | ElevenLabs text-to-speech voice ID.                                                                      |
-| `OPENAI_DESCRIBE_IMAGE_PROMPT`     | [Source](https://github.com/jlyons210/botc/blob/main/src/Botc/Configuration/Configuration.defaults.ts) | Prompt used to describe attached images.                                                                 |
-| `OPENAI_GROUND_DECISION_PROMPT`    | [Source](https://github.com/jlyons210/botc/blob/main/src/Botc/Configuration/Configuration.defaults.ts) | Prompt used to reason whether or not the bot should ground its response using the Brave Grounded AI API. |
-| `OPENAI_IMAGE_MAX_SIDE`            | `4096`                                                                                                 | Maximum image side in pixels before resizing for image-description requests.                             |
-| `OPENAI_IMAGE_MODEL`               | `gpt-image-2.5-sunburst`                                                                               | OpenAI model to use for image generations and edits.                                                     |
-| `OPENAI_MAX_RETRIES`               | `3`                                                                                                    | Number of OpenAI API retries on retriable errors.                                                        |
-| `OPENAI_MODEL`                     | `gpt-6-luna`                                                                                           | OpenAI model to use for chat responses.                                                                  |
-| `OPENAI_MODEL_REASONING_EFFORT`    | `none`                                                                                                 | Reasoning effort the OpenAI model will use.                                                              |
-| `OPENAI_PROMPT_BOT_BEHAVIOR`       | `String`                                                                                               | Optional field for further customizing the bot behavior without re-writing the full system prompt.       |
-| `OPENAI_REPLY_DECISION_PROMPT`     | [Source](https://github.com/jlyons210/botc/blob/main/src/Botc/Configuration/Configuration.defaults.ts) | Prompt used to reason whether or not the bot should engage in conversation.                              |
-| `OPENAI_SYSTEM_PROMPT`             | [Source](https://github.com/jlyons210/botc/blob/main/src/Botc/Configuration/Configuration.defaults.ts) | Behavioral prompt to set the overall bot behavior.                                                       |
-| `OPENAI_TIMEOUT`                   | `600000`                                                                                               | Milliseconds to wait for OpenAI API response.                                                            |
+| Environment                        | Default                                                                                                | Description                                                                                                                                                    |
+| ---------------------------------- | ------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `DISCORD_BOT_NAME`                 | `botc`                                                                                                 | Should be configured to match bot's name in Discord channels.                                                                                                  |
+| `DISCORD_CHANNEL_HISTORY_HOURS`    | `24`                                                                                                   | Number of hours of past messsages to ingest for conversation context.                                                                                          |
+| `DISCORD_CHANNEL_HISTORY_MESSAGES` | `100`                                                                                                  | Number of past messages to ingest per-channel for conversation context.                                                                                        |
+| `DISCORD_MAX_RETRIES`              | `5`                                                                                                    | Number of times to retry Discord APIs. Retry interval is `1 second * retry count`.                                                                             |
+| `ELEVENLABS_MODEL_ID`              | `eleven_multilingual_v2`                                                                               | Speech synthesis models offered by the ElevenLabs API.                                                                                                         |
+| `ELEVENLABS_VOICE_ID`              | `oR4uRy4fHDUGGISL0Rev`                                                                                 | ElevenLabs text-to-speech voice ID.                                                                                                                            |
+| `OPENAI_CUSTOM_BASE_URL`           | _(empty)_                                                                                              | Base URL of a local OpenAI-compatible API (e.g. `http://localhost:11434/v1` for Ollama). Chat/vision only; image, voice, Brave, and ElevenLabs are unaffected. |
+| `OPENAI_DESCRIBE_IMAGE_PROMPT`     | [Source](https://github.com/jlyons210/botc/blob/main/src/Botc/Configuration/Configuration.defaults.ts) | Prompt used to describe attached images.                                                                                                                       |
+| `OPENAI_GROUND_DECISION_PROMPT`    | [Source](https://github.com/jlyons210/botc/blob/main/src/Botc/Configuration/Configuration.defaults.ts) | Prompt used to reason whether or not the bot should ground its response using the Brave Grounded AI API.                                                       |
+| `OPENAI_IMAGE_MAX_SIDE`            | `4096`                                                                                                 | Maximum image side in pixels before resizing for image-description requests.                                                                                   |
+| `OPENAI_IMAGE_MODEL`               | `gpt-image-2.5-sunburst`                                                                               | OpenAI model to use for image generations and edits.                                                                                                           |
+| `OPENAI_MAX_RETRIES`               | `3`                                                                                                    | Number of OpenAI API retries on retriable errors.                                                                                                              |
+| `OPENAI_MODEL`                     | `gpt-6-luna`                                                                                           | OpenAI model to use for chat responses.                                                                                                                        |
+| `OPENAI_MODEL_REASONING_EFFORT`    | `none`                                                                                                 | Reasoning effort the OpenAI model will use.                                                                                                                    |
+| `OPENAI_PROMPT_BOT_BEHAVIOR`       | `String`                                                                                               | Optional field for further customizing the bot behavior without re-writing the full system prompt.                                                             |
+| `OPENAI_REPLY_DECISION_PROMPT`     | [Source](https://github.com/jlyons210/botc/blob/main/src/Botc/Configuration/Configuration.defaults.ts) | Prompt used to reason whether or not the bot should engage in conversation.                                                                                    |
+| `OPENAI_SYSTEM_PROMPT`             | [Source](https://github.com/jlyons210/botc/blob/main/src/Botc/Configuration/Configuration.defaults.ts) | Behavioral prompt to set the overall bot behavior.                                                                                                             |
+| `OPENAI_TIMEOUT`                   | `600000`                                                                                               | Milliseconds to wait for OpenAI API response.                                                                                                                  |
 
 #### Channel topic behavior
 
@@ -103,7 +104,7 @@ Bot names are matched case-insensitively against `DISCORD_BOT_NAME`. When severa
 
 ## Deployment
 
-The published image supports `amd64` and `arm64` and is available from [GitHub Container Registry](https://github.com/jlyons210/botc/pkgs/container/botc). The examples pin version `0.27.0`; change the tag when upgrading.
+The published image supports `amd64` and `arm64` and is available from [GitHub Container Registry](https://github.com/jlyons210/botc/pkgs/container/botc). The examples pin version `0.28.0`; change the tag when upgrading.
 
 ### Docker
 
@@ -122,7 +123,7 @@ docker run --detach \
   --name botc \
   --restart unless-stopped \
   --env-file ./botc.env \
-  ghcr.io/jlyons210/botc:0.27.0
+  ghcr.io/jlyons210/botc:0.28.0
 ```
 
 Docker pulls the image automatically when it is not already available locally.
@@ -163,7 +164,7 @@ spec:
     spec:
       containers:
         - name: botc
-          image: ghcr.io/jlyons210/botc:0.27.0
+          image: ghcr.io/jlyons210/botc:0.28.0
           imagePullPolicy: IfNotPresent
           envFrom:
             - secretRef:

@@ -169,6 +169,16 @@ export const ConfigurationDefaults: ConfigurationOptions = {
       },
 
       /**
+       * Base URL of a local OpenAI-compatible API (e.g. Ollama at
+       * `http://localhost:11434/v1`). Used for chat/vision requests only.
+       * Leave empty to use OpenAI.
+       */
+      customBaseUrl: {
+        environmentVariable: "OPENAI_CUSTOM_BASE_URL",
+        value: "",
+      },
+
+      /**
        * OpenAI cache configuration
        */
       caching: {

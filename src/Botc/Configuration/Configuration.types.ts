@@ -112,6 +112,8 @@ export interface OpenAISettings {
   apikey: ConfigurationSettings;
   /** Cache lifetimes and logging controls. */
   caching: OpenAICacheSettings;
+  /** Base URL of a local OpenAI-compatible API used for chat/vision requests only. */
+  customBaseUrl: ConfigurationSettings;
   /** Prompt used to describe images. */
   describeImagePrompt: ConfigurationSettings;
   /** Prompt used to decide whether to search for grounding information. */
