@@ -179,6 +179,15 @@ export const ConfigurationDefaults: ConfigurationOptions = {
       },
 
       /**
+       * Model name served by the custom API (e.g. `llama3.2-vision`).
+       * Used instead of `model` when `customBaseUrl` is set.
+       */
+      customModel: {
+        environmentVariable: "OPENAI_CUSTOM_MODEL",
+        value: "",
+      },
+
+      /**
        * OpenAI cache configuration
        */
       caching: {
