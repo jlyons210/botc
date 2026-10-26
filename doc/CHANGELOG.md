@@ -38,6 +38,7 @@
 ## 0.28.0 (2026-10-26)
 
 - Added `OPENAI_CUSTOM_BASE_URL` to send chat and vision requests to a local OpenAI-compatible API such as Ollama. Image generation, audio transcription, Brave, and ElevenLabs **do not** use the custom base URL. See [Configuration](configuration.md).
+- Added `OPENAI_CUSTOM_MODEL` to select the model served by the custom API; it replaces `OPENAI_MODEL` when `OPENAI_CUSTOM_BASE_URL` is set.
 
 [:arrow_up: Back to top](#changelog)
 
