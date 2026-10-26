@@ -17,6 +17,7 @@ export class OpenAIClient {
   private readonly client: OpenAI;
   private readonly responseClient: OpenAI;
   private readonly responseModel: string;
+  private readonly usesCustomBaseUrl: boolean;
   private readonly globalEvents = EventBus.attach();
   private readonly logger: Logger;
   private openAIConfig: OpenAISettings;
@@ -38,6 +39,7 @@ export class OpenAIClient {
     });
 
     const customBaseUrl = this.openAIConfig.customBaseUrl.value as string;
+    this.usesCustomBaseUrl = customBaseUrl !== "";
 
     // Local servers typically ignore the key, but the SDK requires one.
     this.responseClient = customBaseUrl
@@ -188,18 +190,50 @@ export class OpenAIClient {
   public async generateImageDescription(imageUrl: string): Promise<string> {
     const describeImagePrompt = this.openAIConfig.describeImagePrompt
       .value as string;
+    const resolvedImageUrl = this.usesCustomBaseUrl
+      ? await this.toDataUrl(imageUrl)
+      : imageUrl;
     const payload: OpenAIResponsePayload = {
       input: [
         {
           role: "user",
           content: [
             { type: "input_text", text: describeImagePrompt },
-            { type: "input_image", image_url: imageUrl, detail: "auto" },
+            {
+              type: "input_image",
+              image_url: resolvedImageUrl,
+              detail: "auto",
+            },
           ],
         },
       ],
     };
 
     return await this.createResponse(payload);
+  }
+
+  /**
+   * Custom APIs such as Ollama only accept base64 images, not remote URLs.
+   * @param imageUrl - Remote image URL or existing data URL
+   * @returns Base64 data URL
+   */
+  private async toDataUrl(imageUrl: string): Promise<string> {
+    if (imageUrl.startsWith("data:")) {
+      return imageUrl;
+    }
+
+    const response = await fetch(imageUrl);
+    if (!response.ok) {
+      this.logger.log(
+        `OpenAIClient.toDataUrl: failed to fetch image: ${response.status}`,
+        "ERROR",
+      );
+      throw new OpenAINotAllowedError("Unable to fetch image.");
+    }
+
+    const mimeType = response.headers.get("content-type") ?? "image/png";
+    const base64 = Buffer.from(await response.arrayBuffer()).toString("base64");
+
+    return `data:${mimeType};base64,${base64}`;
   }
 }
