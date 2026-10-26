@@ -71,17 +71,31 @@ Configure botc through environment variables. Start with the prerequisites and r
 | `OPENAI_SYSTEM_PROMPT`             | [Source](https://github.com/jlyons210/botc/blob/main/src/Botc/Configuration/Configuration.defaults.ts) | Behavioral prompt to set the overall bot behavior.                                                       |
 | `OPENAI_TIMEOUT`                   | `600000`                                                                                               | Milliseconds to wait for OpenAI API response.                                                            |
 
+#### Channel topic behavior
+
+Channel topics can adjust behavior per channel. Put each tag on its own line; multiple tags are supported.
+
+| Tag                 | Applies to       | Effect                                   |
+| ------------------- | ---------------- | ---------------------------------------- |
+| `#botc: text`       | All bots         | Appended to `OPENAI_PROMPT_BOT_BEHAVIOR` |
+| `#botc_name: text`  | Bot named `name` | Appended to `OPENAI_PROMPT_BOT_BEHAVIOR` |
+| `#botc!: text`      | All bots         | Replaces `OPENAI_PROMPT_BOT_BEHAVIOR`    |
+| `#botc!_name: text` | Bot named `name` | Replaces `OPENAI_PROMPT_BOT_BEHAVIOR`    |
+
+Bot names are matched case-insensitively against `DISCORD_BOT_NAME`. When several override tags apply, they replace the base behavior together; append tags are then added after.
+
 [:arrow_up: Back to top](#configuration)
 
 #### Optional: Caching-specific
 
 | Environment                               | Default | Description                                        |
 | ----------------------------------------- | ------- | -------------------------------------------------- |
-| `OPENAI_DESCRIBE_IMAGE_CACHE_TTL_HOURS`   | `24`    | Hours to cache image descriptions.                 |
 | `OPENAI_CACHE_LOG_ENTRIES`                | `false` | Enables logging of new cache entries.              |
 | `OPENAI_CACHE_LOG_HITS`                   | `false` | Enables logging of cache hits.                     |
 | `OPENAI_CACHE_LOG_MISSES`                 | `false` | Enables logging of cache misses.                   |
 | `OPENAI_CACHE_LOG_PURGES`                 | `false` | Enables logging of cache entry expiration/purging. |
+| `OPENAI_CACHE_MAX_ENTRIES`                | `1000`  | Maximum entries retained in each cache instance.   |
+| `OPENAI_DESCRIBE_IMAGE_CACHE_TTL_HOURS`   | `24`    | Hours to cache image descriptions.                 |
 | `OPENAI_PERSONA_CACHE_TTL_HOURS`          | `3`     | Hours to cache guild-wide user personas.           |
 | `OPENAI_VOICE_TRANSCRIPT_CACHE_TTL_HOURS` | `24`    | Hours to cache voice message transcriptions.       |
 
@@ -89,7 +103,7 @@ Configure botc through environment variables. Start with the prerequisites and r
 
 ## Deployment
 
-The published image supports `amd64` and `arm64` and is available from [GitHub Container Registry](https://github.com/jlyons210/botc/pkgs/container/botc). The examples pin version `0.26.0`; change the tag when upgrading.
+The published image supports `amd64` and `arm64` and is available from [GitHub Container Registry](https://github.com/jlyons210/botc/pkgs/container/botc). The examples pin version `0.27.0`; change the tag when upgrading.
 
 ### Docker
 
@@ -108,7 +122,7 @@ docker run --detach \
   --name botc \
   --restart unless-stopped \
   --env-file ./botc.env \
-  ghcr.io/jlyons210/botc:0.26.0
+  ghcr.io/jlyons210/botc:0.27.0
 ```
 
 Docker pulls the image automatically when it is not already available locally.
@@ -149,7 +163,7 @@ spec:
     spec:
       containers:
         - name: botc
-          image: ghcr.io/jlyons210/botc:0.26.0
+          image: ghcr.io/jlyons210/botc:0.27.0
           imagePullPolicy: IfNotPresent
           envFrom:
             - secretRef:

@@ -6,19 +6,12 @@ import { ElevenLabsClient } from "@elevenlabs/elevenlabs-js";
 import EventBus from "../../Botc/EventBus/EventBus.ts";
 import { Readable } from "node:stream";
 
-/**
- * ElevenLabs client wrapper
- */
 export class ElevenLabs {
   private readonly client: ElevenLabsClient;
   private readonly elevenlabsConfig: ElevenLabsSettings;
   private readonly globalEvents = EventBus.attach();
   private config: ConfigurationOptions;
 
-  /**
-   * New ElevenLabs client
-   * @param config - Botc configuration
-   */
   constructor(config: ConfigurationOptions) {
     this.config = config;
     this.elevenlabsConfig = this.config.llms.elevenlabs;

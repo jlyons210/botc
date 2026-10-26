@@ -180,6 +180,12 @@ export const ConfigurationDefaults: ConfigurationOptions = {
           value: 24,
         },
 
+        /** Maximum number of entries retained in each cache instance. */
+        maxEntriesPerCache: {
+          environmentVariable: "OPENAI_CACHE_MAX_ENTRIES",
+          value: 1000,
+        },
+
         /**
          * OpenAI cache logging configuration
          */

@@ -4,6 +4,7 @@
 
 ## Pre-release
 
+- 0.27.x: [0.27.0](#0270-2026-10-25)
 - 0.26.x: [0.26.0](#0260-2026-10-25)
 - 0.25.x: [0.25.0](#0250-2026-10-17)
 - 0.24.x: [0.24.0](#0240-2026-09-16)
@@ -32,6 +33,13 @@
 - 0.1.x: [0.1.0](#010-2025-01-24)
 
 ---
+
+## 0.27.0 (2026-10-25)
+
+- Improved cache efficiency while bounding cache growth.
+- Channel topics can now customize the bot's behavior per channel, for all bots or a specific bot, either adding to or replacing `OPENAI_PROMPT_BOT_BEHAVIOR`. See [Channel topic behavior](configuration.md#channel-topic-behavior).
+
+[:arrow_up: Back to top](#changelog)
 
 ## 0.26.0 (2026-10-25)
 

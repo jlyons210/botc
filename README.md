@@ -1,4 +1,4 @@
-![Wise, learned botc](assets/botc-logo.png)
+![Wise, learned botc](doc/botc-logo.png)
 
 # botc
 
@@ -6,7 +6,7 @@
 
 My intent is for **botc** to engage with chat users in a more human-like fashion. It brings together ideas from my [previous Discord bot projects](#history) with newer ways of using LLMs.
 
-**botc** currently uses the OpenAI API for prompt completions, with the possibility of adding other APIs and local LLMs. It is written in TypeScript for Node.js, runs on [Discord.js](https://github.com/discordjs/discord.js), and uses the [openai-node](https://github.com/openai/openai-node) SDK..
+**botc** currently uses the OpenAI API for prompt completions, with the possibility of adding other APIs and local LLMs. It is written in TypeScript for Node.js, runs on [Discord.js](https://github.com/discordjs/discord.js), and uses the [openai-node](https://github.com/openai/openai-node) SDK.
 
 ## Contents
 
