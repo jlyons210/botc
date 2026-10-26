@@ -19,9 +19,6 @@ import { EventBus } from "../../Botc/EventBus/index.ts";
 import { BotcMessage } from "../../Botc/index.ts";
 import { Logger } from "../../Botc/Logger/index.ts";
 
-/**
- * Discord client wrapper
- */
 export class DiscordClient {
   private discordClient!: Client;
   private discordConfig!: DiscordClientSettings;
@@ -30,26 +27,16 @@ export class DiscordClient {
   private logger!: Logger;
   private config: ConfigurationOptions;
 
-  /**
-   * New Discord client
-   * @param config - Botc configuration
-   */
   constructor(config: ConfigurationOptions) {
     this.config = config;
     this.initialize();
   }
 
-  /**
-   * Destroy the Discord Client
-   */
   public destroy(): void {
     this.discordClient.destroy();
     this.logger.log(`Discord client destroyed.`, "INFO");
   }
 
-  /**
-   * Async initialize outside of constructor
-   */
   private async initialize(): Promise<void> {
     this.logger = new Logger(
       this.config.featureGates.enableDebugLogging.value as boolean,
@@ -61,9 +48,6 @@ export class DiscordClient {
     this.botUserId = this.discordClient.user?.id as string;
   }
 
-  /**
-   * Register Discord client event handlers
-   */
   private async registerHandlers(): Promise<void> {
     this.discordClient.once(
       Events.ClientReady,
@@ -86,9 +70,6 @@ export class DiscordClient {
     );
   }
 
-  /**
-   * Handle Discord ClientReady event
-   */
   private async handleClientReady(): Promise<void> {
     await this.logReadyBanner();
     this.globalEvents.emit("DiscordClient:Ready", {
@@ -96,10 +77,6 @@ export class DiscordClient {
     });
   }
 
-  /**
-   * Handle Discord MessageCreate event
-   * @param discordMessage - Discord.js Message object
-   */
   private async handleMessageCreate(discordMessage: Message): Promise<void> {
     const botcMessage = new BotcMessage({
       botUserId: this.botUserId,
@@ -147,10 +124,6 @@ export class DiscordClient {
     }
   }
 
-  /**
-   * Start typing indicator in Discord channel
-   * @param data - StartTyping event data
-   */
   private async handleStartTyping(
     data: EventMap["DiscordClient:StartTyping"],
   ): Promise<void> {
@@ -184,10 +157,6 @@ export class DiscordClient {
     }
   }
 
-  /**
-   * Create Discord client
-   * @returns Discord client
-   */
   private async createDiscordClient(): Promise<Client> {
     return new Client({
       intents: [
@@ -201,10 +170,6 @@ export class DiscordClient {
     });
   }
 
-  /**
-   * Get all guilds history
-   * @returns All guilds history
-   */
   public async getAllGuildsHistory(): Promise<BotcMessage[]> {
     const guilds = this.discordClient.guilds.cache;
 
@@ -215,6 +180,12 @@ export class DiscordClient {
     );
 
     return messages.flat();
+  }
+
+  /** Returns the channel topic, or null when the channel has none. */
+  public async getChannelTopic(channelId: string): Promise<string | null> {
+    const channel = await this.discordClient.channels.fetch(channelId);
+    return channel && "topic" in channel ? (channel.topic ?? null) : null;
   }
 
   /**
@@ -270,11 +241,6 @@ export class DiscordClient {
     }
   }
 
-  /**
-   * Get guild
-   * @param guildId - Guild ID
-   * @returns Guild
-   */
   public async getGuild(guildId: string): Promise<Guild> {
     return await this.discordClient.guilds.fetch(guildId);
   }
@@ -308,9 +274,6 @@ export class DiscordClient {
     }
   }
 
-  /**
-   * Log the ready banner
-   */
   private async logReadyBanner(): Promise<void> {
     const guilds = this.discordClient.guilds.cache;
     this.logger.log(

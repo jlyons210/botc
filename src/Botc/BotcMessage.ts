@@ -28,10 +28,6 @@ export class BotcMessage {
   private _nameSanitized!: string;
   private _voiceMessageTranscription: string | undefined;
 
-  /**
-   * New BotcMessage
-   * @param config - BotcMessageConfig object
-   */
   constructor(config: BotcMessageConfig) {
     this.config = config;
     this.botUserId = config.botUserId;
@@ -39,23 +35,13 @@ export class BotcMessage {
     this.initialize();
   }
 
-  /**
-   * Initialize the BotcMessage object
-   */
   private async initialize(): Promise<void> {}
 
-  /**
-   * Add a description for an image attached to the message
-   * @param description - Image description
-   */
   public addImageDescription(description: string): void {
     this._imageDescriptions.push(description);
   }
 
-  /**
-   * Add the context of the message that was replied to for prompt enrichment
-   * @returns Context of the message that was replied to
-   */
+  /** Formats the message being replied to for prompt context. */
   private getMessageReplyContext(): string | undefined {
     if (this.isReply && this.replyToMessage) {
       try {
@@ -98,10 +84,7 @@ export class BotcMessage {
     }
   }
 
-  /**
-   * Get the content of the message for the OpenAI prompt
-   * @returns Prompt content
-   */
+  /** Builds OpenAI prompt content from the message and its metadata. */
   private getPromptContent(): string {
     const createdTimestampLocal = new Date(
       this.createdTimestamp,
@@ -137,10 +120,6 @@ export class BotcMessage {
     return promptContent;
   }
 
-  /**
-   * Resolve tagged users in the message content to their display names
-   * @returns Resolved content
-   */
   private resolveTaggedUsers(): string {
     return this.content.replace(/<@!?(?<userId>\d+)>/g, (match, userId) => {
       const displayName =
@@ -150,10 +129,6 @@ export class BotcMessage {
     });
   }
 
-  /**
-   * Populates a collection of image attachments with metadata from the message
-   * @returns Collection of image attachments
-   */
   public get attachedImages(): BotcMessageImageAttachment[] {
     if (this._attachedImages.length === 0) {
       /**
@@ -167,17 +142,12 @@ export class BotcMessage {
         "image/webp",
       ];
 
-      // Assign any image attachments to the backing variable
       this._attachedImages = this.message.attachments
-
-        // Filter for allowed content types
         .filter(
           (attachment) =>
             attachment.contentType &&
             allowedContentTypes.includes(attachment.contentType),
         )
-
-        // Map matches to backing variable
         .map((attachment) => ({
           contentType: attachment.contentType as string,
           height: attachment.height as number,
@@ -189,26 +159,14 @@ export class BotcMessage {
     return this._attachedImages;
   }
 
-  /**
-   * Message author ID
-   * @returns Author ID
-   */
   public get authorId(): string {
     return this.message.author.id;
   }
 
-  /**
-   * Message channel ID
-   * @returns Channel ID
-   */
   public get channelId(): string {
     return this.message.channel.id;
   }
 
-  /**
-   * Message channel name
-   * @returns Channel name
-   */
   public get channelName(): string {
     switch (true) {
       case this.message.channel.isDMBased():
@@ -224,16 +182,10 @@ export class BotcMessage {
     }
   }
 
-  /**
-   * Message content
-   */
   public get content(): string {
     return this.message.content;
   }
 
-  /**
-   * Message created timestamp
-   */
   public get createdTimestamp(): number {
     return this.message.createdTimestamp;
   }
@@ -246,24 +198,14 @@ export class BotcMessage {
     return this.message.member?.displayName || this.username;
   }
 
-  /**
-   * Message guild ID
-   * @returns Guild ID
-   */
   public get guildId(): string | undefined {
     return this.message.guild?.id;
   }
 
-  /**
-   * Returns true if the message has any attachments
-   */
   public get hasAttachedImages(): boolean {
     return this.attachedImages.length > 0;
   }
 
-  /**
-   * Returns true if the message has any audio attachments
-   */
   public get hasVoiceMessage(): boolean {
     return this.message.attachments.some(
       (attachment) =>
@@ -272,59 +214,34 @@ export class BotcMessage {
     );
   }
 
-  /**
-   * Descriptions of images attached to the message
-   * @returns Image descriptions
-   */
   public get imageDescriptions(): string[] {
     return this._imageDescriptions;
   }
 
-  /**
-   * Message has a mention of the bot
-   */
   public get isAtMention(): boolean {
     return this.message.mentions.has(this.botUserId);
   }
 
-  /**
-   * Message author is a bot
-   */
   public get isBotMessage(): boolean {
     return this.message.author.bot;
   }
 
-  /**
-   * Message is a channel message
-   */
   public get isChannelMessage(): boolean {
     return this.message.channel.type === ChannelType.GuildText;
   }
 
-  /**
-   * Message is a direct message
-   */
   public get isDirectMessage(): boolean {
     return this.message.channel.type === ChannelType.DM;
   }
 
-  /**
-   * Message is from this bot
-   */
   public get isOwnMessage(): boolean {
     return this.message.author.id === this.botUserId;
   }
 
-  /**
-   * Returns true if the message is a reply to another message
-   */
   public get isReply(): boolean {
     return this.message.reference !== null;
   }
 
-  /**
-   * Message is a voice message
-   */
   public get isVoiceMessage(): boolean {
     return this.hasVoiceMessage;
   }
@@ -359,10 +276,6 @@ export class BotcMessage {
     return this._nameSanitized;
   }
 
-  /**
-   * Message that this message is replying to
-   * @returns BotcMessage object, undefined if not a reply
-   */
   public get replyToMessage(): BotcMessage | undefined {
     if (this.isReply && this.message.reference?.messageId) {
       const replyMessageId = this.message.reference.messageId;
@@ -380,36 +293,20 @@ export class BotcMessage {
     return undefined;
   }
 
-  /**
-   * Message author username
-   * @returns Username (not displayname)
-   */
   public get username(): string {
     return this.message.author.username;
   }
 
-  /**
-   * Voice message attachment
-   * @returns Voice message attachment
-   */
   public get voiceMessage(): Attachment | undefined {
     return this.message.attachments.find((attachment) =>
       attachment.contentType?.startsWith("audio/ogg"),
     );
   }
 
-  /**
-   * Voice message transcription
-   * @returns Transcription
-   */
   public get voiceMessageTranscription(): string | undefined {
     return this._voiceMessageTranscription;
   }
 
-  /**
-   * Voice message transcription
-   * @param transcription - Transcription
-   */
   public set voiceMessageTranscription(transcription: string) {
     this._voiceMessageTranscription = transcription;
   }

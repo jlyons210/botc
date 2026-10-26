@@ -21,18 +21,12 @@ import { Logger } from "./Logger/index.ts";
 import { ObjectCache } from "./ObjectCache/index.ts";
 import { Resizer } from "./Resizer/index.ts";
 
-/**
- * Botc core class
- */
 export class Botc {
   private readonly config = new Configuration();
   private readonly globalEvents = EventBus.attach();
   private readonly logger: Logger;
   private readonly modules: BotcModules;
 
-  /**
-   * New Botc
-   */
   constructor() {
     this.logger = new Logger(
       this.config.options.featureGates.enableDebugLogging.value as boolean,
@@ -44,14 +38,20 @@ export class Botc {
         imageDescriptions: new ObjectCache(
           this.config.options.llms.openai.caching.describeImageCacheTtlHours,
           this.config.options.llms.openai.caching.logging,
+          this.config.options.llms.openai.caching.maxEntriesPerCache
+            .value as number,
         ),
         personas: new ObjectCache(
           this.config.options.llms.openai.caching.personaCacheTtlHours,
           this.config.options.llms.openai.caching.logging,
+          this.config.options.llms.openai.caching.maxEntriesPerCache
+            .value as number,
         ),
         transcriptions: new ObjectCache(
           this.config.options.llms.openai.caching.voiceTranscriptCacheTtlHours,
           this.config.options.llms.openai.caching.logging,
+          this.config.options.llms.openai.caching.maxEntriesPerCache
+            .value as number,
         ),
       },
       clients: {
@@ -69,9 +69,6 @@ export class Botc {
     };
   }
 
-  /**
-   * Register event handlers
-   */
   private registerHandlers(): void {
     ["SIGINT", "SIGTERM"].forEach((signal) => {
       process.once(signal, () => {
@@ -105,20 +102,12 @@ export class Botc {
     );
   }
 
-  /**
-   * Handle Brave client ready event
-   * @param data - Brave client ready event data
-   */
   private async handleBraveClientReady(
     data: EventMap["Brave:Ready"],
   ): Promise<void> {
     this.logger.log(data.message, "INFO");
   }
 
-  /**
-   * Handle Discord client ready event
-   * @param data - Discord client ready event data
-   */
   private async handleDiscordClientReady(
     data: EventMap["DiscordClient:Ready"],
   ): Promise<void> {
@@ -126,20 +115,12 @@ export class Botc {
     this.preprocessMultimedia();
   }
 
-  /**
-   * Handle ElevenLabs client ready event
-   * @param data - ElevenLabs client ready event data
-   */
   private async handleElevenLabsClientReady(
     data: EventMap["ElevenLabsClient:Ready"],
   ): Promise<void> {
     this.logger.log(data.message, "INFO");
   }
 
-  /**
-   * Handle incoming Discord message
-   * @param data - Incoming Discord message data
-   */
   private async handleIncomingDiscordMessage(
     data: EventMap["DiscordClient:IncomingMessage"],
   ): Promise<void> {
@@ -199,42 +180,30 @@ export class Botc {
     }
   }
 
-  /**
-   * Handle OpenAI client ready event
-   * @param data - OpenAI client ready event data
-   */
   private async handleOpenAIClientReady(
     data: EventMap["OpenAIClient:Ready"],
   ): Promise<void> {
     this.logger.log(data.message, "INFO");
   }
 
-  /**
-   * Handle application shutdown and clean up resources
-   */
   private handleShutdown(): void {
-    this.modules.caches.imageDescriptions.destroy();
-    this.modules.caches.personas.destroy();
-    this.modules.caches.transcriptions.destroy();
     this.modules.clients.discord.destroy();
   }
 
-  /**
-   * Create prompt payload
-   * @param messageHistory - Channel message history
-   * @param customSystemPrompt - Custom system prompt
-   * @returns Responses API request context
-   */
   private async createPromptPayload(
     messageHistory: BotcMessage[],
     customSystemPrompt?: CustomSystemPrompt,
+    botBehavior?: string,
   ): Promise<OpenAIResponsePayload> {
     const config = this.config.options.llms.openai;
-    const configSystemPrompt = config.systemPrompt;
+    const baseSystemPrompt = (config.systemPrompt.value as string).replaceAll(
+      "{{promptBotBehavior}}",
+      botBehavior ?? (config.promptBotBehavior.value as string),
+    );
 
     const systemPrompt = customSystemPrompt?.append
-      ? [configSystemPrompt.value, customSystemPrompt.value].join("\n")
-      : customSystemPrompt?.value || configSystemPrompt.value;
+      ? [baseSystemPrompt, customSystemPrompt.value].join("\n")
+      : customSystemPrompt?.value || baseSystemPrompt;
 
     return {
       instructions: systemPrompt as string,
@@ -246,9 +215,44 @@ export class Botc {
   }
 
   /**
-   * Describe images in message history
-   * @param messageHistory - Message history
+   * Applies channel topic tags (`#botc:`, `#botc_name:`, `#botc!:`, `#botc!_name:`), one per line.
+   * `!` tags replace the base behavior; others are appended.
    */
+  private resolveChannelBehavior(
+    topic: string | null,
+    botName: string,
+    baseBehavior: string,
+  ): string {
+    const overrides: string[] = [];
+    const additions: string[] = [];
+
+    for (const line of (topic ?? "").split(/\r?\n/)) {
+      const trimmed = line.trim();
+      const colon = trimmed.indexOf(":");
+      if (colon < 0) continue;
+
+      let key = trimmed.slice(0, colon).toLowerCase();
+      if (!key.startsWith("#botc")) continue;
+      key = key.slice("#botc".length);
+
+      const override = key.startsWith("!");
+      if (override) key = key.slice(1);
+
+      if (key.startsWith("_")) {
+        if (key.slice(1) !== botName.toLowerCase()) continue;
+      } else if (key !== "") {
+        continue;
+      }
+
+      const text = trimmed.slice(colon + 1).trim();
+      if (text) (override ? overrides : additions).push(text);
+    }
+
+    return [...(overrides.length ? overrides : [baseBehavior]), ...additions]
+      .filter((text) => text.length > 0)
+      .join(" ");
+  }
+
   private async describeImages(messageHistory: BotcMessage[]): Promise<void> {
     const cache = this.modules.caches.imageDescriptions;
     const openai = this.modules.clients.openai;
@@ -261,29 +265,23 @@ export class Botc {
 
     await Promise.all(
       images.map(async ({ message, image }) => {
-        if (!cache.contains(image.imageUrl)) {
-          const resize = new Resizer(
-            this.config.options.llms.openai.imageMaxSide.value as number,
-          );
-          const imageUrl = await resize.getUrl(image.imageUrl);
-          const description = await openai.generateImageDescription(imageUrl);
+        const description = await cache.getOrCreate(
+          image.imageUrl,
+          async () => {
+            const resize = new Resizer(
+              this.config.options.llms.openai.imageMaxSide.value as number,
+            );
+            const imageUrl = await resize.getUrl(image.imageUrl);
+            return openai.generateImageDescription(imageUrl);
+          },
+        );
 
-          cache.put({
-            key: image.imageUrl,
-            value: description,
-          });
-        }
-
-        message.addImageDescription(cache.get(image.imageUrl) as string);
+        message.addImageDescription(description);
       }),
     );
   }
 
-  /**
-   * Generate grounding context from message history
-   * @param messageHistory - Message history
-   * @returns Grounding context
-   */
+  /** Builds an information query and returns Brave's grounding context when needed. */
   private async generateGroundingContext(
     messageHistory: BotcMessage[],
   ): Promise<string> {
@@ -343,36 +341,41 @@ export class Botc {
     return groundingResponse;
   }
 
-  /**
-   * Generate response message
-   * @param messageHistory - Channel message history
-   * @param persona - Summarized user persona
-   * @returns Response message
-   */
   private async generatePersonalizedResponse(
     messageHistory: BotcMessage[],
     persona: string,
   ): Promise<string> {
     const groundingContext =
       await this.generateGroundingContext(messageHistory);
-    const payload = await this.createPromptPayload(messageHistory, {
-      value: [
-        `<Sender Persona>${persona}</Sender Persona>`,
-        `<Grounding Context>${groundingContext}</Grounding Context>`,
-      ].join("\n"),
-      append: true,
-    });
+    const lastMessage = messageHistory.at(-1) as BotcMessage;
+    const topic = lastMessage.guildId
+      ? await this.modules.clients.discord.getChannelTopic(
+          lastMessage.channelId,
+        )
+      : null;
+    const botBehavior = this.resolveChannelBehavior(
+      topic,
+      this.config.options.clients.discord.botName.value as string,
+      this.config.options.llms.openai.promptBotBehavior.value as string,
+    );
+
+    const payload = await this.createPromptPayload(
+      messageHistory,
+      {
+        value: [
+          `<Sender Persona>${persona}</Sender Persona>`,
+          `<Grounding Context>${groundingContext}</Grounding Context>`,
+        ].join("\n"),
+        append: true,
+      },
+      botBehavior,
+    );
 
     const openai = this.modules.clients.openai;
     return await openai.createResponse(payload);
   }
 
-  /**
-   * Generate a persona for a user based on guild history
-   * @param guildId - Discord guild ID
-   * @param authorId - Discord author ID
-   * @returns Persona
-   */
+  /** Builds and caches a persona from the user's guild message history. */
   private async generateUserPersona(
     guildId: string,
     authorId: string,
@@ -382,7 +385,7 @@ export class Botc {
     const discord = this.modules.clients.discord;
     const openai = this.modules.clients.openai;
 
-    if (!cache.contains(cacheKey)) {
+    return cache.getOrCreate(cacheKey, async () => {
       const guildHistory = await discord.getGuildHistory(guildId, authorId);
       await this.describeImages(guildHistory);
       await this.transcribeVoiceMessages(guildHistory);
@@ -393,22 +396,10 @@ export class Botc {
         append: false,
       });
 
-      const persona = await openai.createResponse(payload);
-
-      cache.put({
-        key: cacheKey,
-        value: persona,
-      });
-    }
-
-    return cache.get(cacheKey) as string;
+      return openai.createResponse(payload);
+    });
   }
 
-  /**
-   * Check if the message is an image generation prompt
-   * @param message - Message to check
-   * @returns true if the message is an image generation prompt
-   */
   private async isImageGenerationPrompt(
     message: BotcMessage,
   ): Promise<boolean> {
@@ -423,10 +414,6 @@ export class Botc {
     return response.toLowerCase() === "yes";
   }
 
-  /**
-   * Prefetch image descriptions for all guilds
-   * @param allGuildsHistory - Message history
-   */
   private async prefetchImageDescriptions(
     allGuildsHistory: BotcMessage[],
   ): Promise<void> {
@@ -435,10 +422,6 @@ export class Botc {
     this.logger.log(`Image description prefetching complete.`, "INFO");
   }
 
-  /**
-   * Prefetch voice transcriptions for all guilds
-   * @param allGuildsHistory - Message history
-   */
   private async prefetchVoiceTranscriptions(
     allGuildsHistory: BotcMessage[],
   ): Promise<void> {
@@ -450,11 +433,6 @@ export class Botc {
     this.logger.log(`Voice transcription prefetching complete.`, "INFO");
   }
 
-  /**
-   * Prepare image response
-   * @param message - Message to prepare
-   * @returns Prepared image attachment
-   */
   private async prepareImageResponse(
     message: BotcMessage,
   ): Promise<AttachmentBuilder> {
@@ -474,25 +452,19 @@ export class Botc {
     });
   }
 
-  /**
-   * Prepare Discord message response
-   * @param channelHistory - Channel message history
-   * @returns Response message
-   */
+  /** Uses a user persona for guild messages and none for direct messages. */
   private async prepareTextResponse(
     channelHistory: BotcMessage[],
   ): Promise<string> {
     const lastMessage = channelHistory.at(-1) as BotcMessage;
 
     if (lastMessage.guildId) {
-      // Respond to channel messages
       const persona = await this.generateUserPersona(
         lastMessage.guildId,
         lastMessage.authorId,
       );
       return await this.generatePersonalizedResponse(channelHistory, persona);
     } else if (lastMessage.isDirectMessage || lastMessage.isVoiceMessage) {
-      // Respond directly to direct messages
       return await this.generatePersonalizedResponse(channelHistory, "");
     } else {
       // This should never happen
@@ -500,11 +472,6 @@ export class Botc {
     }
   }
 
-  /**
-   * Prepare voice response
-   * @param responseText - Response text
-   * @returns Prepared voice attachment
-   */
   private async prepareVoiceResponse(
     responseText: string,
   ): Promise<AttachmentBuilder> {
@@ -523,9 +490,7 @@ export class Botc {
     });
   }
 
-  /**
-   * Preprocess multimedia content types concurrently
-   */
+  /** Prefetches image descriptions and voice transcriptions concurrently for guild history. */
   private async preprocessMultimedia(): Promise<void> {
     const discord = this.modules.clients.discord;
     const allGuildsHistory = await discord.getAllGuildsHistory();
@@ -545,10 +510,6 @@ export class Botc {
     });
   }
 
-  /**
-   * Transcribe a voice message
-   * @param messageHistory - Message history
-   */
   private async transcribeVoiceMessages(
     messageHistory: BotcMessage[],
   ): Promise<void> {
@@ -562,25 +523,20 @@ export class Botc {
           const voiceMessageUrl = message.voiceMessage?.url;
 
           if (voiceMessageUrl) {
-            if (!cache.contains(voiceMessageUrl)) {
-              const fetchedAudio = await fetch(voiceMessageUrl);
-              const audioBuffer = await fetchedAudio.arrayBuffer();
-              const audioFile = new File([audioBuffer], "audio.ogg", {
-                type: "audio/ogg",
-              });
-
-              const transcription =
-                await openai.generateAudioTranscription(audioFile);
-
-              cache.put({
-                key: voiceMessageUrl,
-                value: transcription,
-              });
-            }
-
-            message.voiceMessageTranscription = cache.get(
+            const transcription = await cache.getOrCreate(
               voiceMessageUrl,
-            ) as string;
+              async () => {
+                const fetchedAudio = await fetch(voiceMessageUrl);
+                const audioBuffer = await fetchedAudio.arrayBuffer();
+                const audioFile = new File([audioBuffer], "audio.ogg", {
+                  type: "audio/ogg",
+                });
+
+                return openai.generateAudioTranscription(audioFile);
+              },
+            );
+
+            message.voiceMessageTranscription = transcription;
           }
         }),
     );
@@ -604,7 +560,6 @@ export class Botc {
       append: false,
     });
 
-    // Log payload for debugging
     this.logger.log(
       `Botc.willGroundResponse: Payload for grounding decision: ${JSON.stringify(payload)}`,
       "DEBUG",
@@ -613,14 +568,12 @@ export class Botc {
     const openai = this.modules.clients.openai;
     const responseMessage = await openai.createResponse(payload);
 
-    // Log response for debugging
     this.logger.log(
       `Botc.willGroundResponse: Response from OpenAI: ${responseMessage}`,
       "DEBUG",
     );
 
     try {
-      // Parse JSON response for decision to ground
       const responseJson = JSON.parse(
         responseMessage,
       ) as GroundDecisionResponse;

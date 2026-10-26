@@ -14,9 +14,6 @@ import { EventBus } from "../../Botc/EventBus/index.ts";
 import { Logger } from "../../Botc/Logger/index.ts";
 import OpenAI from "openai";
 
-/**
- * Brave client wrapper
- */
 export class Brave {
   private readonly brave: OpenAI;
   private readonly globalEvents = EventBus.attach();
@@ -24,10 +21,6 @@ export class Brave {
   private braveConfig: BraveSettings;
   private config: ConfigurationOptions;
 
-  /**
-   * New Brave client
-   * @param config - Brave client configuration
-   */
   constructor(config: ConfigurationOptions) {
     this.config = config;
     this.braveConfig = this.config.llms.brave;
@@ -47,10 +40,6 @@ export class Brave {
     });
   }
 
-  /**
-   * Create completion
-   * @param query - Chat completion message
-   */
   public async createGroundingResponse(query: string): Promise<string> {
     try {
       const payload = [
