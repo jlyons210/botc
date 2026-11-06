@@ -256,6 +256,9 @@ export class Botc {
   private async describeImages(messageHistory: BotcMessage[]): Promise<void> {
     const cache = this.modules.caches.imageDescriptions;
     const openai = this.modules.clients.openai;
+    const usesCustomBaseUrl = Boolean(
+      this.config.options.llms.openai.customBaseUrl.value,
+    );
 
     const images = messageHistory
       .filter((message) => message.hasAttachedImages)
@@ -265,13 +268,25 @@ export class Botc {
 
     await Promise.all(
       images.map(async ({ message, image }) => {
+        if (
+          usesCustomBaseUrl &&
+          image.contentType.toLowerCase().startsWith("image/gif")
+        ) {
+          message.addImageDescription(
+            "GIF attachment omitted because the configured vision API does not support GIF input.",
+          );
+          return;
+        }
+
         const description = await cache.getOrCreate(
           image.imageUrl,
           async () => {
             const resize = new Resizer(
               this.config.options.llms.openai.imageMaxSide.value as number,
             );
-            const imageUrl = await resize.getUrl(image.imageUrl);
+            const imageUrl = usesCustomBaseUrl
+              ? await resize.getDataUrl(image.imageUrl)
+              : await resize.getUrl(image.imageUrl);
             return openai.generateImageDescription(imageUrl);
           },
         );

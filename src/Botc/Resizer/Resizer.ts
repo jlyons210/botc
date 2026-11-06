@@ -60,15 +60,46 @@ export class Resizer {
     });
   }
 
+  /**
+   * Prepares an image as a resized PNG data URL.
+   * @param imageUrl - Image URL
+   * @returns PNG data URL
+   */
+  public async getDataUrl(imageUrl: string): Promise<string> {
+    const fetchedImage = await this.fetchImage(imageUrl);
+    if (!fetchedImage) {
+      return "";
+    }
+
+    const { width, height } = await fetchedImage.metadata();
+    if (!width || !height) {
+      return this.encodeImage(fetchedImage);
+    }
+
+    const longestSide = Math.max(width, height);
+    if (longestSide <= this.maxImageSide) {
+      return this.encodeImage(fetchedImage);
+    }
+
+    const scale = this.maxImageSide / longestSide;
+    return this.resizeImage({
+      image: fetchedImage,
+      width: Math.max(1, Math.floor(width * scale)),
+      height: Math.max(1, Math.floor(height * scale)),
+    });
+  }
+
   private async resizeImage(config: ResizeImageConfig): Promise<string> {
-    const resizedImageBuffer = await config.image
-      .resize(config.width, config.height, {
+    return this.encodeImage(
+      config.image.resize(config.width, config.height, {
         fit: "inside",
         withoutEnlargement: true,
-      })
-      .png()
-      .toBuffer();
+      }),
+    );
+  }
 
-    return `data:image/png;base64,${resizedImageBuffer.toString("base64")}`;
+  private async encodeImage(image: Sharp): Promise<string> {
+    const imageBuffer = await image.png().toBuffer();
+    return `data:image/png;base64,${imageBuffer.toString("base64")}`;
   }
 }
