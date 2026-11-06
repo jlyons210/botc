@@ -29,6 +29,8 @@ My intent is for **botc** to engage with chat users in a more human-like fashion
 
 Web grounding and voice replies are disabled by default and require their provider credentials. See [Configuration](#configuration) for setup details.
 
+[View Changelog](doc/CHANGELOG.md)
+
 ## Data Handling
 
 botc uses recent Discord conversation history to decide when to respond and to generate replies. Depending on the message, it sends OpenAI message text and context such as usernames, channel names, timestamps, and reply content. It may also send image attachments for description or editing, voice audio for transcription, and a user's server history to create a personalized summary.
@@ -38,8 +40,6 @@ When AI grounding is enabled and selected for a response, botc sends Brave a sea
 Image descriptions, voice transcriptions, and user summaries are held in in-memory caches with configurable expiration times; restarting botc clears these caches. Enabling `ENABLE_DEBUG_LOGGING` writes detailed OpenAI request payloads and responses to standard logs, which may be retained by your container platform.
 
 This section describes botc's data flows, not provider retention practices. Operators supply their own provider keys and should review the applicable provider terms and settings for their accounts.
-
-[View Changelog](doc/CHANGELOG.md)
 
 ## Configuration
 
