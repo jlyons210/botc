@@ -1,5 +1,5 @@
 ### Dependencies stage
-FROM dhi.io/node:26.12.1-alpine3.23-dev@sha256:1fb4a2757c11fc174d3118363d01d7a7cdcd2b96544083c2a372e12d175bc754 AS deps
+FROM dhi.io/node:26.13.0-alpine3.23-dev@sha256:c6d2bda057e0576fea8fd95c5e8c8d2a86a48d9d5944716835bfcb9651ac53d9 AS deps
 
 # Install dependencies for production stage
 WORKDIR /usr/src/app
@@ -8,7 +8,7 @@ RUN npm ci --omit=dev --ignore-scripts
 
 
 ### Production stage
-FROM dhi.io/node:26.12.1-alpine3.23@sha256:ed0e7626b8b1b5322a31746d7ca476cfd98bc3d3be251e5a074c63be89aa1d53 AS runtime
+FROM dhi.io/node:26.13.0-alpine3.23@sha256:70cce99a217e33fe3943492824c6bae963013913c389564278350ced8bcc3492 AS runtime
 ENV NODE_ENV=production
 
 LABEL org.opencontainers.image.authors="Jeremy Lyons <jlyons210@gmail.com>" \

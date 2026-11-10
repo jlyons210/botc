@@ -15,6 +15,8 @@ export type OpenAIResponsePayload = {
 
 export class OpenAIClient {
   private readonly client: OpenAI;
+  private readonly responseClient: OpenAI;
+  private readonly responseModel: string;
   private readonly globalEvents = EventBus.attach();
   private readonly logger: Logger;
   private openAIConfig: OpenAISettings;
@@ -35,8 +37,23 @@ export class OpenAIClient {
       timeout: this.openAIConfig.timeout.value as number,
     });
 
+    const customBaseUrl = this.openAIConfig.customBaseUrl.value as string;
+
+    // Local servers typically ignore the key, but the SDK requires one.
+    this.responseClient = customBaseUrl
+      ? new OpenAI({
+          apiKey: "local",
+          baseURL: customBaseUrl,
+          maxRetries: this.openAIConfig.maxRetries.value as number,
+          timeout: this.openAIConfig.timeout.value as number,
+        })
+      : this.client;
+
     this.imageModel = this.openAIConfig.imageModel.value as string;
     this.model = this.openAIConfig.model.value as string;
+    this.responseModel = customBaseUrl
+      ? (this.openAIConfig.customModel.value as string)
+      : this.model;
 
     this.globalEvents.emit("OpenAIClient:Ready", {
       message: "OpenAI client is ready.",
@@ -50,8 +67,8 @@ export class OpenAIClient {
    */
   public async createResponse(payload: OpenAIResponsePayload): Promise<string> {
     try {
-      const response = await this.client.responses.create({
-        model: this.model,
+      const response = await this.responseClient.responses.create({
+        model: this.responseModel,
         instructions: payload.instructions,
         input: payload.input,
         reasoning: {
@@ -177,7 +194,11 @@ export class OpenAIClient {
           role: "user",
           content: [
             { type: "input_text", text: describeImagePrompt },
-            { type: "input_image", image_url: imageUrl, detail: "auto" },
+            {
+              type: "input_image",
+              image_url: imageUrl,
+              detail: "auto",
+            },
           ],
         },
       ],
