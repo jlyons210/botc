@@ -4,6 +4,7 @@
 
 ## Pre-release
 
+- 0.29.x: [0.29.0](#0290-2026-11-13)
 - 0.28.x: [0.28.0](#0280-2026-11-10)
 - 0.27.x: [0.27.0](#0270-2026-10-25)
 - 0.26.x: [0.26.0](#0260-2026-10-25)
@@ -34,6 +35,14 @@
 - 0.1.x: [0.1.0](#010-2025-01-24)
 
 ---
+
+## 0.29.0 (2026-11-13)
+
+- Added `gpt-image-2.6-flare` and `gpt-image-2.6-sunburst` model support.
+- Changed `OPENAI_IMAGE_MODEL` default from `gpt-image-2.5-sunburst` to `gpt-image-2.6-sunburst`.
+- Updated dependencies and CI action versions.
+
+[:arrow_up: Back to top](#changelog)
 
 ## 0.28.0 (2026-11-10)
 

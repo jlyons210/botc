@@ -291,8 +291,13 @@ export const ConfigurationDefaults: ConfigurationOptions = {
        */
       imageModel: {
         environmentVariable: "OPENAI_IMAGE_MODEL",
-        options: ["gpt-image-2.5-flare", "gpt-image-2.5-sunburst"],
-        value: "gpt-image-2.5-sunburst",
+        options: [
+          "gpt-image-2.5-flare",
+          "gpt-image-2.5-sunburst",
+          "gpt-image-2.6-flare",
+          "gpt-image-2.6-sunburst",
+        ],
+        value: "gpt-image-2.6-sunburst",
       },
 
       /** Maximum input image side in pixels before resizing for vision requests. */
