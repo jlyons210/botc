@@ -64,7 +64,7 @@ Configure botc through environment variables. Start with the prerequisites and r
 | `OPENAI_DESCRIBE_IMAGE_PROMPT`     | [Source](https://github.com/jlyons210/botc/blob/main/src/Botc/Configuration/Configuration.defaults.ts) | Prompt used to describe attached images.                                                                                                                                          |
 | `OPENAI_GROUND_DECISION_PROMPT`    | [Source](https://github.com/jlyons210/botc/blob/main/src/Botc/Configuration/Configuration.defaults.ts) | Prompt used to reason whether or not the bot should ground its response using the Brave Grounded AI API.                                                                          |
 | `OPENAI_IMAGE_MAX_SIDE`            | `4096`                                                                                                 | Maximum image side in pixels before resizing for image-description requests.                                                                                                      |
-| `OPENAI_IMAGE_MODEL`               | `gpt-image-2.5-sunburst`                                                                               | OpenAI model to use for image generations and edits.                                                                                                                              |
+| `OPENAI_IMAGE_MODEL`               | `gpt-image-2.6-sunburst`                                                                               | OpenAI model to use for image generations and edits.                                                                                                                              |
 | `OPENAI_MAX_RETRIES`               | `3`                                                                                                    | Number of OpenAI API retries on retriable errors.                                                                                                                                 |
 | `OPENAI_MODEL`                     | `gpt-6-luna`                                                                                           | OpenAI model to use for chat responses.                                                                                                                                           |
 | `OPENAI_MODEL_REASONING_EFFORT`    | `none`                                                                                                 | Reasoning effort the OpenAI model will use.                                                                                                                                       |
@@ -105,7 +105,7 @@ Bot names are matched case-insensitively against `DISCORD_BOT_NAME`. When severa
 
 ## Deployment
 
-The published image supports `amd64` and `arm64` and is available from [GitHub Container Registry](https://github.com/jlyons210/botc/pkgs/container/botc). The examples pin version `0.28.0`; change the tag when upgrading.
+The published image supports `amd64` and `arm64` and is available from [GitHub Container Registry](https://github.com/jlyons210/botc/pkgs/container/botc). The examples pin version `0.29.0`; change the tag when upgrading.
 
 ### Docker
 
@@ -124,7 +124,7 @@ docker run --detach \
   --name botc \
   --restart unless-stopped \
   --env-file ./botc.env \
-  ghcr.io/jlyons210/botc:0.28.0
+  ghcr.io/jlyons210/botc:0.29.0
 ```
 
 Docker pulls the image automatically when it is not already available locally.
@@ -165,7 +165,7 @@ spec:
     spec:
       containers:
         - name: botc
-          image: ghcr.io/jlyons210/botc:0.28.0
+          image: ghcr.io/jlyons210/botc:0.29.0
           imagePullPolicy: IfNotPresent
           envFrom:
             - secretRef:
