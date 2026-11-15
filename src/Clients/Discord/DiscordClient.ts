@@ -1,4 +1,4 @@
-import type { Guild, Message, TextChannel } from "discord.js";
+import type { Guild, Message } from "discord.js";
 import {
   ChannelType,
   Client,
@@ -100,12 +100,12 @@ export class DiscordClient {
 
     const channel = await this.discordClient.channels.fetch(channelId);
 
-    if (channel && channel.isTextBased()) {
+    if (channel?.isSendable()) {
       let errorCount = 0;
 
       while (errorCount < maxRetries) {
         try {
-          await (channel as TextChannel).send({
+          await channel.send({
             content: content,
             files: attachments,
           });
@@ -128,8 +128,8 @@ export class DiscordClient {
     data: EventMap["DiscordClient:StartTyping"],
   ): Promise<void> {
     const channel = await this.discordClient.channels.fetch(data.channelId);
-    if (channel?.isTextBased()) {
-      await (channel as TextChannel).sendTyping();
+    if (channel?.isSendable()) {
+      await channel.sendTyping();
     }
   }
 
